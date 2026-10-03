@@ -283,7 +283,7 @@ footer{padding:8px 16px 40px;font-size:12px;color:var(--label2);line-height:1.5}
   <div class="wrap">
     <div class="side-l"><div class="brand"><span class="logo" aria-hidden="true">🧋</span>Taiwan Trip</div></div>
     <div class="seg navseg" role="tablist">
-      <button data-act="tab" data-tab="plan">Plan</button><button data-act="tab" data-tab="explore">Explore</button><button data-act="tab" data-tab="compare">Transport</button><button data-act="tab" data-tab="trip">Trip</button>
+      <button data-act="tab" data-tab="plan">Plan</button><button data-act="tab" data-tab="explore">Explore</button><button data-act="tab" data-tab="compare">Transport</button><button data-act="tab" data-tab="trip">Trip</button><button data-act="tab" data-tab="guide">Guide</button>
     </div>
     <div class="side-r"><button class="navbtn" data-act="settings">Settings</button></div>
   </div>
@@ -295,6 +295,7 @@ footer{padding:8px 16px 40px;font-size:12px;color:var(--label2);line-height:1.5}
   <button data-act="tab" data-tab="explore"><span class="ti">🧭</span>Explore</button>
   <button data-act="tab" data-tab="compare"><span class="ti">🚆</span>Transport</button>
   <button data-act="tab" data-tab="trip"><span class="ti">💰</span>Trip</button>
+  <button data-act="tab" data-tab="guide"><span class="ti">📱</span>Guide</button>
 </div>
 <div id="printDoc"></div>
 <div id="sw" class="sw hide"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
@@ -1419,7 +1420,7 @@ function render(){
   syncDays();
   document.querySelectorAll('[data-act="tab"]').forEach(b=>b.classList.toggle('on',b.dataset.tab===S.tab));
   const m=$('#main');
-  m.innerHTML=S.tab==='plan'?renderPlan():S.tab==='explore'?renderExplore():S.tab==='compare'?renderCompare():renderTrip();
+  m.innerHTML=S.tab==='plan'?renderPlan():S.tab==='explore'?renderExplore():S.tab==='compare'?renderCompare():S.tab==='guide'?renderGuide():renderTrip();
   fillImgs(m);
   if(S.tab==='plan')drawMap();
   renderSheet();
@@ -1586,6 +1587,72 @@ function renderCompare(){
       s:fmtDur(o.min)+' · '+(o.perCar?'per car':'NT$'+o.pp.toLocaleString()+' per person')+(o.note?' · '+esc(o.note):'')+(o.book?' · <a href="'+o.book+'" target="_blank" rel="noopener">Book ↗</a>':''),v:money(o.gc)})).join('')+'</div>';
   h+='<p class="sec-f">Fares are approximate. “Best for you” uses your budget style (Settings).</p>';
   h+='<a class="btn-tint" href="'+gmDir(A,B,'transit')+'" target="_blank" rel="noopener">Live timetable in Google Maps</a>';
+  return h;
+}
+
+/* ---------- GUIDE ---------- */
+const GUIDE=[
+ {h:'Apps to install before you fly',items:[
+  ['🗺️','Google Maps','Best all-round route planner: MRT, buses, trains and walking, with live times. Download the offline map of Taipei before you go.'],
+  ['🚇','Go! Taipei Metro (台北捷運Go)','Official Taipei MRT app: route planner, fares, first/last trains and station exits.'],
+  ['🚄','T Express (台灣高鐵)','Book high-speed rail (HSR) tickets and get a QR-code ticket on your phone.'],
+  ['🚆','台鐵e訂通 (Taiwan Railway e-booking)','Book regular TRA trains, e.g. Taipei → Hualien. Seats on express trains sell out, so book early.'],
+  ['🚲','YouBike 2.0','Rent city bikes. As a visitor choose “Single Rental” and add a credit card (a NT$3,000 hold) to unlock bikes by scanning the QR code. No local SIM needed.'],
+  ['🚕','Uber / 55688 Taiwan Taxi','Uber works in big cities. 55688 is the main taxi app (Taiwan Taxi). Yellow taxis can also be flagged on the street.'],
+  ['💬','LINE','Taiwan’s main messaging app: hotels, tour guides and shops often reply on LINE rather than WhatsApp.'],
+  ['🔤','Google Translate','Use camera mode to read menus and signs. Download Chinese (Traditional) for offline use.'],
+  ['🌀','Windy or the CWA weather app (生活氣象)','Rain radar and typhoon warnings, which matter from July to October.'],
+  ['🥾','Hiking Biji (健行筆記)','Trail conditions and closures from Taiwanese hikers. Handy alongside this planner’s hike notes.'],
+  ['🎟️','Klook / KKday','Discounted attraction tickets, airport SIM/eSIM pick-up, HSR passes and day tours.']]},
+ {h:'EasyCard (悠遊卡): your transport card',items:[
+  ['💳','What it is','A stored-value card for the MRT, city buses, local TRA trains, YouBike, convenience stores and many shops. iPASS (一卡通) works the same way, so either is fine.'],
+  ['🛒','Where to buy','At the airport (often a bundle with some credit preloaded), MRT station machines and service desks, or any 7-Eleven / FamilyMart. The card itself costs NT$100 and that fee isn’t refunded.'],
+  ['➕','How to top up (加值, jiā zhí)','With cash at the MRT “Add Value” machines or at a convenience-store counter: hand over the card and say “jiā zhí”.'],
+  ['👆','How to use it','Tap at the gate going in AND coming out. On buses, check the sign: tap when boarding (上車刷卡), when getting off (下車刷卡), or both.'],
+  ['💰','Why it’s worth it','MRT rides are about 20% cheaper than single-journey tokens, and switching between MRT and bus within an hour saves NT$8.'],
+  ['↩️','Leftover balance','You can get the remaining balance back at an MRT information desk (small handling fee), or spend it at 7-Eleven on your last day.'],
+  ['📱','Phone & credit-card tap','Taipei MRT planned to accept tapping a credit card, Apple Pay or Google Pay at the gates from July 2026. Look for the card logo on the gate, but keep an EasyCard as backup.']]},
+ {h:'Riding the MRT',items:[
+  ['🚪','Exits matter','Big stations have many numbered exits, sometimes far apart. This planner shows the best exit for each stop.'],
+  ['🚫','No eating or drinking','Not even water or gum past the yellow line in stations or on trains. Fines are NT$1,500–7,500.'],
+  ['🧍','Escalators','In Taipei, stand on the right and keep the left free for walkers. Queue in the marked lines on the platform.'],
+  ['💺','Priority seats','The dark-blue seats are for elderly, pregnant and disabled passengers. Locals keep them empty even when the train is full.'],
+  ['🌙','Last trains','Most lines run until around midnight. Check the app if you’re out late, or take a taxi or Uber back.']]},
+ {h:'Trains between cities',items:[
+  ['🚄','High-speed rail (HSR)','West coast only: Taipei, Taichung, Chiayi, Tainan, Zuoying (Kaohsiung). Book in the T Express app or at station machines. Several stations are outside the city centre, so add a shuttle. Ask about foreign-visitor passes.'],
+  ['🚆','Regular trains (TRA)','East coast and everything else. Express trains (Puyuma, Taroko, Tze-Chiang) need a reserved seat; tickets open 28 days ahead and sell out on weekends. Local trains: just tap your EasyCard.'],
+  ['🧳','Luggage','There’s space at the ends of each carriage. Coin lockers are available at major stations.']]},
+ {h:'Internet & money',items:[
+  ['📶','SIM / eSIM','Buy a tourist SIM with unlimited data at the airport arrivals counters (Chunghwa Telecom, Taiwan Mobile, FarEasTone), or an eSIM before you fly.'],
+  ['🛜','Free Wi-Fi','iTaiwan free Wi-Fi is at train stations, government buildings and tourist sites; convenience stores and cafés also have Wi-Fi.'],
+  ['💵','Cash','Night markets, small eateries and old shops are often cash only. ATMs in 7-Eleven accept international cards.'],
+  ['💳','Cards & phone pay','Credit cards work in malls, hotels, chains and HSR. Apple Pay / Google Pay with a foreign card works in many chains.'],
+  ['🙅','Tipping','Not expected. Some restaurants add a 10% service charge.']]},
+ {h:'Convenience stores can do (almost) everything',items:[
+  ['🏪','7-Eleven & FamilyMart','Top up EasyCard, buy SIM cards, heat meals (they’ll microwave your bento), print documents, and pay bills.'],
+  ['🎫','Ticket kiosks','The ibon (7-Eleven) and FamiPort (FamilyMart) machines sell tickets and let you print. Staff can help.'],
+  ['🚻','Toilets','Free and clean toilets are in every MRT station and most malls. Convenience stores often don’t have public ones.']]},
+ {h:'Good to know (especially from Indonesia)',items:[
+  ['🔌','Plugs & voltage','Taiwan uses 110 V with flat-pin plugs (Type A/B). Indonesia uses 230 V round pins, so bring an adapter, and check that chargers say “100–240 V” (most phone and laptop chargers do). Don’t plug in 230 V-only hair dryers.'],
+  ['🗑️','Rubbish','Public bins are rare. Carry a small bag and use bins at convenience stores or MRT stations.'],
+  ['🚰','Water','Don’t drink tap water unboiled. Use the free filtered-water dispensers in stations and hotels.'],
+  ['🕌','Muslim travellers','Look for “Muslim friendly” or halal-certified restaurants. Taoyuan Airport and some major stations (e.g. Taipei Main Station) have prayer rooms. Taipei Grand Mosque is near Da’an Park.'],
+  ['🛵','Crossing streets','Scooters turn fast at junctions, even on a green man. Look both ways.'],
+  ['🇮🇩','Indonesian help','KDEI Taipei (Kantor Dagang dan Ekonomi Indonesia) is the Indonesian representative office for passport or consular issues.']]},
+ {h:'Emergencies',items:[
+  ['🚓','110','Police'],
+  ['🚑','119','Fire and ambulance'],
+  ['☎️','0800-011-765','Free 24-hour tourist hotline in English (also Mandarin, Japanese, Korean).']]},
+ {h:'Handy Mandarin',items:[
+  ['🙏','謝謝 · xièxie','Thank you'],['💲','多少錢？ · duōshǎo qián?','How much?'],['👉','我要這個 · wǒ yào zhège','I want this one'],
+  ['🌶️','不要辣 · bú yào là','Not spicy, please'],['🐷','不要豬肉 · bú yào zhūròu','No pork, please'],['🥬','素食 · sùshí','Vegetarian'],
+  ['🥡','內用 / 外帶 · nèiyòng / wàidài','Eat here / take away'],['➕','加值 · jiā zhí','Top up (EasyCard)'],['🚻','廁所在哪裡？ · cèsuǒ zài nǎlǐ?','Where is the toilet?']]}
+];
+function renderGuide(){
+  let h='<div class="titlebar"><div><div class="eyebrow">Apps, cards & how things work</div><h1 class="large">Guide</h1></div></div>';
+  h+='<p class="lead">Everything a first-timer needs to get around Taiwan: which apps to install, how the EasyCard and MRT work, booking trains, internet, money and etiquette.</p>';
+  h+=GUIDE.map((sec,si)=>'<div class="sec-h">'+esc(sec.h)+'</div><div class="list">'+sec.items.map(([ic,t,d])=>'<div class="row ir" style="align-items:flex-start">'+ibox(ic,'var(--fill)')+'<span class="tx"><span class="t" style="font-weight:600">'+esc(t)+'</span><span class="s" style="font-size:14px;line-height:1.45;color:var(--label)">'+esc(d)+'</span></span></div>').join('')+'</div>').join('');
+  h+='<p class="sec-f" style="margin-top:-8px">Sources: <a href="https://www.taipeitourism.org/easycard-taipei/" target="_blank" rel="noopener">EasyCard guide</a> · <a href="https://www.taipeitravelgeek.com/taipei-youbike" target="_blank" rel="noopener">YouBike for visitors</a> · <a href="https://focustaiwan.tw/business/202512070008" target="_blank" rel="noopener">Taipei MRT credit-card payment (Focus Taiwan)</a> · <a href="https://eng.taiwan.net.tw/m1.aspx?sNo=0029016" target="_blank" rel="noopener">Tourism Administration travel info</a>. Rules and prices change, so check before you go.</p>';
   return h;
 }
 
