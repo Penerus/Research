@@ -1,0 +1,1319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taiwan Trip Planner</title>
+<meta name="description" content="Day-by-day Taiwan itinerary planner for first-timers: meals, sights, hikes, MRT exits, transport options and costs in NT$ and Rupiah.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧋</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --bg:#f5f2ec;--card:#ffffff;--ink:#1c2220;--muted:#66706b;--line:#e2ddd2;
+  --accent:#c8102e;--accent-ink:#ffffff;--teal:#0f6e5c;--soft:#faf6ee;
+  --warn:#fff3d1;--warnline:#e3bd58;--chip:#f0ece4;--chip-on:#1c2220;--chip-on-ink:#fff;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 6px 18px rgba(0,0,0,.05);
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111413;--card:#1a1f1d;--ink:#e8ece9;--muted:#9ba59f;--line:#2b3330;
+    --accent:#ff5c70;--accent-ink:#1a0005;--teal:#52c9aa;--soft:#1f2421;
+    --warn:#2b2715;--warnline:#7d6728;--chip:#252c29;--chip-on:#e8ece9;--chip-on-ink:#111413;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111413;--card:#1a1f1d;--ink:#e8ece9;--muted:#9ba59f;--line:#2b3330;
+  --accent:#ff5c70;--accent-ink:#1a0005;--teal:#52c9aa;--soft:#1f2421;
+  --warn:#2b2715;--warnline:#7d6728;--chip:#252c29;--chip-on:#e8ece9;--chip-on-ink:#111413;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans TC",sans-serif}
+a{color:var(--teal)}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+small,.muted{color:var(--muted)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+
+/* header */
+header{background:var(--card);border-bottom:1px solid var(--line)}
+.hrow{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding:14px 0}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:42px;height:42px;border-radius:12px;background:var(--accent);display:grid;place-items:center;font-size:22px}
+.brand h1{font-size:19px;margin:0;letter-spacing:-.01em}
+.brand p{margin:0;font-size:13px;color:var(--muted)}
+.settings{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.settings label{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.inp,select.inp{background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:6px 8px;min-height:34px}
+.seg{display:inline-flex;background:var(--chip);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;padding:5px 10px;border-radius:8px;font-size:13px}
+.seg button.on{background:var(--chip-on);color:var(--chip-on-ink)}
+.conv{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 0 12px;font-size:13px;color:var(--muted)}
+.conv input{width:120px}
+.conv #sRate{width:90px}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--muted)}
+
+/* tabs */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px}
+.tabs button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;white-space:nowrap}
+.tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.daytabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0;scrollbar-width:thin}
+.daytabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:6px 12px;text-align:left;line-height:1.25}
+.daytabs button small{display:block;font-size:11px}
+.daytabs button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.daytabs button.on b{color:var(--accent)}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.dayhead{padding:16px;display:grid;gap:12px}
+.dayhead h2{margin:0;font-size:22px;letter-spacing:-.01em}
+.dayhead h2 small{font-size:14px;font-weight:500}
+.drow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dayhead > *,.drow > *{min-width:0;max-width:100%}
+select.inp{max-width:100%}
+#tplSel{width:100%}
+.drow > .lbl{font-size:13px;color:var(--muted);min-width:110px}
+.ptbox{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ptlabel{font-weight:600}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:9px;padding:6px 10px;font-size:13px;min-height:34px}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.sm{padding:3px 8px;min-height:28px;font-size:12px}
+.btn.ghost{background:transparent;border-color:transparent}
+.hide{display:none!important}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;margin-top:16px;align-items:start}
+@media (max-width:920px){.grid2{grid-template-columns:1fr}}
+.side{position:sticky;top:10px;display:grid;gap:12px}
+@media (max-width:920px){.side{position:static}}
+
+/* suggestions */
+.sugs{display:grid;gap:8px;margin-top:16px}
+.sug{background:var(--warn);border:1px solid var(--warnline);border-radius:12px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.sug .t{flex:1 1 320px}
+.sug .acts{display:flex;flex-wrap:wrap;gap:6px}
+
+/* timeline */
+.tl{display:grid;gap:0;margin-top:4px}
+.stop{display:grid;grid-template-columns:92px minmax(0,1fr) 92px;gap:12px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+@media (max-width:640px){.stop{grid-template-columns:76px minmax(0,1fr)}.stop .thumb{display:none}}
+.stop .time select{width:100%;font-weight:700;font-size:16px;padding:4px 2px}
+.stop .time .calc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35}
+.stop .time .auto{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--teal)}
+.stop .top{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.stop select.kind{max-width:150px}
+.stop select.place{flex:1 1 220px;min-width:0;font-weight:600}
+.stop .meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--muted);margin-top:8px}
+.stop .meta b{color:var(--ink);font-weight:600}
+.stop .desc{font-size:13.5px;margin-top:6px}
+.stop .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.thumb{width:92px;height:92px;border-radius:12px;background:var(--chip) center/cover no-repeat;display:grid;place-items:center;font-size:28px;cursor:pointer;overflow:hidden}
+.thumb.has{font-size:0}
+.issue{color:#b5462b;font-weight:600}
+:root[data-theme="dark"] .issue{color:#ff9b7d}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .issue{color:#ff9b7d}}
+.star{color:#d4a017}
+
+.leg{margin:0 0 0 46px;border-left:3px dashed var(--line);padding:10px 0 10px 18px;font-size:13px}
+@media (max-width:640px){.leg{margin-left:20px}}
+.leg .main{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.leg .main b{font-size:14px}
+.leg .opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:4px 10px;font-size:12.5px}
+.chip.on{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
+.chip .rec{color:#d4a017}
+.leg .how{margin-top:8px;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.leg .how ol{margin:4px 0 0;padding-left:18px}
+.inter-badge{background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700;letter-spacing:.03em}
+
+.addrow{display:flex;justify-content:center;margin:14px 0}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+
+/* side */
+.sum{padding:14px}
+.sum h3{margin:0 0 8px;font-size:15px}
+.sum table{width:100%;border-collapse:collapse;font-size:13.5px}
+.sum td{padding:4px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.sum td:last-child{text-align:right}
+.sum tr.tot td{font-weight:700;border-bottom:0;padding-top:8px;font-size:15px}
+.idr{color:var(--muted);font-weight:400;font-size:.92em;white-space:nowrap}
+#map{height:320px;border-radius:var(--r);border:1px solid var(--line)}
+.mapnum{background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;display:grid;place-items:center;font-weight:700;font-size:12px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.mapnum.s{background:#1c2220}
+
+/* explore */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.pcard{overflow:hidden;display:flex;flex-direction:column}
+.pcard .img{height:140px;background:var(--chip) center/cover no-repeat;display:grid;place-items:center;font-size:40px;cursor:pointer}
+.pcard .img.has{font-size:0}
+.pcard .b{padding:12px;display:grid;gap:6px;flex:1}
+.pcard h4{margin:0;font-size:15px}
+.pcard .d{font-size:13px;color:var(--muted)}
+.pcard .f{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:auto}
+
+/* compare */
+.cmp{padding:16px;margin-top:16px}
+.copt{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.copt .ic{font-size:26px;text-align:center}
+.copt .r{text-align:right;font-weight:700}
+.badge{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:4px;background:var(--chip)}
+.badge.f{background:#dff3ec;color:#0b5b4b}.badge.c{background:#e6efff;color:#1d4fa8}.badge.b{background:#fff0c7;color:#7a5600}
+
+/* trip */
+.trip{padding:16px;margin-top:16px;overflow-x:auto}
+.trip table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+.trip th,.trip td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
+.trip th:first-child,.trip td:first-child,.trip th:nth-child(2),.trip td:nth-child(2){text-align:left}
+.trip tfoot td{font-weight:700}
+.tips{padding:16px;margin-top:16px}
+.tips li{margin:6px 0}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;padding:16px;z-index:5000}
+.sheet{background:var(--card);color:var(--ink);border-radius:18px;max-width:720px;width:100%;max-height:90vh;overflow:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.sheet .x{position:sticky;top:8px;float:right;margin:8px;border:0;background:var(--chip);border-radius:50%;width:34px;height:34px;font-size:18px;z-index:2}
+.hero{height:260px;background:var(--chip) center/cover no-repeat;display:grid;place-items:center;font-size:54px}
+.hero.has{font-size:0}
+.pv{padding:16px 20px 20px;display:grid;gap:10px}
+.pv h3{margin:0;font-size:22px}
+.pv .cap{font-size:11px;color:var(--muted)}
+.pv iframe{width:100%;height:240px;border:0;border-radius:12px}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:4px 12px;font-size:14px}
+.kv div:nth-child(odd){color:var(--muted)}
+.ask{padding:20px;display:grid;gap:12px}
+.ask h3{margin:0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:6000;font-size:14px;max-width:90vw}
+footer{padding:30px 0 40px;font-size:12.5px;color:var(--muted)}
+
+@media print{
+  header .settings,header .conv,.tabs,.daytabs,.btns,.btn,.opts,.sugs,#map,.addrow,select.kind{display:none!important}
+  body{background:#fff}
+  .card,.stop{box-shadow:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="hrow">
+      <div class="brand">
+        <div class="logo">🧋</div>
+        <div><h1>Taiwan Trip Planner</h1><p>First-timer itinerary · up to 14 days · NT$ ⇄ Rupiah</p></div>
+      </div>
+      <div class="settings">
+        <label>Start <input type="date" id="sDate" class="inp"></label>
+        <label>Days <select id="sDays" class="inp"></select></label>
+        <label>People <select id="sTrav" class="inp"></select></label>
+        <div class="seg" id="sBudget" title="Budget style — changes which routes are recommended">
+          <button data-b="saver">💸 Saver</button><button data-b="balanced">⚖️ Balanced</button><button data-b="comfort">💎 Comfort</button>
+        </div>
+        <div class="seg" id="sCur" title="Currency shown">
+          <button data-c="ntd">NT$</button><button data-c="idr">Rp</button><button data-c="both">Both</button>
+        </div>
+      </div>
+    </div>
+    <div class="conv">
+      <span>1 NT$ = Rp</span><input id="sRate" class="inp" type="number" step="0.01" min="1">
+      <button class="btn sm" id="rateBtn">↻ Live rate</button><span id="rateInfo" class="pill"></span>
+      <span style="margin-left:8px">Converter:</span>
+      <input id="cNT" class="inp" type="number" placeholder="NT$" min="0"><span>⇄</span><input id="cRP" class="inp" type="number" placeholder="Rp" min="0">
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="tabs" id="tabs">
+    <button data-tab="plan">🗓️ Planner</button>
+    <button data-tab="explore">📸 Explore places</button>
+    <button data-tab="compare">🚄 Compare transport</button>
+    <button data-tab="trip">💰 Trip total &amp; tips</button>
+  </nav>
+  <main id="main"></main>
+  <footer>
+    Prices, opening hours and fares are estimates (2026) for planning only. Check Google Maps or the official sites before you go, especially in Hualien and Taroko, where some roads and trails have been closed since the 2024 earthquake and recent typhoons.
+    Photos are from Wikipedia. Maps © OpenStreetMap contributors. Your plan is saved only in this browser.
+  </footer>
+</div>
+
+<div id="modal" class="modal hide"><div class="sheet"><button class="x" data-act="closeModal" aria-label="Close">×</button><div id="modalBody"></div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+"use strict";
+/* ================= DATA ================= */
+const TRA='https://tip.railway.gov.tw/', HSR='https://www.thsrc.com.tw/';
+
+const KINDS={
+  breakfast:{l:'Breakfast',i:'🍳'}, lunch:{l:'Lunch',i:'🍜'}, dinner:{l:'Dinner',i:'🍽️'},
+  snack:{l:'Snack / café',i:'🧋'}, sight:{l:'Sightseeing',i:'📸'}, hike:{l:'Hike / nature',i:'🥾'},
+  night:{l:'Evening',i:'🏮'}, travel:{l:'Airport',i:'✈️'}, rest:{l:'Hotel / rest',i:'🛏️'}
+};
+const RANK={breakfast:1,sight:3,hike:3,snack:3,travel:3,lunch:4,rest:5,dinner:6,night:7};
+
+const REG={
+  tpe:{n:'Taoyuan Airport',zh:'桃園',hub:'Taoyuan Airport (TPE)',hubq:'桃園國際機場',lat:25.0797,lng:121.2342},
+  taipei:{n:'Taipei',zh:'台北',hub:'Taipei Main Station',hubq:'台北車站',lat:25.0478,lng:121.5170,mrt:'tpe'},
+  north:{n:'Jiufen · Shifen · Keelung',zh:'新北',hub:'Ruifang Station',hubq:'瑞芳車站',lat:25.1085,lng:121.8060},
+  yilan:{n:'Yilan',zh:'宜蘭',hub:'Yilan Station',hubq:'宜蘭車站',lat:24.7545,lng:121.7580},
+  hualien:{n:'Hualien & Taroko',zh:'花蓮',hub:'Hualien Station',hubq:'花蓮車站',lat:23.9930,lng:121.6011},
+  chishang:{n:'Chishang',zh:'池上',hub:'Chishang Station',hubq:'池上車站',lat:23.1250,lng:121.2190},
+  taitung:{n:'Taitung',zh:'台東',hub:'Taitung Station',hubq:'台東車站',lat:22.7935,lng:121.1230},
+  kaohsiung:{n:'Kaohsiung',zh:'高雄',hub:'Kaohsiung Main Station',hubq:'高雄車站',lat:22.6390,lng:120.3025,mrt:'khh'},
+  kenting:{n:'Kenting',zh:'墾丁',hub:'Kenting Main Street',hubq:'墾丁大街',lat:21.9450,lng:120.7980},
+  tainan:{n:'Tainan',zh:'台南',hub:'Tainan Station',hubq:'台南車站',lat:22.9971,lng:120.2128},
+  chiayi:{n:'Chiayi',zh:'嘉義',hub:'Chiayi Station',hubq:'嘉義車站',lat:23.4790,lng:120.4410},
+  alishan:{n:'Alishan',zh:'阿里山',hub:'Alishan Station',hubq:'阿里山車站',lat:23.5100,lng:120.8040},
+  sml:{n:'Sun Moon Lake & Cingjing',zh:'日月潭',hub:'Shuishe Pier (Sun Moon Lake)',hubq:'水社碼頭',lat:23.8660,lng:120.9110},
+  taichung:{n:'Taichung',zh:'台中',hub:'Taichung Station',hubq:'台中車站',lat:24.1370,lng:120.6860}
+};
+const BASES=['taipei','north','yilan','hualien','chishang','taitung','kaohsiung','kenting','tainan','chiayi','alishan','sml','taichung'];
+const NEAR={
+  taipei:['taipei','north','yilan','tpe'], north:['north','taipei','yilan'], yilan:['yilan','north','taipei'],
+  hualien:['hualien'], chishang:['chishang','taitung','hualien'], taitung:['taitung','chishang'],
+  kaohsiung:['kaohsiung','tainan'], kenting:['kenting','kaohsiung'], tainan:['tainan','kaohsiung','chiayi'],
+  chiayi:['chiayi','alishan','tainan'], alishan:['alishan','chiayi'], sml:['sml','taichung'],
+  taichung:['taichung','sml'], tpe:['tpe','taipei']
+};
+
+/* MRT stations (approx coords) */
+const MRT={
+  'Shandao Temple':{s:'tpe',l:['BL'],lat:25.0446,lng:121.5232},
+  'Dongmen':{s:'tpe',l:['R','O'],lat:25.0339,lng:121.5287},
+  'Chiang Kai-shek Memorial Hall':{s:'tpe',l:['R','G'],lat:25.0329,lng:121.5183},
+  'Ximen':{s:'tpe',l:['BL','G'],lat:25.0421,lng:121.5081},
+  'Gongguan':{s:'tpe',l:['G'],lat:25.0147,lng:121.5343},
+  'Songshan':{s:'tpe',l:['G'],lat:25.0499,lng:121.5779},
+  'Jiantan':{s:'tpe',l:['R'],lat:25.0849,lng:121.5250},
+  'Shilin':{s:'tpe',l:['R'],lat:25.0935,lng:121.5262},
+  'Shuanglian':{s:'tpe',l:['R'],lat:25.0577,lng:121.5207},
+  'Zhongshan':{s:'tpe',l:['R','G'],lat:25.0527,lng:121.5203},
+  'Taipei Main Station':{s:'tpe',l:['R','BL'],lat:25.0478,lng:121.5170},
+  'Taipei 101/World Trade Center':{s:'tpe',l:['R'],lat:25.0330,lng:121.5630},
+  'Xiangshan':{s:'tpe',l:['R'],lat:25.0326,lng:121.5698},
+  'Longshan Temple':{s:'tpe',l:['BL'],lat:25.0354,lng:121.5000},
+  'Beimen':{s:'tpe',l:['G'],lat:25.0494,lng:121.5103},
+  'Taipei Zoo':{s:'tpe',l:['BR'],lat:24.9983,lng:121.5793},
+  'Tamsui':{s:'tpe',l:['R'],lat:25.1677,lng:121.4455},
+  'Xinbeitou':{s:'tpe',l:['R'],lat:25.1369,lng:121.5030},
+  'Zhongxiao Xinsheng':{s:'tpe',l:['BL','O'],lat:25.0423,lng:121.5330},
+  'Zhongxiao Fuxing':{s:'tpe',l:['BL','BR'],lat:25.0416,lng:121.5440},
+  'Nanjing Sanmin':{s:'tpe',l:['G'],lat:25.0515,lng:121.5634},
+  'Jiannan Rd.':{s:'tpe',l:['BR'],lat:25.0849,lng:121.5556},
+  'Xingtian Temple':{s:'tpe',l:['O'],lat:25.0599,lng:121.5332},
+  "Da'an":{s:'tpe',l:['R','BR'],lat:25.0330,lng:121.5436},
+  'Formosa Boulevard':{s:'khh',l:['KR','KO'],lat:22.6311,lng:120.3021},
+  'Yanchengpu':{s:'khh',l:['KO'],lat:22.6215,lng:120.2853},
+  'Sizihwan':{s:'khh',l:['KO'],lat:22.6216,lng:120.2741},
+  'Weiwuying':{s:'khh',l:['KO'],lat:22.6253,lng:120.3404},
+  'Kaohsiung Arena':{s:'khh',l:['KR'],lat:22.6680,lng:120.3030},
+  'Ecological District':{s:'khh',l:['KR'],lat:22.6766,lng:120.3065},
+  'Kaohsiung Main Station':{s:'khh',l:['KR'],lat:22.6390,lng:120.3025},
+  'Zuoying (HSR)':{s:'khh',l:['KR'],lat:22.6874,lng:120.3074}
+};
+const LINES={
+  R:{n:'Red line (Tamsui–Xinyi)',c:'#e3002c'}, G:{n:'Green line (Songshan–Xindian)',c:'#008659'},
+  BL:{n:'Blue line (Bannan)',c:'#0070bd'}, O:{n:'Orange line (Zhonghe–Xinlu)',c:'#f8b61c'},
+  BR:{n:'Brown line (Wenhu)',c:'#c48c31'}, KR:{n:'Kaohsiung Red line',c:'#e20b65'}, KO:{n:'Kaohsiung Orange line',c:'#faa73f'}
+};
+const XFER={
+  'G|R':['Chiang Kai-shek Memorial Hall',1],'BL|R':['Taipei Main Station',1],'O|R':['Dongmen',1],'BR|R':["Da'an",1],
+  'BL|G':['Ximen',1],'G|O':['Songjiang Nanjing',1],'BR|G':['Nanjing Fuxing',1],'BL|O':['Zhongxiao Xinsheng',1],
+  'BL|BR':['Zhongxiao Fuxing',1],'BR|O':['Songjiang Nanjing (Green) then Nanjing Fuxing',2],'KO|KR':['Formosa Boulevard',1]
+};
+
+/* Places. cost = per person NT$ (entry or typical meal); dur = minutes */
+const PLACES=[
+ // ---- generic
+ {id:'g_bf',n:'Hotel breakfast / 7-Eleven',zh:'',r:'',k:['breakfast'],gen:'start',cost:100,dur:40,d:'Quick breakfast where you slept. Taiwanese convenience stores sell tea eggs, onigiri, sweet potatoes and good coffee.'},
+ {id:'g_meal',n:'Local meal nearby (your pick)',zh:'',r:'',k:['breakfast','lunch','dinner','snack'],gen:'prev',cost:250,dur:60,d:'Eat wherever looks busy near the previous stop. A queue of locals is the best review.'},
+ {id:'g_rest',n:'Hotel check-in / rest',zh:'',r:'',k:['rest'],gen:'hotel',cost:0,dur:90,d:'Drop bags, shower, recharge. Set tonight’s hotel above for accurate routes.'},
+ {id:'g_free',n:'Free time / wander',zh:'',r:'',k:['sight','night'],gen:'prev',cost:0,dur:60,d:'Unplanned time around the previous stop.'},
+
+ // ---- TAIPEI food
+ {id:'fuhang',n:'Fuhang Soy Milk',zh:'阜杭豆漿',r:'taipei',k:['breakfast'],lat:25.0442,lng:121.5250,st:'Shandao Temple',ex:'5',w:2,cost:110,dur:75,open:'05:30-12:30',closed:[1],img:'Shaobing',dish:1,star:1,
+  d:'Taipei’s most famous Taiwanese breakfast: thick-rolled shaobing flatbread with egg, youtiao, and warm sweet or savory soy milk. It’s on the 2nd floor of Huashan Market.',tip:'The queue is 30–60 min. Go before 7:00 or on a weekday. Cash only. Closed Mondays.'},
+ {id:'yonghe',n:'Yonghe Soy Milk King (Fuxing S. Rd)',zh:'永和豆漿大王',q:'永和豆漿大王 復興南路 台北',r:'taipei',k:['breakfast','snack'],lat:25.0331,lng:121.5434,st:"Da'an",w:6,cost:100,dur:40,open:'00:00-24:00',img:'Soy milk',dish:1,
+  d:'Open 24 hours, a no-queue alternative to Fuhang. Try salty soy milk (xian doujiang), dan bing (egg crepe) and fan tuan (rice roll).'},
+ {id:'tianjin',n:'Tianjin Onion Pancake',zh:'天津蔥抓餅',q:'天津蔥抓餅 永康街',r:'taipei',k:['breakfast','snack'],lat:25.0325,lng:121.5296,st:'Dongmen',ex:'5',w:3,cost:60,dur:20,img:'Scallion pancake',dish:1,
+  d:'Flaky, chewy scallion pancakes with egg, cheese or basil, made at a takeaway window on Yongkang Street.'},
+ {id:'jinfeng',n:'Jin Feng Braised Pork Rice',zh:'金峰魯肉飯',r:'taipei',k:['breakfast','lunch','dinner'],lat:25.0322,lng:121.5181,st:'Chiang Kai-shek Memorial Hall',ex:'2',w:1,cost:120,dur:35,open:'08:00-01:00',img:'Lu rou fan',dish:1,star:1,
+  d:'Taipei’s best-known lu rou fan (braised pork over rice). Add a braised egg, tofu and a bowl of soup.'},
+ {id:'dtf',n:'Din Tai Fung (Xinyi original)',zh:'鼎泰豐 信義店',q:'鼎泰豐 信義店',r:'taipei',k:['lunch','dinner'],lat:25.0335,lng:121.5300,st:'Dongmen',ex:'5',w:2,cost:650,dur:90,tier:2,open:'10:00-21:00',img:'Din Tai Fung',star:1,
+  d:'The original branch of the world-famous xiaolongbao chain. Order the 18-fold soup dumplings, shrimp-and-pork wontons in chili oil, and pork-chop fried rice.',tip:'Get a queue number, then explore Yongkang Street while you wait (often 30–90 min).'},
+ {id:'hangzhou',n:'Hangzhou Xiaolongbao',zh:'杭州小籠湯包',q:'杭州小籠湯包 杭州南路',r:'taipei',k:['lunch','dinner'],lat:25.0347,lng:121.5226,st:'Chiang Kai-shek Memorial Hall',w:8,cost:250,dur:50,img:'Xiaolongbao',dish:1,
+  d:'Cheaper xiaolongbao that locals like, near CKS Memorial Hall. Less polished than Din Tai Fung, half the price.'},
+ {id:'yongkangbn',n:'Yong Kang Beef Noodle',zh:'永康牛肉麵',r:'taipei',k:['lunch','dinner'],lat:25.0326,lng:121.5296,st:'Dongmen',w:4,cost:300,dur:50,open:'11:00-21:00',img:'Beef noodle soup',dish:1,star:1,
+  d:'Spicy Sichuan-style braised beef noodle soup with huge tender chunks. Also try the steamed pork ribs on sweet potato.'},
+ {id:'lindongfang',n:'Lin Dong Fang Beef Noodles',zh:'林東芳牛肉麵',r:'taipei',k:['lunch','dinner','night'],lat:25.0480,lng:121.5404,st:'Zhongxiao Fuxing',w:12,cost:260,dur:40,open:'11:00-03:00',img:'Beef noodle soup',dish:1,
+  d:'Clear herbal beef broth (not spicy) with beef and tendon. Open late, and famous for the chili-butter sauce on the table.'},
+ {id:'aychung',n:'Ay-Chung Flour-Rice Noodle',zh:'阿宗麵線',r:'taipei',k:['snack','lunch'],lat:25.0434,lng:121.5077,st:'Ximen',ex:'6',w:2,cost:80,dur:20,open:'08:30-22:30',img:'Misua',dish:1,star:1,
+  d:'A cup of thick bonito-broth flour-rice noodles with pig intestine, eaten standing in the street. Add garlic, vinegar and chili.'},
+ {id:'lanjia',n:'Lan Jia Gua Bao',zh:'藍家割包',r:'taipei',k:['snack','lunch'],lat:25.0151,lng:121.5340,st:'Gongguan',ex:'4',w:3,cost:90,dur:25,img:'Gua bao',dish:1,
+  d:'The Taiwanese “pork-belly burger”: braised pork, pickled mustard greens, peanut powder and cilantro. Ask for mixed fat and lean (綜合).'},
+ {id:'smoothie',n:'Smoothie House',zh:'思慕昔',q:'思慕昔 永康街',r:'taipei',k:['snack'],lat:25.0320,lng:121.5297,st:'Dongmen',ex:'5',w:3,cost:260,dur:40,tier:2,open:'09:00-22:30',img:'Baobing',dish:1,
+  d:'Mango snowflake shaved ice with mango ice cream. Best in mango season (May–Sep), but they make it year-round.'},
+ {id:'fuzhou',n:'Fuzhou Shi Zu Pepper Buns',zh:'福州世祖胡椒餅',q:'福州世祖胡椒餅 饒河',r:'taipei',k:['snack'],lat:25.0510,lng:121.5776,st:'Songshan',ex:'5',w:2,cost:60,dur:20,open:'15:30-23:30',img:'Hujiao bing',dish:1,star:1,
+  d:'Black-pepper pork buns baked on the wall of a tandoor at the Raohe Night Market entrance. Bite carefully, they’re lava-hot.'},
+ {id:'raohe',n:'Raohe Street Night Market',zh:'饒河街觀光夜市',r:'taipei',k:['dinner','night'],lat:25.0505,lng:121.5755,st:'Songshan',ex:'5',w:2,cost:350,dur:90,open:'16:00-24:00',img:'Raohe Street Night Market',star:1,
+  d:'A compact, walkable single-lane night market beside the glowing Ciyou Temple. Try pepper buns, herbal pork-rib soup, mochi and oyster vermicelli.'},
+ {id:'shilin',n:'Shilin Night Market',zh:'士林夜市',r:'taipei',k:['dinner','night'],lat:25.0880,lng:121.5241,st:'Jiantan',ex:'1',w:3,cost:400,dur:120,open:'16:00-24:00',img:'Shilin Night Market',
+  d:'Taipei’s biggest night market: giant fried chicken, oyster omelette, stinky tofu, games and a basement food court.'},
+ {id:'ningxia',n:'Ningxia Night Market',zh:'寧夏夜市',r:'taipei',k:['dinner','night'],lat:25.0560,lng:121.5153,st:'Shuanglian',w:9,cost:300,dur:75,open:'17:00-24:00',img:'Ningxia Night Market',star:1,
+  d:'A food-focused night market that locals love.',tip:'Look for Liu Yu Zi (劉芋仔) fried taro balls and Yuan Huan Bian oyster omelette (圓環邊蚵仔煎).'},
+ {id:'addiction',n:'Addiction Aquatic Development',zh:'上引水產',r:'taipei',k:['lunch','dinner'],lat:25.0675,lng:121.5373,st:'Xingtian Temple',w:15,cost:800,dur:75,tier:2,img:'Sashimi',dish:1,
+  d:'An upscale seafood market hall with a standing sushi bar, sashimi, grilled seafood and hot pot.'},
+ {id:'lepalais',n:'Le Palais (Palais de Chine Hotel)',zh:'頤宮',q:'頤宮 君品酒店',r:'taipei',k:['lunch','dinner'],lat:25.0496,lng:121.5170,st:'Taipei Main Station',w:6,cost:3500,dur:120,tier:3,img:'Peking duck',dish:1,
+  d:'Michelin-starred Cantonese fine dining with signature roast duck and dim sum lunch.',tip:'Reserve weeks ahead. Dress smart-casual.'},
+ {id:'raw',n:'RAW',zh:'RAW',q:'RAW restaurant 樂群三路 台北',r:'taipei',k:['dinner'],lat:25.0821,lng:121.5570,st:'Jiannan Rd.',w:10,cost:6500,dur:180,tier:3,img:'André Chiang',
+  d:'André Chiang’s Michelin-starred modern Taiwanese tasting menu in a striking wooden room. Reservations open monthly and go fast.'},
+ {id:'chiate',n:'Chia Te Bakery (pineapple cakes)',zh:'佳德糕餅',r:'taipei',k:['snack'],lat:25.0515,lng:121.5610,st:'Nanjing Sanmin',w:4,cost:450,dur:30,img:'Pineapple cake',dish:1,
+  d:'Taipei’s most famous pineapple cakes, the classic souvenir box. Also cranberry and egg-yolk versions.',tip:'Weekend queues, and some flavors sell out by evening.'},
+ {id:'silks',n:'Silks Palace (National Palace Museum)',zh:'故宮晶華',r:'taipei',k:['lunch'],lat:25.1020,lng:121.5480,acc:'Inside the National Palace Museum grounds.',cost:900,dur:75,tier:2,img:'Dim sum',dish:1,
+  d:'Dim sum, plus a famous “Treasures” menu that recreates the Jadeite Cabbage and Meat-shaped Stone as food.'},
+ {id:'trabento',n:'TRA Railway Bento (Taipei Main Station)',zh:'台鐵便當',q:'台鐵便當本舖 台北車站',r:'taipei',k:['breakfast','lunch'],lat:25.0478,lng:121.5170,st:'Taipei Main Station',w:3,cost:100,dur:20,img:'Ekiben',dish:1,
+  d:'The classic pork-chop railway bento with braised egg. Eat it on the train like a local.'},
+
+ // ---- TAIPEI sights
+ {id:'t101',n:'Taipei 101 Observatory',zh:'台北101觀景台',r:'taipei',k:['sight'],lat:25.0339,lng:121.5645,st:'Taipei 101/World Trade Center',ex:'4',w:2,cost:600,dur:90,tier:2,open:'10:00-21:00',img:'Taipei 101',star:1,
+  d:'An indoor observatory 382 m up on the 89th floor, with the giant tuned mass damper. There’s a mall below.',tip:'Buy tickets online. Go about an hour before sunset to see both day and night views.'},
+ {id:'xiangshan',n:'Elephant Mountain (Xiangshan)',zh:'象山步道',r:'taipei',k:['hike','sight'],lat:25.0274,lng:121.5705,st:'Xiangshan',ex:'2',w:10,cost:0,dur:90,img:'Xiangshan (Taipei)',star:1,
+  d:'20–30 minutes of steep stairs to the postcard view of Taipei 101. The Six Giant Rocks are the classic photo spot.',tip:'Arrive 40 min before sunset. Bring water.'},
+ {id:'cks',n:'Chiang Kai-shek Memorial Hall',zh:'中正紀念堂',r:'taipei',k:['sight'],lat:25.0346,lng:121.5218,st:'Chiang Kai-shek Memorial Hall',ex:'5',w:2,cost:0,dur:60,open:'09:00-18:00',img:'Chiang Kai-shek Memorial Hall',star:1,
+  d:'A monumental white-and-blue hall, plus the Liberty Square gate and the National Theater & Concert Hall. The guard changes on the hour during the day.'},
+ {id:'longshan',n:'Longshan Temple',zh:'艋舺龍山寺',r:'taipei',k:['sight'],lat:25.0372,lng:121.4999,st:'Longshan Temple',ex:'1',w:2,cost:0,dur:45,open:'06:00-22:00',img:'Bangka Lungshan Temple',star:1,
+  d:'Taipei’s most famous temple (1738), with ornate dragon roofs. Locals come to pray and cast moon blocks.'},
+ {id:'ximending',n:'Ximending',zh:'西門町',r:'taipei',k:['sight','night'],lat:25.0421,lng:121.5079,st:'Ximen',ex:'6',w:1,cost:0,dur:90,img:'Ximending',
+  d:'A pedestrian shopping district full of street food, the Red House, graffiti alleys and youth culture.'},
+ {id:'dihua',n:'Dihua Street & Dadaocheng',zh:'迪化街',r:'taipei',k:['sight'],lat:25.0560,lng:121.5100,st:'Beimen',w:10,cost:0,dur:90,open:'09:00-19:00',img:'Dihua Street',
+  d:'Taipei’s oldest street: Baroque shophouses, dried goods and tea shops, the Xiahai City God Temple (with the matchmaker god) and hip cafés.'},
+ {id:'npm',n:'National Palace Museum',zh:'國立故宮博物院',r:'taipei',k:['sight'],lat:25.1024,lng:121.5485,st:'Shilin',ex:'1',acc:'Shilin Station Exit 1 → bus R30 / 255 / 304 (~15 min) to the museum.',cost:350,dur:180,open:'09:00-17:00',closed:[1],img:'National Palace Museum',star:1,
+  d:'World-class imperial Chinese art, including the Jadeite Cabbage and the Meat-shaped Stone (check which pieces are on display).',tip:'Rent the audio guide and arrive at opening, before the tour groups.'},
+ {id:'maokong',n:'Maokong Gondola & tea houses',zh:'貓空纜車',r:'taipei',k:['sight'],lat:24.9960,lng:121.5763,st:'Taipei Zoo',ex:'2',w:5,cost:240,dur:180,open:'09:00-21:00',closed:[1],img:'Maokong Gondola',
+  d:'A 4 km gondola up to tea plantations. Drink Tieguanyin tea with city views. The glass-floor “Eyes of Maokong” cabins have their own queue.',tip:'Closed most Mondays for maintenance.'},
+ {id:'tamsui',n:'Tamsui Old Street & Fisherman’s Wharf',zh:'淡水老街',r:'taipei',k:['sight','night'],lat:25.1700,lng:121.4400,st:'Tamsui',ex:'2',w:5,cost:50,dur:150,img:'Tamsui District',star:1,
+  d:'A riverside town at the end of the Red line, with sunset over the river, Fort San Domingo, the Lover’s Bridge at Fisherman’s Wharf, A-gei and iron eggs.',tip:'Take the small ferry from Tamsui to Fisherman’s Wharf for sunset.'},
+ {id:'beitou',n:'Beitou Hot Spring Museum & Thermal Valley',zh:'北投溫泉博物館',r:'taipei',k:['sight'],lat:25.1366,lng:121.5070,st:'Xinbeitou',w:5,cost:60,dur:120,open:'09:00-17:00',closed:[1],img:'Beitou Hot Spring Museum',
+  d:'A 1913 bathhouse, the steaming jade-green Thermal Valley and a beautiful wooden library. Soak at the NT$60 public outdoor bath or a hotel spa.',tip:'Xinbeitou is a branch line, so change trains at Beitou.'},
+ {id:'huashan',n:'Huashan 1914 Creative Park',zh:'華山1914文化創意產業園區',r:'taipei',k:['sight'],lat:25.0441,lng:121.5294,st:'Zhongxiao Xinsheng',ex:'1',w:5,cost:0,dur:60,img:'Huashan 1914 Creative Park',
+  d:'An old winery turned into exhibition halls, design shops and cafés.'},
+ {id:'yangming',n:'Yangmingshan: Qixingshan & Xiaoyoukeng',zh:'陽明山 小油坑',r:'taipei',k:['hike','sight'],lat:25.1770,lng:121.5450,st:'Jiantan',ex:'1',acc:'Jiantan Exit 1 → bus R5 or 260 to Yangmingshan Bus Station (~30 min) → park shuttle 108 to Xiaoyoukeng.',cost:60,dur:240,img:'Qixing Mountain',
+  d:'A volcanic national park: steaming fumaroles at Xiaoyoukeng and the 1,120 m Qixingshan summit (Taipei’s highest). Silvergrass Oct–Nov, calla lilies Mar–Apr.',tip:'2.5–4 h round trip. The weather turns fast, so bring a jacket.'},
+ {id:'taoyuan',n:'Taoyuan International Airport (TPE)',zh:'桃園國際機場',r:'tpe',k:['travel'],lat:25.0797,lng:121.2342,cost:0,dur:60,img:'Taiwan Taoyuan International Airport',
+  d:'Arrival and departure. Get an EasyCard and a SIM/eSIM in the arrivals hall.',tip:'Airport MRT Express to Taipei Main Station: ~38 min, about NT$160.'},
+
+ // ---- NORTH (Jiufen / Shifen / Keelung)
+ {id:'jiufen',last:{m:'Bus from Ruifang Station up to Jiufen',i:'🚌',min:20,pp:20},n:'Jiufen Old Street',zh:'九份老街',r:'north',k:['sight','lunch','snack'],lat:25.1095,lng:121.8443,acc:'Bus 1062 from Zhongxiao Fuxing MRT Exit 1 (~90 min), or TRA to Ruifang + frequent buses up the hill.',cost:200,dur:150,img:'Jiufen',star:1,
+  d:'A hillside gold-rush town with narrow, lantern-lit alleys, tea houses and sea views.',tip:'A weekday from late afternoon to dusk is best. Weekends are packed.'},
+ {id:'amei',last:{m:'Bus from Ruifang Station up to Jiufen',i:'🚌',min:20,pp:20},n:'A-Mei Teahouse',zh:'阿妹茶樓',r:'north',k:['snack','dinner'],lat:25.1092,lng:121.8449,cost:500,dur:75,tier:2,img:'Jiufen',
+  d:'The famous red-lantern teahouse on Jiufen’s stairs. Tea ceremony with snacks and the iconic night view.'},
+ {id:'agan',last:{m:'Bus from Ruifang Station up to Jiufen',i:'🚌',min:20,pp:20},n:'A-Gan Yi Taro Balls',zh:'阿柑姨芋圓',r:'north',k:['snack'],lat:25.1083,lng:121.8441,cost:60,dur:30,img:'Taro ball',dish:1,
+  d:'Chewy taro and sweet-potato balls on shaved ice or in hot soup, with a view from the back dining room.'},
+ {id:'shifen',last:{m:'Pingxi Line train from Ruifang',i:'🚆',min:30,pp:30},n:'Shifen Old Street & sky lanterns',zh:'十分老街',r:'north',k:['sight'],lat:25.0418,lng:121.7757,acc:'TRA to Ruifang → Pingxi Line to Shifen (day pass ~NT$80).',cost:250,dur:75,img:'Shifen',star:1,
+  d:'Write your wishes on a sky lantern and release it from the railway tracks between trains.',tip:'A single-color lantern is about NT$200–250, four colors about NT$300+.'},
+ {id:'shifenfall',last:{m:'Pingxi Line to Shifen + 20 min walk',i:'🚆',min:50,pp:30},n:'Shifen Waterfall',zh:'十分瀑布',r:'north',k:['sight','hike'],lat:25.0482,lng:121.7874,cost:0,dur:60,open:'09:00-16:30',img:'Shifen Waterfall',
+  d:'A wide curtain waterfall, the “Niagara of Taiwan”, about 20 min on foot from Shifen station.'},
+ {id:'golden',last:{m:'Bus from Ruifang to Jinguashi',i:'🚌',min:30,pp:20},n:'Golden Waterfall & Yin-Yang Sea',zh:'黃金瀑布',r:'north',k:['sight'],lat:25.1150,lng:121.8625,acc:'Bus or taxi from Jiufen (~10 min).',cost:0,dur:45,img:'Jinguashi',
+  d:'A gold-orange cascade stained by minerals, then the two-tone Yin-Yang Sea bay below.'},
+ {id:'yehliu',n:'Yehliu Geopark',zh:'野柳地質公園',r:'north',k:['sight'],lat:25.2069,lng:121.6900,acc:'Kuo-Kuang bus toward Jinshan from Taipei Main Station (~90 min), or a north-coast tour.',cost:120,dur:90,open:'08:00-17:00',img:'Yehliu',
+  d:'Wind-sculpted hoodoo rocks, including the famous Queen’s Head.'},
+ {id:'houtong',last:{m:'Local train Ruifang → Houtong',i:'🚆',min:6,pp:15},n:'Houtong Cat Village',zh:'猴硐貓村',r:'north',k:['sight'],lat:25.0870,lng:121.8273,acc:'TRA local train to Houtong.',cost:0,dur:60,img:'Houtong',
+  d:'A former coal-mining village now full of friendly cats.'},
+ {id:'miaokou',last:{m:'Train to Keelung + 10 min walk',i:'🚆',min:25,pp:30},n:'Keelung Miaokou Night Market',zh:'基隆廟口夜市',r:'north',k:['dinner','night'],lat:25.1285,lng:121.7435,acc:'TRA to Keelung (~45 min from Taipei), then walk 10 min.',cost:350,dur:90,img:'Miaokou Night Market',star:1,
+  d:'A seafood-heavy night market under yellow lanterns. Try the “nutritious sandwich” (營養三明治), ding bian cuo and crab soup.'},
+ {id:'sandiaoling',last:{m:'Local train Ruifang → Sandiaoling',i:'🚆',min:12,pp:15},n:'Sandiaoling Waterfall Trail',zh:'三貂嶺瀑布群步道',r:'north',k:['hike'],lat:25.0584,lng:121.8225,acc:'TRA to Sandiaoling Station, then hike to Dahua Station on the Pingxi Line.',cost:0,dur:180,img:'Sandiaoling',
+  d:'An easy-to-moderate jungle trail past three waterfalls. A quieter add-on to Shifen.'},
+ {id:'caoling',last:{m:'Train Ruifang → Fulong',i:'🚆',min:35,pp:60},n:'Caoling Historic Trail',zh:'草嶺古道',r:'north',k:['hike'],lat:25.0072,lng:121.9086,acc:'TRA to Fulong (start) → over the ridge to Dali Station (~4–5 h).',cost:0,dur:270,img:'Caoling Historic Trail',star:1,
+  d:'A Qing-dynasty trail over a grassy ridge with Pacific and Turtle Island views. Silvergrass Oct–Nov.'},
+
+ // ---- YILAN
+ {id:'jiaoxi',n:'Jiaoxi Hot Springs',zh:'礁溪溫泉公園',r:'yilan',k:['sight'],lat:24.8280,lng:121.7700,acc:'Highway bus from Taipei (~50 min) to Jiaoxi.',cost:80,dur:120,img:'Jiaoxi',
+  d:'Free foot baths and public soaking pools in town, plus many private hot-spring hotels.'},
+ {id:'lanyang',n:'Lanyang Museum',zh:'蘭陽博物館',r:'yilan',k:['sight'],lat:24.8692,lng:121.8320,acc:'TRA to Toucheng, then a 20 min walk or taxi.',cost:100,dur:90,open:'09:00-17:00',closed:[3],img:'Lanyang Museum',
+  d:'An angular building that rises out of a lagoon like the coastal rocks. A great architecture photo.'},
+ {id:'luodong',n:'Luodong Night Market',zh:'羅東夜市',r:'yilan',k:['dinner','night'],lat:24.6780,lng:121.7700,acc:'TRA to Luodong, then walk 8 min.',cost:300,dur:90,open:'17:00-24:00',img:'Luodong Night Market',
+  d:'Yilan’s best night market: scallion pancakes made with famous Sanxing scallions, mutton soup and local snacks.'},
+ {id:'whale',n:'Whale watching, Wushi Harbor',zh:'烏石港賞鯨',r:'yilan',k:['sight'],lat:24.8710,lng:121.8380,cost:1200,dur:150,tier:2,img:'Guishan Island',
+  d:'Dolphin and whale cruises circling Guishan (Turtle) Island, roughly Mar–Nov.',tip:'Take a seasickness tablet. Trips are cancelled in rough seas.'},
+
+ // ---- HUALIEN
+ {id:'taroko',n:'Taroko Gorge (Swallow Grotto)',zh:'太魯閣 燕子口',r:'hualien',k:['sight','hike'],lat:24.1736,lng:121.5660,acc:'From Hualien/Xincheng station: Taiwan Tourist Shuttle, a taxi charter (~NT$2,500–3,500/day) or a day tour. Check road and trail status first (2024 quake).',cost:0,dur:180,img:'Taroko Gorge',star:1,
+  d:'Marble canyon walls, the turquoise Liwu River, tunnels and swallow nests.',tip:'Wear the helmet in rockfall zones, and check the Taroko National Park site for closures.'},
+ {id:'shakadang',n:'Shakadang Trail',zh:'砂卡礑步道',r:'hualien',k:['hike'],lat:24.1600,lng:121.6200,acc:'Near the Taroko park entrance; taxi or shuttle.',cost:0,dur:90,img:'Shakadang Trail',
+  d:'A flat cliffside path above an impossibly blue river. Parts may still be closed after the 2024 quake, so check first.'},
+ {id:'qingshui',n:'Qingshui Cliff',zh:'清水斷崖',r:'hualien',k:['sight'],lat:24.2140,lng:121.6620,acc:'Viewpoint on the Suhua Highway (Huide Park) by car or taxi, or watch from the train window.',cost:0,dur:45,img:'Qingshui Cliff',star:1,
+  d:'Cliffs dropping straight into the Pacific. The east coast’s “wow” shot.'},
+ {id:'qixingtan',n:'Qixingtan Beach',zh:'七星潭',r:'hualien',k:['sight'],lat:24.0300,lng:121.6290,acc:'Taxi, 15 min from Hualien city.',cost:0,dur:60,img:'Qixingtan',
+  d:'A crescent pebble beach with mountains behind. A sunrise spot.'},
+ {id:'gongzheng',n:'Gongzheng Baozi',zh:'公正包子',r:'hualien',k:['breakfast','snack'],lat:23.9775,lng:121.6050,acc:'Hualien city center, taxi 10 min from the station.',cost:70,dur:25,img:'Baozi',dish:1,star:1,
+  d:'Legendary cheap steamed buns and dumplings. Perfect takeaway before Taroko.'},
+ {id:'zhoujia',n:'Zhou Jia Steamed Dumplings',zh:'周家蒸餃',r:'hualien',k:['breakfast','lunch','snack'],lat:23.9790,lng:121.6045,cost:100,dur:30,img:'Jiaozi',dish:1,
+  d:'Hualien’s famous steamed dumplings and wonton soup, open almost all day.'},
+ {id:'dongdamen',n:'Dongdamen Night Market',zh:'東大門夜市',r:'hualien',k:['dinner','night'],lat:23.9760,lng:121.6110,cost:300,dur:90,open:'18:00-24:00',img:'Dongdamen Night Market',star:1,
+  d:'A big night market with an Indigenous food section (bamboo-tube rice, wild boar sausage) and Hualien seafood.'},
+
+ // ---- CHISHANG / TAITUNG
+ {id:'chishang',n:'Chishang Brown Boulevard rice fields',zh:'伯朗大道',r:'chishang',k:['sight'],lat:23.1100,lng:121.2280,acc:'Rent a bike next to Chishang Station (~NT$100–200), then a 10 min ride.',cost:150,dur:120,img:'Chishang',star:1,
+  d:'Endless rice paddies with no power lines and the Central Mountain Range behind. Golden at harvest (Jun–Jul, Oct–Nov).'},
+ {id:'chishangbento',n:'Chishang Rice Bento',zh:'池上便當',q:'池上飯包 池上車站',r:'chishang',k:['lunch'],lat:23.1250,lng:121.2190,cost:100,dur:30,img:'Bento',dish:1,
+  d:'Bento made with famous Chishang rice, sold at shops around the station.'},
+ {id:'sanxiantai',n:'Sanxiantai',zh:'三仙台',r:'taitung',k:['sight'],lat:23.1220,lng:121.4170,acc:'Car or scooter (~1 h from Taitung), or the Taiwan Tourist Shuttle (East Coast line).',cost:0,dur:90,img:'Sanxiantai',star:1,
+  d:'An eight-arch dragon bridge over the sea to a rocky islet. A sunrise spot.'},
+ {id:'xiaoyeliu',n:'Xiaoyeliu',zh:'小野柳',r:'taitung',k:['sight'],lat:22.7915,lng:121.1940,acc:'Taxi, 15 min from Taitung city.',cost:0,dur:60,img:'Xiaoyeliu',
+  d:'Strange sandstone formations on the coast: tofu rocks and honeycomb rocks.'},
+ {id:'duoliang',n:'Duoliang Station',zh:'多良車站',r:'taitung',k:['sight'],lat:22.5050,lng:120.9580,acc:'By car or taxi, ~50 min south of Taitung.',cost:0,dur:45,img:'Duoliang railway station',
+  d:'A former station platform perched above the Pacific, often called Taiwan’s most beautiful station.'},
+ {id:'tiehua',n:'Tiehua Music Village',zh:'鐵花村',r:'taitung',k:['night','dinner'],lat:22.7550,lng:121.1500,cost:300,dur:120,open:'17:00-22:00',img:'Tiehua Music Village',
+  d:'A lantern-strung outdoor venue with Indigenous live music and a weekend market.'},
+ {id:'chenggong',n:'Chenggong Fishing Port seafood',zh:'成功漁港',r:'taitung',k:['lunch'],lat:23.0970,lng:121.3790,acc:'On the East Coast road between Taitung and Sanxiantai.',cost:500,dur:60,img:'Sashimi',dish:1,
+  d:'Fresh-off-the-boat sashimi and fried fish at the harbor.'},
+ {id:'luye',n:'Luye Highland',zh:'鹿野高台',r:'taitung',k:['sight'],lat:22.9180,lng:121.1230,acc:'Car or taxi, ~40 min from Taitung.',cost:0,dur:60,img:'Luye, Taitung',
+  d:'A paragliding hill and home of the Taiwan International Balloon Festival (Jun–Aug).'},
+
+ // ---- KAOHSIUNG
+ {id:'dome',n:'Dome of Light',zh:'光之穹頂',r:'kaohsiung',k:['sight'],lat:22.6311,lng:120.3021,st:'Formosa Boulevard',w:1,cost:0,dur:30,img:'Dome of Light',star:1,
+  d:'The world’s largest glass artwork, inside an MRT station concourse.'},
+ {id:'pier2',n:'Pier-2 Art Center',zh:'駁二藝術特區',r:'kaohsiung',k:['sight'],lat:22.6200,lng:120.2820,st:'Yanchengpu',ex:'1',w:5,cost:0,dur:120,img:'Pier-2 Art Center',star:1,
+  d:'Harbor warehouses turned art district: giant installations, murals, design stores and the light rail.'},
+ {id:'lotus',n:'Lotus Pond: Dragon & Tiger Pagodas',zh:'蓮池潭龍虎塔',r:'kaohsiung',k:['sight'],lat:22.6820,lng:120.2940,st:'Ecological District',w:20,acc:'Or TRA Zuoying (Xinzuoying) Station, ~15 min walk.',cost:0,dur:75,img:'Dragon and Tiger Pagodas',
+  d:'Walk in through the dragon’s mouth and out through the tiger’s for good luck. Colorful pavilions over the lake.'},
+ {id:'cijin',n:'Cijin Island & Rainbow Church',zh:'旗津',r:'kaohsiung',k:['sight'],lat:22.6130,lng:120.2660,st:'Sizihwan',ex:'1',w:10,acc:'Walk to Gushan Ferry Pier → 5-min ferry (~NT$30).',cost:60,dur:150,img:'Cijin District',star:1,
+  d:'Beach, lighthouse, the rainbow church installation, bike paths and a seafood street. Great at sunset.'},
+ {id:'cijinseafood',n:'Cijin Seafood Street',zh:'旗津海產街',r:'kaohsiung',k:['dinner','lunch'],lat:22.6150,lng:120.2670,cost:600,dur:75,img:'Seafood',dish:1,
+  d:'Pick your seafood from the displays and have it cooked. Agree on the price first.'},
+ {id:'fgs',n:'Fo Guang Shan Buddha Museum',zh:'佛陀紀念館',r:'kaohsiung',k:['sight'],lat:22.7550,lng:120.4400,acc:'Bus from Zuoying HSR (~40 min) or taxi.',cost:0,dur:180,open:'09:00-19:00',img:'Fo Guang Shan Buddha Museum',
+  d:'A colossal seated bronze Buddha, eight pagodas and grand halls. There’s vegetarian food on site.'},
+ {id:'weiwuying',n:'Weiwuying Arts Center',zh:'衛武營國家藝術文化中心',r:'kaohsiung',k:['sight'],lat:22.6250,lng:120.3420,st:'Weiwuying',ex:'6',w:3,cost:0,dur:60,img:'National Kaohsiung Center for the Arts',
+  d:'An undulating banyan-inspired roof by Mecanoo, one of the world’s largest performing-arts centers under one roof.'},
+ {id:'liuhe',n:'Liuhe Night Market',zh:'六合夜市',r:'kaohsiung',k:['dinner','night'],lat:22.6315,lng:120.2995,st:'Formosa Boulevard',ex:'11',w:1,cost:300,dur:75,open:'17:00-24:00',img:'Liuhe Night Market',
+  d:'Touristy but central: papaya milk, seafood and grilled skewers.'},
+ {id:'ruifeng',n:'Ruifeng Night Market',zh:'瑞豐夜市',r:'kaohsiung',k:['dinner','night'],lat:22.6660,lng:120.2995,st:'Kaohsiung Arena',ex:'1',w:3,cost:300,dur:90,open:'18:00-24:00',closed:[1,3],img:'Ruifeng Night Market',star:1,
+  d:'Where Kaohsiung locals actually go: a maze of stalls with huge variety.'},
+ {id:'donggang',n:'Donggang Seafood Market (bluefin tuna)',zh:'東港華僑市場',r:'kaohsiung',k:['lunch','dinner'],lat:22.4660,lng:120.4450,acc:'Bus from Kaohsiung (~1 h) or taxi. The Xiao Liuqiu ferry leaves nearby.',cost:700,dur:75,img:'Donggang',
+  d:'Pingtung’s bluefin-tuna town: thick-cut tuna sashimi, sakura shrimp and mullet roe.'},
+ {id:'liuqiu',n:'Xiao Liuqiu (snorkel with turtles)',zh:'小琉球',r:'kaohsiung',k:['sight'],lat:22.3400,lng:120.3700,acc:'Ferry from Donggang (~25 min, ~NT$410 round trip) + scooter or e-bike on the island.',cost:900,dur:360,img:'Liuqiu, Pingtung',
+  d:'A coral island where green sea turtles swim right off the beach. See Vase Rock and Beauty Cave.'},
+
+ // ---- KENTING
+ {id:'eluanbi',n:'Eluanbi Lighthouse',zh:'鵝鑾鼻燈塔',r:'kenting',k:['sight'],lat:21.9020,lng:120.8530,acc:'Local bus or scooter/taxi (15 min) from Kenting Street.',cost:60,dur:60,img:'Eluanbi Lighthouse',star:1,
+  d:'Taiwan’s southernmost lighthouse, in a coral-reef park.'},
+ {id:'maobitou',n:'Maobitou Park',zh:'貓鼻頭',r:'kenting',k:['sight'],lat:21.9200,lng:120.7350,acc:'Scooter or taxi, 20 min from Kenting Street.',cost:0,dur:45,img:'Maobitou',
+  d:'A clifftop viewpoint where the Taiwan Strait meets the Bashi Channel. Sunset.'},
+ {id:'longpan',n:'Longpan Park',zh:'龍磐公園',r:'kenting',k:['sight'],lat:21.9300,lng:120.8590,acc:'Scooter or taxi.',cost:0,dur:45,img:'Longpan Park Kenting',
+  d:'Windswept grassland on top of coral cliffs. Stargazing at night.'},
+ {id:'kentingst',n:'Kenting Main Street Night Market',zh:'墾丁大街',r:'kenting',k:['dinner','night'],lat:21.9450,lng:120.7980,cost:350,dur:90,open:'18:00-24:00',img:'Kenting National Park',
+  d:'A beach-town night strip of seafood, grilled corn and bars.'},
+
+ // ---- TAINAN
+ {id:'duxiaoyue',n:'Du Hsiao Yueh (original shop)',zh:'度小月擔仔麵 原始店',q:'度小月 原始店 台南',r:'tainan',k:['lunch','dinner','snack'],lat:22.9905,lng:120.2010,acc:'~2 km from Tainan Station: walk 25 min or taxi.',cost:150,dur:30,open:'11:00-21:00',img:'Danzai noodles',dish:1,star:1,
+  d:'Since 1895: small bowls of danzai noodles with minced-pork sauce and shrimp, cooked at a low stove in the doorway.',tip:'The bowls are small. Add a braised egg, then keep snacking elsewhere.'},
+ {id:'wenzhang',n:'Wenzhang Beef Soup',zh:'文章牛肉湯',r:'tainan',k:['breakfast','lunch','dinner'],lat:22.9980,lng:120.1820,cost:220,dur:40,img:'Tainan beef soup',dish:1,star:1,
+  d:'A Tainan breakfast ritual: raw sliced local beef, cooked in the bowl by pouring boiling broth over it, with a side of rice and meat sauce.'},
+ {id:'shijingjiu',n:'Shi Jing Jiu Beef Soup',zh:'石精臼牛肉湯',r:'tainan',k:['breakfast','lunch'],lat:22.9965,lng:120.2015,cost:180,dur:30,img:'Tainan beef soup',dish:1,
+  d:'An old-town alternative near Chihkan Tower, in the same Tainan beef-soup style.'},
+ {id:'zhou',n:'Chou’s Shrimp Rolls (Anping)',zh:'周氏蝦捲',r:'tainan',k:['snack','lunch'],lat:22.9975,lng:120.1720,cost:150,dur:30,open:'10:00-22:00',img:'Shrimp roll',dish:1,
+  d:'Crispy fried shrimp rolls since 1965, plus milkfish soup.'},
+ {id:'anping',n:'Anping Old Fort (Fort Zeelandia)',zh:'安平古堡',r:'tainan',k:['sight'],lat:22.9990,lng:120.1605,acc:'Bus from Tainan Station or taxi (15 min).',cost:70,dur:60,open:'08:30-17:30',img:'Fort Zeelandia (Taiwan)',star:1,
+  d:'Walls of a 1624 Dutch fort and tower views, with Anping Old Street snacks next door.'},
+ {id:'treehouse',n:'Anping Tree House',zh:'安平樹屋',r:'tainan',k:['sight'],lat:23.0035,lng:120.1590,cost:70,dur:45,open:'08:30-17:30',img:'Anping Tree House',star:1,
+  d:'An old warehouse swallowed by banyan roots. Eerie and very photogenic.'},
+ {id:'chikan',n:'Chihkan Tower',zh:'赤崁樓',r:'tainan',k:['sight'],lat:22.9975,lng:120.2025,cost:70,dur:45,open:'08:30-21:30',img:'Fort Provintia',
+  d:'A Dutch-era fort turned Chinese pavilions. Lovely lit up at night.'},
+ {id:'hayashi',n:'Hayashi Department Store',zh:'林百貨',r:'tainan',k:['sight','snack'],lat:22.9915,lng:120.2025,cost:0,dur:60,open:'11:00-21:00',img:'Hayashi Department Store',
+  d:'A 1932 art-deco department store with an old elevator, a rooftop Shinto shrine and Tainan-made souvenirs.'},
+ {id:'shennong',n:'Shennong Street',zh:'神農街',r:'tainan',k:['night','sight'],lat:22.9975,lng:120.1975,cost:0,dur:60,img:'Shennong Street',star:1,
+  d:'A narrow Qing-era street of lanterns, galleries and tiny bars. Best after dark.'},
+ {id:'chimei',n:'Chimei Museum',zh:'奇美博物館',r:'tainan',k:['sight'],lat:22.9346,lng:120.2259,acc:'TRA to Bao’an Station (one stop south), then a 15 min walk, or taxi.',cost:200,dur:180,open:'09:30-17:30',closed:[3],img:'Chimei Museum',star:1,
+  d:'A palace-like white museum with Western art, violins, arms and natural history. Classic photo at the Apollo Fountain.'},
+ {id:'garden',n:'Garden Night Market (Thu/Sat/Sun)',zh:'花園夜市',r:'tainan',k:['dinner','night'],lat:23.0110,lng:120.2000,cost:300,dur:90,open:'17:30-24:00',closed:[1,2,3,5],img:'Garden Night Market Tainan',
+  d:'A huge open-lot night market that only runs Thursday, Saturday and Sunday.'},
+ {id:'jingzaijiao',n:'Jingzaijiao Tile-paved Salt Fields',zh:'井仔腳瓦盤鹽田',r:'tainan',k:['sight'],lat:23.1500,lng:120.0960,acc:'Car or taxi, ~1 h from Tainan. Combine with the Beimen Crystal Church.',cost:0,dur:90,img:'Jingzaijiao Tile-Paved Salt Fields',
+  d:'A mosaic of tiled salt pans and white salt cones, with one of Taiwan’s best sunset reflections.'},
+
+ // ---- CHIAYI / ALISHAN
+ {id:'penshui',n:'Penshui Turkey Rice',zh:'噴水雞肉飯',r:'chiayi',k:['lunch','dinner','breakfast'],lat:23.4800,lng:120.4490,acc:'15 min walk from Chiayi Station, by the fountain roundabout.',cost:80,dur:30,img:'Chiayi turkey rice',dish:1,star:1,
+  d:'Chiayi’s signature dish: shredded turkey over rice with savory schmaltz and fried shallots.'},
+ {id:'wenhua',n:'Wenhua Road Night Market',zh:'文化路夜市',r:'chiayi',k:['dinner','night'],lat:23.4790,lng:120.4495,cost:250,dur:75,open:'17:00-24:00',img:'Chiayi City',
+  d:'Chiayi’s main night-market strip, full of turkey rice and grilled snacks.'},
+ {id:'zhushan',n:'Zhushan sunrise (Alishan)',zh:'祝山觀日',r:'alishan',k:['sight','hike'],lat:23.5080,lng:120.8170,acc:'Sunrise train from Alishan Station (~25 min), or walk ~1 h. Times are posted the night before.',cost:150,dur:150,img:'Alishan National Scenic Area',star:1,
+  d:'Sunrise over a sea of clouds, with Yushan on the horizon.'},
+ {id:'alishanforest',n:'Alishan Giant Trees & Sisters Ponds',zh:'阿里山巨木群棧道',r:'alishan',k:['hike','sight'],lat:23.5100,lng:120.8040,cost:300,dur:180,img:'Alishan Forest Railway',
+  d:'A boardwalk through red cypress giants 1,000–2,000 years old, past the Sisters Ponds and the forest-railway branch lines.',tip:'Entry is about NT$300 for visitors. It gets misty and cold after 3 pm, so bring a jacket.'},
+ {id:'fenqihu',n:'Fenqihu Old Street',zh:'奮起湖老街',r:'alishan',k:['sight','lunch'],lat:23.5050,lng:120.6930,acc:'Stop on the Alishan Forest Railway or bus 7322.',cost:120,dur:90,img:'Fenqihu',
+  d:'A mountain railway village famous for its railway bento and old street.'},
+
+ // ---- SUN MOON LAKE / CINGJING
+ {id:'shuishe',n:'Shuishe Pier & lake boat',zh:'水社碼頭',r:'sml',k:['sight'],lat:23.8660,lng:120.9110,cost:300,dur:120,img:'Sun Moon Lake',star:1,
+  d:'A lake cruise hopping Shuishe → Xuanguang Temple → Ita Thao (about NT$300 for an all-day pass). Mirror-calm water at sunrise.'},
+ {id:'cien',n:'Ci’en Pagoda',zh:'慈恩塔',r:'sml',k:['sight','hike'],lat:23.8345,lng:120.9295,acc:'Lake bus or rent an e-bike at Shuishe.',cost:0,dur:75,img:'Ci\'en Pagoda',
+  d:'Climb the pagoda on Shabalan Mountain for a 360° view of the lake.'},
+ {id:'xiangshan_vc',n:'Xiangshan Visitor Center',zh:'向山遊客中心',r:'sml',k:['sight'],lat:23.8510,lng:120.9000,acc:'Bike path 15 min from Shuishe, or the lake bus.',cost:0,dur:45,img:'Xiangshan Visitor Center',
+  d:'Curved concrete architecture by Norihiko Dan, with a reflecting pool facing the lake.'},
+ {id:'itathao',n:'Ita Thao & Grandma’s tea eggs',zh:'伊達邵 阿婆茶葉蛋',r:'sml',k:['snack','sight','dinner'],lat:23.8530,lng:120.9330,cost:120,dur:90,img:'Ita Thao',star:1,
+  d:'A Thao tribe village by the pier: mushroom-and-tea simmered eggs, Thao barbecue, millet wine and Ruby 18 black tea.'},
+ {id:'ropeway',n:'Sun Moon Lake Ropeway',zh:'日月潭纜車',r:'sml',k:['sight'],lat:23.8500,lng:120.9360,cost:300,dur:90,open:'10:00-16:00',img:'Sun Moon Lake Ropeway',
+  d:'A cable car over the hills to the Formosan Aboriginal Culture Village.'},
+ {id:'cingjing',n:'Cingjing Farm (Green Green Grassland)',zh:'清境農場 青青草原',r:'sml',k:['sight'],lat:24.0550,lng:121.1620,acc:'Bus from Puli, or a car from Sun Moon Lake (~1.5 h).',cost:200,dur:150,img:'Cingjing Farm',
+  d:'Alpine sheep pastures at about 1,750 m, with Swiss-style B&Bs and sheep shows.'},
+ {id:'hehuan',n:'Hehuanshan & Wuling Pass',zh:'合歡山 武嶺',r:'sml',k:['hike','sight'],lat:24.1370,lng:121.2730,acc:'Car or taxi from Cingjing (~1 h). No permit needed for East Peak or Main Peak.',cost:0,dur:240,img:'Hehuan Mountain',star:1,
+  d:'Taiwan’s highest road pass (3,275 m), easy 3,400 m+ peaks, sunrise and sunset seas of clouds, and snow in winter.'},
+
+ // ---- TAICHUNG
+ {id:'chunshui',n:'Chun Shui Tang (Siwei original)',zh:'春水堂 四維創始店',r:'taichung',k:['lunch','snack'],lat:24.1510,lng:120.6640,acc:'Taxi 10 min from Taichung Station, or city bus.',cost:200,dur:60,open:'08:00-22:00',img:'Chun Shui Tang',star:1,
+  d:'The teahouse that says it invented bubble milk tea in the 1980s. Also good beef noodles and dougan snacks.'},
+ {id:'miyahara',n:'Miyahara',zh:'宮原眼科',r:'taichung',k:['snack','sight'],lat:24.1375,lng:120.6835,acc:'5 min walk from Taichung Station.',cost:200,dur:45,open:'10:00-22:00',img:'Miyahara Taichung',star:1,
+  d:'A 1927 eye clinic turned into a Harry-Potter-like sweets hall: ice cream with dozens of toppings, and pineapple cakes.'},
+ {id:'suncake',n:'Sun cakes on Ziyou Road',zh:'太陽堂老店',q:'太陽堂老店 台中 自由路',r:'taichung',k:['snack'],lat:24.1410,lng:120.6825,cost:300,dur:20,img:'Suncake (Taiwan)',dish:1,
+  d:'Taichung’s flaky malt-sugar sun cakes. Ziyou Road is lined with shops (e.g. Taiyang Tang Laodian).'},
+ {id:'fengchia',n:'Feng Chia Night Market',zh:'逢甲夜市',r:'taichung',k:['dinner','night'],lat:24.1750,lng:120.6460,acc:'Taxi ~20 min from Taichung Station, or bus.',cost:350,dur:120,open:'17:00-24:00',img:'Fengjia Night Market',star:1,
+  d:'One of Taiwan’s largest night markets, and where many viral snacks were born.'},
+ {id:'opera',n:'National Taichung Theater',zh:'臺中國家歌劇院',r:'taichung',k:['sight'],lat:24.1630,lng:120.6400,acc:'Taichung MRT Green line to Taichung City Hall, then a 10 min walk.',cost:0,dur:60,img:'National Taichung Theater',
+  d:'Toyo Ito’s cave-like curved-concrete opera house, with a rooftop garden.'},
+ {id:'rainbow',n:'Rainbow Village',zh:'彩虹眷村',r:'taichung',k:['sight'],lat:24.1340,lng:120.6100,cost:0,dur:30,img:'Rainbow Village',
+  d:'A tiny former veterans’ village painted in cartoon colors by “Grandpa Rainbow”.'},
+ {id:'gaomei',n:'Gaomei Wetlands',zh:'高美濕地',r:'taichung',k:['sight'],lat:24.3120,lng:120.5490,acc:'Taxi ~45 min from Taichung, or city bus (check Google Maps for times).',cost:0,dur:90,img:'Gaomei Wetlands',star:1,
+  d:'A boardwalk over a mirror-like tidal flat with wind turbines. One of the best sunset shots in Taiwan.'},
+ {id:'jlstudio',n:'JL Studio',zh:'JL Studio',q:'JL Studio 台中',r:'taichung',k:['dinner'],lat:24.1520,lng:120.6540,acc:'Taxi in Taichung.',cost:7000,dur:180,tier:3,img:'Fine dining',dish:1,
+  d:'Modern Singaporean tasting menu at one of Taiwan’s top Michelin-starred restaurants.'}
+];
+const PL={}; PLACES.forEach(p=>{p.tier=p.tier||1;PL[p.id]=p;});
+
+/* Ready-made days: [time, placeId, kind, durationOverride] */
+const TPL={
+ tp_arrival:{n:'Taipei · Arrival: Ximen, Longshan Temple, Dihua St, Ningxia NM',base:'taipei',start:'tpe',st:'11:00',stops:[['12:30','g_rest','rest',45],['13:30','aychung','lunch'],['14:15','ximending','sight'],['15:45','longshan','sight'],['17:15','dihua','sight'],['19:00','ningxia','dinner']]},
+ tp_classic:{n:'Taipei classics: Fuhang, CKS, Din Tai Fung, Taipei 101, Elephant Mtn, Raohe',base:'taipei',st:'07:00',stops:[['07:00','fuhang','breakfast'],['09:30','cks','sight'],['11:30','dtf','lunch'],['13:30','smoothie','snack'],['14:45','t101','sight'],['17:00','xiangshan','hike'],['19:15','fuzhou','snack'],['19:45','raohe','dinner']]},
+ north_day:{n:'Day trip: Shifen lanterns, Jiufen, Golden Waterfall, Keelung',base:'taipei',st:'07:30',stops:[['07:30','yonghe','breakfast'],['09:45','shifen','sight'],['11:00','shifenfall','sight'],['13:00','jiufen','lunch'],['15:00','golden','sight'],['16:15','agan','snack'],['17:15','amei','snack'],['19:30','miaokou','dinner']]},
+ tp_north:{n:'Palace Museum, Beitou hot springs, Tamsui sunset, Shilin NM',base:'taipei',st:'08:00',stops:[['08:00','tianjin','breakfast'],['09:15','npm','sight'],['12:15','silks','lunch'],['14:15','beitou','sight'],['16:45','tamsui','sight'],['19:30','shilin','dinner']]},
+ tp_yms:{n:'Yangmingshan volcano hike + Maokong tea',base:'taipei',st:'07:30',stops:[['07:30','jinfeng','breakfast'],['08:45','yangming','hike'],['13:30','yongkangbn','lunch'],['15:00','maokong','sight'],['19:30','lindongfang','dinner']]},
+ tp_splurge:{n:'Taipei splurge day: Le Palais, Taipei 101, RAW',base:'taipei',st:'09:00',stops:[['09:00','g_bf','breakfast'],['10:30','huashan','sight'],['12:00','lepalais','lunch'],['14:30','chiate','snack'],['15:30','t101','sight'],['18:30','raw','dinner']]},
+ north_hike:{n:'Caoling Trail silvergrass hike + Houtong cats + Keelung',base:'taipei',st:'07:00',stops:[['07:00','trabento','breakfast'],['09:00','caoling','hike'],['15:00','houtong','sight'],['18:30','miaokou','dinner']]},
+ north_falls:{n:'Sandiaoling waterfalls + Shifen + Jiufen',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','sandiaoling','hike'],['13:00','shifen','sight'],['15:30','jiufen','sight'],['18:30','miaokou','dinner']]},
+ yl_day:{n:'Yilan: Lanyang Museum, whale watching, hot springs, Luodong NM',base:'yilan',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','lanyang','sight'],['11:30','whale','sight'],['14:30','g_meal','lunch'],['16:00','jiaoxi','sight'],['19:00','luodong','dinner']]},
+ hl_taroko:{n:'Train to Hualien → Qingshui Cliff, Taroko Gorge, Qixingtan',base:'hualien',st:'06:30',stops:[['06:30','trabento','breakfast'],['09:30','gongzheng','snack'],['10:30','qingshui','sight'],['12:00','taroko','hike'],['15:00','shakadang','hike'],['17:00','qixingtan','sight'],['19:00','dongdamen','dinner']]},
+ tt_chishang:{n:'Hualien → Chishang rice fields → Taitung (Xiaoyeliu, Tiehua)',base:'taitung',st:'07:30',stops:[['07:30','zhoujia','breakfast'],['10:00','chishang','sight'],['12:30','chishangbento','lunch'],['15:30','g_rest','rest',45],['16:30','xiaoyeliu','sight'],['19:00','tiehua','dinner']]},
+ tt_coast:{n:'Taitung East Coast: Sanxiantai, Chenggong seafood, Luye',base:'taitung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','sanxiantai','sight'],['12:30','chenggong','lunch'],['16:00','luye','sight'],['19:00','g_meal','dinner']]},
+ kh_arrive:{n:'Taitung → Kaohsiung: Pier-2, Cijin sunset, Dome of Light',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['12:00','pier2','sight'],['13:30','g_meal','lunch'],['15:30','cijin','sight'],['18:00','cijinseafood','dinner'],['20:30','dome','sight']]},
+ kh_day:{n:'Kaohsiung: Lotus Pond, Fo Guang Shan, Weiwuying, Ruifeng NM',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:00','lotus','sight'],['11:00','fgs','sight'],['14:30','g_meal','lunch'],['16:00','weiwuying','sight'],['19:00','ruifeng','dinner']]},
+ kh_islands:{n:'Xiao Liuqiu sea turtles + Donggang tuna',base:'kaohsiung',st:'07:00',stops:[['07:00','g_bf','breakfast'],['08:30','liuqiu','sight'],['15:30','donggang','lunch'],['19:30','liuhe','dinner']]},
+ kt_day:{n:'Kenting: Eluanbi Lighthouse, Longpan cliffs, Maobitou sunset',base:'kenting',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','eluanbi','sight'],['11:00','longpan','sight'],['12:30','g_meal','lunch'],['16:45','maobitou','sight'],['19:00','kentingst','dinner']]},
+ tn_day:{n:'Tainan food & history: beef soup, Du Hsiao Yueh, Anping',base:'tainan',st:'07:00',stops:[['08:00','wenzhang','breakfast'],['09:30','chikan','sight'],['11:00','hayashi','sight'],['12:15','duxiaoyue','lunch'],['13:45','anping','sight'],['15:00','treehouse','sight'],['16:00','zhou','snack'],['18:00','shennong','night'],['19:30','garden','dinner']]},
+ tn_day2:{n:'Tainan: Chimei Museum + salt-field sunset',base:'tainan',st:'08:00',stops:[['08:00','shijingjiu','breakfast'],['09:45','chimei','sight'],['13:30','zhou','lunch'],['16:00','jingzaijiao','sight'],['19:30','garden','dinner']]},
+ tn_alishan:{n:'Tainan → Chiayi turkey rice → up to Alishan',base:'alishan',st:'07:00',stops:[['07:30','shijingjiu','breakfast'],['09:30','chimei','sight'],['13:00','penshui','lunch'],['17:30','g_rest','rest'],['19:00','g_meal','dinner']]},
+ al_day:{n:'Alishan full day: sunrise, giant trees, Fenqihu',base:'alishan',st:'04:30',stops:[['04:30','zhushan','sight'],['07:30','g_bf','breakfast'],['08:30','alishanforest','hike'],['12:30','fenqihu','lunch'],['18:00','g_meal','dinner']]},
+ al_sml:{n:'Alishan sunrise & giant trees → Sun Moon Lake',base:'sml',st:'04:30',stops:[['04:30','zhushan','sight'],['07:30','g_bf','breakfast'],['08:30','alishanforest','hike'],['15:30','itathao','snack'],['18:30','g_meal','dinner']]},
+ sml_day:{n:'Sun Moon Lake full day: boat, pagoda, Ita Thao, ropeway',base:'sml',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','cien','hike'],['11:00','xiangshan_vc','sight'],['12:30','itathao','lunch'],['14:30','ropeway','sight'],['18:30','g_meal','dinner']]},
+ sml_tc:{n:'Sun Moon Lake morning → Taichung: Chun Shui Tang, Gaomei sunset, Feng Chia',base:'taichung',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','cien','sight'],['11:00','xiangshan_vc','sight'],['14:00','chunshui','lunch'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
+ tc_day:{n:'Taichung: Miyahara, Rainbow Village, opera house, Gaomei, Feng Chia',base:'taichung',st:'09:00',stops:[['09:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','rainbow','sight'],['12:30','chunshui','lunch'],['14:30','opera','sight'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
+ tc_depart:{n:'Taichung morning → fly home from Taoyuan',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','suncake','snack'],['12:00','opera','sight'],['15:00','taoyuan','travel']]}
+};
+const DEFAULT=['tp_arrival','tp_classic','north_day','tp_north','hl_taroko','tt_chishang','tt_coast','kh_arrive','kh_day','tn_day','tn_alishan','al_sml','sml_tc','tc_depart'];
+
+/* Intercity options. pp = NT$ per person (approx). min = door-to-door between the two hubs. */
+const ICT=[
+ ['tpe','taipei',[{k:'mrt',m:'Airport MRT Express',i:'🚇',min:40,pp:160,note:'Purple line express to Taipei Main Station (A1). Runs every ~15 min.',book:'https://www.tymetro.com.tw/'},{k:'bus',m:'Airport bus (e.g. Kuo-Kuang 1819)',i:'🚌',min:60,pp:145,note:'Runs late at night. Goes to Taipei Main Station.'}]],
+ ['taipei','north',[{k:'tra',m:'TRA train → Ruifang',i:'🚆',min:45,pp:76,note:'Express ~40 min (NT$76) or local train ~55 min (NT$49). From Ruifang take the Pingxi Line (day pass ~NT$80) to Shifen, or a frequent bus up to Jiufen.',book:TRA},{k:'bus',m:'Bus 1062 → Jiufen / Jinguashi',i:'🚌',min:90,pp:101,note:'Leaves near Zhongxiao Fuxing MRT Exit 1. Direct with no transfer, but expect long queues back on weekend evenings.'}]],
+ ['taipei','yilan',[{k:'bus',m:'Highway bus (Kamalan / Capital)',i:'🚌',min:70,pp:140,note:'From Taipei City Hall or Taipei Bus Station through the Hsuehshan Tunnel. Stops at Jiaoxi, Yilan and Luodong.'},{k:'tra',m:'TRA express',i:'🚆',min:80,pp:218,note:'Coastal route.',book:TRA}]],
+ ['north','yilan',[{k:'tra',m:'TRA train',i:'🚆',min:60,pp:150,note:'Ruifang → Yilan along the coast (Fulong, Dali).',book:TRA}]],
+ ['taipei','hualien',[{k:'tra',m:'TRA Puyuma / Taroko Express',i:'🚆',min:130,pp:440,note:'Fastest. Tickets go on sale 28 days ahead and sell out on weekends, so book early.',book:TRA},{k:'tra2',m:'TRA Tze-Chiang',i:'🚆',min:165,pp:440,note:'Same fare, a little slower. Easier to get seats.',book:TRA}]],
+ ['yilan','hualien',[{k:'tra',m:'TRA express',i:'🚆',min:75,pp:223,note:'Spectacular coastal stretch.',book:TRA}]],
+ ['hualien','chishang',[{k:'tra',m:'TRA express',i:'🚆',min:90,pp:253,note:'Through the East Rift Valley.',book:TRA},{k:'tra2',m:'TRA local train',i:'🚆',min:130,pp:163,note:'Cheaper and slower.',book:TRA}]],
+ ['hualien','taitung',[{k:'tra',m:'TRA Puyuma / Tze-Chiang',i:'🚆',min:115,pp:343,book:TRA},{k:'tra2',m:'TRA local train',i:'🚆',min:180,pp:221,book:TRA}]],
+ ['chishang','taitung',[{k:'tra',m:'TRA train',i:'🚆',min:45,pp:95,book:TRA}]],
+ ['taipei','taitung',[{k:'tra',m:'TRA Puyuma',i:'🚆',min:220,pp:783,book:TRA},{k:'flight',m:'Flight Songshan → Taitung',i:'✈️',min:150,pp:2300,note:'About a 1 h flight plus airport time.'}]],
+ ['taitung','kaohsiung',[{k:'tra',m:'TRA via South-Link Line',i:'🚆',min:150,pp:362,note:'Sea views between Taitung and Taimali, then through the mountains.',book:TRA},{k:'bus',m:'Highway bus',i:'🚌',min:210,pp:400}]],
+ ['kaohsiung','kenting',[{k:'bus',m:'Kenting Express bus 9188',i:'🚌',min:140,pp:350,note:'From Zuoying HSR / Kaohsiung. Frequent departures.'}]],
+ ['kaohsiung','tainan',[{k:'tra',m:'TRA train',i:'🚆',min:40,pp:106,note:'City center to city center. Local trains ~NT$68.',book:TRA},{k:'hsr',m:'HSR Zuoying → Tainan',i:'🚄',min:55,pp:165,note:'The ride is only 12 min, but Tainan HSR is outside the city: add the Shalun shuttle train (25 min, ~NT$25).',book:HSR}]],
+ ['tainan','chiayi',[{k:'tra',m:'TRA train',i:'🚆',min:60,pp:185,book:TRA},{k:'hsr',m:'HSR',i:'🚄',min:70,pp:330,note:'The ride is 15 min, but both HSR stations are outside the cities, so add shuttles.',book:HSR}]],
+ ['kaohsiung','chiayi',[{k:'hsr',m:'HSR Zuoying → Chiayi',i:'🚄',min:70,pp:450,note:'Includes the BRT/bus from Chiayi HSR into the city.',book:HSR},{k:'tra',m:'TRA train',i:'🚆',min:95,pp:288,book:TRA}]],
+ ['chiayi','alishan',[{k:'bus',m:'Bus 7322 (Taiwan Tourist Shuttle)',i:'🚌',min:150,pp:278,note:'From Chiayi HSR or TRA station. Winding road, so motion-sickness pills help.',book:'https://www.taiwantrip.com.tw/'},{k:'tra',m:'Alishan Forest Railway',i:'🚂',min:210,pp:600,note:'Historic narrow-gauge train with limited seats. Book ahead and check which sections are running.',book:'https://afrch.forest.gov.tw/'}]],
+ ['alishan','sml',[{k:'bus',m:'Bus 6739 Alishan → Sun Moon Lake',i:'🚌',min:225,pp:330,note:'Only a few departures a day. Reserve and check times.'}]],
+ ['sml','taichung',[{k:'bus',m:'Nantou Bus 6670',i:'🚌',min:100,pp:195,note:'Sun Moon Lake ↔ Taichung HSR ↔ Taichung city. Frequent.'}]],
+ ['taipei','taichung',[{k:'hsr',m:'HSR',i:'🚄',min:75,pp:715,note:'50–60 min ride, then Taichung HSR → city by TRA shuttle (~10 min).',book:HSR},{k:'tra',m:'TRA Tze-Chiang',i:'🚆',min:125,pp:375,book:TRA},{k:'bus',m:'Highway bus (Kuo-Kuang / Ubus)',i:'🚌',min:160,pp:270}]],
+ ['taipei','chiayi',[{k:'hsr',m:'HSR',i:'🚄',min:100,pp:1100,note:'Includes the BRT from Chiayi HSR into town.',book:HSR},{k:'tra',m:'TRA Tze-Chiang',i:'🚆',min:195,pp:598,book:TRA},{k:'bus',m:'Highway bus',i:'🚌',min:220,pp:360}]],
+ ['taipei','tainan',[{k:'hsr',m:'HSR',i:'🚄',min:140,pp:1375,note:'About 1 h 45 min to Tainan HSR, then the Shalun shuttle train to Tainan Station (25 min, ~NT$25).',book:HSR},{k:'tra',m:'TRA Tze-Chiang',i:'🚆',min:240,pp:738,book:TRA},{k:'bus',m:'Highway bus',i:'🚌',min:270,pp:420,note:'Cheapest. Night buses are available.'}]],
+ ['taipei','kaohsiung',[{k:'hsr',m:'HSR → Zuoying',i:'🚄',min:120,pp:1525,note:'Then the Kaohsiung MRT Red line into the city.',book:HSR},{k:'tra',m:'TRA Tze-Chiang',i:'🚆',min:285,pp:843,book:TRA},{k:'bus',m:'Highway bus',i:'🚌',min:300,pp:530}]],
+ ['taichung','tainan',[{k:'hsr',m:'HSR',i:'🚄',min:75,pp:675,book:HSR},{k:'tra',m:'TRA Tze-Chiang',i:'🚆',min:120,pp:363,book:TRA}]],
+ ['taichung','chiayi',[{k:'hsr',m:'HSR',i:'🚄',min:50,pp:430,book:HSR},{k:'tra',m:'TRA Tze-Chiang',i:'🚆',min:85,pp:224,book:TRA}]],
+ ['taichung','kaohsiung',[{k:'hsr',m:'HSR',i:'🚄',min:75,pp:825,book:HSR},{k:'tra',m:'TRA Tze-Chiang',i:'🚆',min:160,pp:470,book:TRA}]],
+ ['taipei','sml',[{k:'hsr',m:'HSR to Taichung + bus 6670',i:'🚄',min:180,pp:895,book:HSR},{k:'bus',m:'Direct bus (Kuo-Kuang)',i:'🚌',min:240,pp:460}]],
+ ['chiayi','sml',[{k:'hsr',m:'HSR Chiayi → Taichung + bus 6670',i:'🚄',min:150,pp:610,book:HSR}]],
+ ['taichung','tpe',[{k:'hsr',m:'HSR to Taoyuan + Airport MRT',i:'🚄',min:75,pp:625,note:'HSR to Taoyuan station (~40 min), then the Airport MRT (~20 min).',book:HSR},{k:'bus',m:'Direct airport bus',i:'🚌',min:150,pp:300}]],
+ ['taipei','kenting',[{k:'hsr',m:'HSR to Zuoying + Kenting Express',i:'🚄',min:270,pp:1840,book:HSR}]],
+ ['tainan','kenting',[{k:'tra',m:'Train to Kaohsiung + Kenting Express',i:'🚆',min:200,pp:460}]],
+ ['taitung','kenting',[{k:'bus',m:'Bus, changing at Fangliao / Hengchun',i:'🚌',min:240,pp:420,note:'Awkward by public transport. A car or tour is much easier.'}]]
+];
+const ICM={}; ICT.forEach(([a,b,o])=>{ICM[a+'|'+b]=o;ICM[b+'|'+a]=o;});
+
+/* ================= HELPERS ================= */
+const $=(s,el=document)=>el.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const toMin=t=>{if(!t)return null;const[h,m]=t.split(':').map(Number);return h*60+(m||0)};
+const fmtT=m=>{m=Math.round(m);const d=Math.floor(m/1440);m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')+(d>0?' (+1)':'')};
+const fmtDur=m=>{m=Math.round(m);if(m<60)return m+' min';const h=Math.floor(m/60),r=m%60;return h+' h'+(r?' '+r+' min':'')};
+const WD=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function hav(a,b){const R=6371,t=x=>x*Math.PI/180;const dLa=t(b.lat-a.lat),dLo=t(b.lng-a.lng);const h=Math.sin(dLa/2)**2+Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+function tpeFare(km){return km<=5?20:Math.min(65,20+5*Math.ceil((km-5)/3))}
+function khhFare(km){return km<=6?20:Math.min(60,20+5*Math.ceil((km-6)/3))}
+
+/* ================= STATE ================= */
+const LS='twPlanner.v1';
+let S;
+function fromTpl(tid){
+  const t=TPL[tid];
+  return {tpl:tid,base:t.base,startTime:t.st||'08:00',start:t.start?hubPoint(t.start):null,hotel:null,
+    stops:t.stops.map(([time,pid,kind,dur])=>({uid:uid(),pid,kind:kind||PL[pid].k[0],time:time||null,dur:dur||null})),pick:{}};
+}
+function todayISO(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
+function defState(){
+  return {v:1,startDate:todayISO(),days:14,trav:2,budget:'balanced',cur:'both',rate:530,rateDate:null,rateSrc:'default',
+    hotel:{saver:1500,balanced:3200,comfort:8000},active:0,tab:'plan',dismissed:{},
+    plan:DEFAULT.map(fromTpl)};
+}
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(LS));
+    if(s&&s.v===1&&Array.isArray(s.plan)&&s.plan.length===14){S=Object.assign(defState(),s);return}}catch(e){}
+  S=defState();settleAll();
+}
+function settle(di){
+  for(let k=0;k<25;k++){const C=computeDay(di);const late=C.items.filter(it=>it.late);if(!late.length)return;late[0].s.time=null}
+}
+function settleAll(){for(let i=0;i<14;i++)settle(i)}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+
+/* ================= MONEY ================= */
+function idr(nt){return Math.round(nt*S.rate/100)*100}
+function money(nt,free){
+  nt=Math.round(nt||0);
+  if(!nt&&free!==false)return 'Free';
+  const a='NT$'+nt.toLocaleString('en-US'), b='Rp '+idr(nt).toLocaleString('id-ID');
+  if(S.cur==='ntd')return a; if(S.cur==='idr')return b;
+  return a+' <span class="idr">≈ '+b+'</span>';
+}
+
+/* ================= POINTS & ROUTING ================= */
+function hubPoint(r){const R=REG[r];return {label:R.hub,lat:R.lat,lng:R.lng,region:r,q:R.hubq,hub:true}}
+function nearestRegion(lat,lng){let best=null,bd=1e9;for(const r in REG){const d=hav({lat,lng},REG[r]);if(d<bd){bd=d;best=r}}return best}
+function hotelPoint(di){const d=S.plan[di];return d.hotel||Object.assign(hubPoint(d.base),{label:REG[d.base].hub+' (hotel not set)'})}
+function dayStart(di){const d=S.plan[di];if(d.start)return d.start;if(di===0)return hubPoint(d.base);return hotelPoint(di-1)}
+function placePoint(p,di,prev,start){
+  if(p.gen==='start')return Object.assign({},start,{gen:true});
+  if(p.gen==='hotel')return Object.assign({},hotelPoint(di),{gen:true});
+  if(p.gen==='prev')return Object.assign({},prev,{gen:true});
+  return {lat:p.lat,lng:p.lng,region:p.r,q:p.q||(p.zh+' '+REG[p.r].zh),label:p.n,st:p.st,ex:p.ex,w:p.w,acc:p.acc,pid:p.id};
+}
+function stationFor(pt,sys){
+  if(pt.st&&MRT[pt.st]&&MRT[pt.st].s===sys){
+    const w=pt.w!=null?pt.w:Math.round(hav(pt,MRT[pt.st])*1.3/4.5*60);
+    return {name:pt.st,ex:pt.ex,w};
+  }
+  let best=null,bd=1e9;
+  for(const n in MRT){if(MRT[n].s!==sys)continue;const d=hav(pt,MRT[n]);if(d<bd){bd=d;best=n}}
+  if(bd>1.5)return null;
+  return {name:best,ex:null,w:Math.max(1,Math.round(bd*1.3/4.5*60))};
+}
+function mrtRoute(a,b){
+  const A=MRT[a].l,B=MRT[b].l,common=A.filter(x=>B.includes(x));
+  let tr=0,text='';
+  if(common.length){text='<b style="color:'+LINES[common[0]].c+'">●</b> '+LINES[common[0]].n}
+  else{
+    let found=null;
+    for(const x of A)for(const y of B){const k=[x,y].sort().join('|');if(XFER[k]&&!found)found=[x,y,XFER[k]]}
+    if(found){tr=found[2][1];text='<b style="color:'+LINES[found[0]].c+'">●</b> '+LINES[found[0]].n+' → change at <b>'+found[2][0]+'</b> → <b style="color:'+LINES[found[1]].c+'">●</b> '+LINES[found[1]].n}
+    else{tr=1;text='MRT (one change; Google Maps will show the fastest)'}
+  }
+  if(a==='Xinbeitou'||b==='Xinbeitou'){tr++;text+=' (change at <b>Beitou</b> for the Xinbeitou branch)'}
+  return {tr,text};
+}
+const W={saver:2,balanced:6,comfort:15};
+const WALKMAX={saver:1.6,balanced:1.1,comfort:0.7};
+function groupCost(o){return o.perCar?o.pp*Math.ceil(S.trav/4):o.pp*S.trav}
+function score(o){let w=W[S.budget];if(o.k==='walk'&&S.budget==='comfort')w*=1.6;return o.gc+o.min*w*S.trav}
+
+function localOpts(A,B){
+  const d=hav(A,B),road=d*1.3,o=[],R=B.region||A.region;
+  if(road<=4)o.push({k:'walk',m:'Walk',i:'🚶',min:Math.max(1,Math.round(road/4.5*60)),pp:0,gm:'walking',txt:'About '+(Math.round(road*10)/10)+' km on foot.'});
+  const sA=REG[A.region]&&REG[A.region].mrt, sB=REG[B.region]&&REG[B.region].mrt;
+  const sys=sA&&sA===sB?sA:null;
+  if(sys&&road>0.7){
+    const a=stationFor(A,sys),b=stationFor(B,sys);
+    if(a&&b&&a.name!==b.name){
+      const rt=mrtRoute(a.name,b.name),km=hav(MRT[a.name],MRT[b.name])*1.25;
+      const ride=Math.round(km/30*60+4+rt.tr*5),fare=sys==='tpe'?tpeFare(km):khhFare(km);
+      o.push({k:'mrt',m:'MRT',i:'🚇',min:a.w+ride+b.w,pp:fare,gm:'transit',
+        steps:['Walk ~'+a.w+' min to <b>'+esc(a.name)+'</b> station'+(a.ex?' (Exit '+esc(a.ex)+')':''),
+               rt.text+' · ~'+ride+' min',
+               'Get off at <b>'+esc(b.name)+'</b>'+(b.ex?' → take <b>Exit '+esc(b.ex)+'</b>':'')+' → walk ~'+b.w+' min'],
+        txt:'Tap your EasyCard at the gates. Fare ≈ NT$'+fare+' per person.'});
+    }
+  }
+  if(road>1.2){
+    const far=road>15;
+    o.push({k:'bus',m:sys?'City bus':(far?'Bus / train':'Bus'),i:'🚌',min:Math.round(road/(far?35:16)*60+12),pp:sys?15:(far?Math.round(road*2):30),gm:'transit',
+      txt:B.acc?'':'Check Google Maps for the current route and departure times. Pay with your EasyCard.'});
+  }
+  if(road>=0.8&&road<=6&&['taipei','north','kaohsiung','taichung','tainan','chiayi','sml'].includes(R)){
+    const m=Math.round(road/12*60+6);
+    o.push({k:'bike',m:'YouBike',i:'🚲',min:m,pp:Math.max(10,Math.ceil(m/30)*10),gm:'bicycling',txt:'Public bike, rented with an EasyCard (one-time registration needed). Docks are everywhere.'});
+  }
+  if(road>0.6){
+    const fare=Math.round((R==='taipei'?85:100)+Math.max(0,road-1.25)*25);
+    const sp=road>20?50:22;
+    o.push({k:'taxi',m:'Taxi / Uber',i:'🚕',min:Math.round(road/sp*60+4),pp:fare,perCar:true,gm:'driving',
+      txt:'≈ NT$'+fare.toLocaleString()+' per car (up to 4 people). Uber works in most cities. Show the driver the Chinese name: '+esc(B.q||B.label||'')});
+  }
+  if(!o.length)o.push({k:'walk',m:'Walk',i:'🚶',min:1,pp:0,gm:'walking',txt:'Right next door.'});
+  o.forEach(x=>x.gc=groupCost(x));
+  return o;
+}
+function bestOf(opts,d){
+  let rec=0,bs=1e18;
+  opts.forEach((o,i)=>{const s=score(o);if(s<bs){bs=s;rec=i}});
+  if(d!=null&&d<=WALKMAX[S.budget]){const wi=opts.findIndex(o=>o.k==='walk');if(wi>=0)rec=wi}
+  return rec;
+}
+function bestLocal(A,B){
+  if(hav(A,B)<0.08)return {k:'none',m:'',i:'',min:0,pp:0,gc:0};
+  const o=localOpts(A,B);return o[bestOf(o,hav(A,B))];
+}
+function interOpts(A,B){
+  const ra=A.region,rb=B.region,road=hav(A,B)*1.3;
+  let list=ICM[ra+'|'+rb];
+  if(!list)list=[{k:'transit',m:'Train / bus (estimate)',i:'🚆',min:Math.round(road/55*60+40),pp:Math.round(road*2.3),note:'No ready-made data for this pair, so check Google Maps for the exact connection.'}];
+  const hA=hubPoint(ra),hB=hubPoint(rb);
+  const lastOf=pt=>pt.pid&&PL[pt.pid]&&PL[pt.pid].last;
+  const mk=l=>Object.assign({k:'last',gc:l.pp*S.trav},l);
+  const pre=lastOf(A)?mk(lastOf(A)):bestLocal(A,hA),post=lastOf(B)?mk(lastOf(B)):bestLocal(hB,B);
+  const opts=list.map(x=>{
+    const o=Object.assign({},x,{gm:'transit',inter:true,pre,post,hubA:hA,hubB:hB});
+    o.min=x.min+pre.min+post.min+(pre.min||post.min?10:0);
+    o.gc=x.pp*S.trav+pre.gc+post.gc;
+    return o;
+  });
+  // mountain/coast roads are slower than straight-line distance suggests: scale by the fastest public ride
+  const fastest=Math.min(...list.map(x=>x.min));
+  const kmEff=Math.max(road,fastest/60*50);
+  const carFare=Math.round(kmEff*20+300);
+  opts.push({k:'car',m:'Taxi / private driver (door to door)',i:'🚗',min:Math.round(Math.max(road/65*60,fastest*0.7)+10),pp:carFare,perCar:true,gm:'driving',inter:true,
+    gc:carFare*Math.ceil(S.trav/4),note:'Book a driver or charter through your hotel or a tour app. Handy with luggage or a group of 3–4.'});
+  return opts;
+}
+function makeLeg(A,B,key,di){
+  const d=hav(A,B);
+  if(d<0.08)return {type:'none',opts:[{k:'here',m:'Same spot',i:'📍',min:0,pp:0,gc:0}],rec:0,chosen:0,d};
+  const local=A.region===B.region||d<12;
+  const opts=local?localOpts(A,B):interOpts(A,B);
+  const rec=bestOf(opts,local?d:null);
+  const pk=S.plan[di].pick[key];
+  let chosen=rec;
+  if(pk){const i=opts.findIndex(o=>o.k===pk);if(i>=0)chosen=i}
+  return {type:local?'local':'inter',opts,rec,chosen,d};
+}
+function weekday(di){const d=new Date(S.startDate+'T12:00:00');d.setDate(d.getDate()+di);return d.getDay()}
+function dateLabel(di,long){const d=new Date(S.startDate+'T12:00:00');d.setDate(d.getDate()+di);
+  return d.toLocaleDateString('en-GB',long?{weekday:'long',day:'numeric',month:'long'}:{weekday:'short',day:'numeric',month:'short'})}
+function checkHours(p,begin,end,di){
+  const out=[];const wd=weekday(di);
+  if(p.closed&&p.closed.includes(wd))out.push({t:'closed',msg:'Closed on '+WD[wd]+'s'});
+  if(p.open){
+    const [os,cs]=p.open.split('-');const o=toMin(os);let c=toMin(cs);if(c<=o)c+=1440;
+    let b=begin%1440;if(b<o&&b+1440<c)b+=1440;
+    if(b<o)out.push({t:'early',msg:'Opens '+os,open:os});
+    else if(b>=c)out.push({t:'late',msg:'Closed by then (closes '+cs+')'});
+    else if(b+(end-begin)>c+5)out.push({t:'closing',msg:'Closes at '+cs+', so your visit gets cut short'});
+  }
+  return out;
+}
+function computeDay(di){
+  const day=S.plan[di],start=dayStart(di);let prev=start,t=toMin(day.startTime||'08:00');
+  const items=[];let food=0,trans=0,inter=0,km=0,travel=0;
+  day.stops.forEach((s,idx)=>{
+    const p=PL[s.pid];if(!p)return;
+    const pt=placePoint(p,di,prev,start);
+    const leg=makeLeg(prev,pt,s.uid,di);
+    const o=leg.opts[leg.chosen];
+    const arrive=t+o.min,planned=s.time?toMin(s.time):null;
+    const begin=planned!=null?Math.max(arrive,planned):arrive;
+    const dur=s.dur||p.dur,end=begin+dur;
+    const cost=(p.cost||0)*S.trav;
+    food+=cost;if(leg.type==='inter')inter+=o.gc;else trans+=o.gc;
+    km+=leg.d;travel+=o.min;
+    items.push({s,p,pt,prev,leg,o,arrive,begin,end,dur,planned,late:planned!=null&&arrive>planned+10,hrs:checkHours(p,begin,end,di),cost,idx});
+    t=end;prev=pt;
+  });
+  const hotel=di<S.days-1?S.hotel[S.budget]*Math.ceil(S.trav/2):0;
+  return {start,items,food,trans,inter,hotel,km,travel,total:food+trans+inter+hotel,end:t};
+}
+
+/* ================= SUGGESTIONS ================= */
+let ACT={},actN=0;
+function act(fn){const id='a'+(actN++);ACT[id]=fn;return id}
+function allowed(di){const d=S.plan[di];const st=dayStart(di);const set=new Set(NEAR[d.base]||[d.base]);(NEAR[st.region]||[st.region]).forEach(r=>set.add(r));return set}
+function usedSet(exceptDi){const u=new Set();S.plan.slice(0,S.days).forEach((d,i)=>{if(i===exceptDi)return;d.stops.forEach(s=>u.add(s.pid))});return u}
+function alternatives(p,kind,di,near,limit){
+  const al=allowed(di),used=usedSet(-1);
+  return PLACES.filter(q=>!q.gen&&q.id!==p.id&&q.k.includes(kind)&&al.has(q.r)&&!used.has(q.id))
+    .map(q=>({q,d:near?hav(near,q):0})).filter(a=>!near||a.d<=15||a.q.r===p.r&&a.d<=25)
+    .sort((a,b)=>a.d-b.d||(b.q.star||0)-(a.q.star||0)).slice(0,limit||3);
+}
+function insertStop(di,stop){
+  const st=S.plan[di].stops,r=RANK[stop.kind]||3;
+  let at=st.findIndex(x=>(RANK[x.kind]||3)>r);if(at<0)at=st.length;st.splice(at,0,stop);
+}
+function moveStop(fromDi,uidv,toDi){
+  const st=S.plan[fromDi].stops,i=st.findIndex(x=>x.uid===uidv);if(i<0)return;
+  const [s]=st.splice(i,1);s.time=null;insertStop(toDi,s);
+}
+function routeKm(di,pids){
+  const start=dayStart(di);let prev=start,sum=0;
+  pids.forEach(id=>{const p=PL[id];const pt=placePoint(p,di,prev,start);sum+=hav(prev,pt);prev=pt});return sum;
+}
+function permutations(a){if(a.length<=1)return[a];const out=[];a.forEach((x,i)=>permutations(a.slice(0,i).concat(a.slice(i+1))).forEach(p=>out.push([x].concat(p))));return out}
+
+function suggestions(di,C){
+  const day=S.plan[di],out=[],dis=S.dismissed,al=allowed(di);
+  const add=(key,uidv,type,html,acts)=>{if(dis[key])return;acts.push({l:'Dismiss',cls:'ghost',fn:()=>{S.dismissed[key]=1}});out.push({key,uid:uidv,type,html,acts})};
+  const lates=C.items.filter(it=>it.late);
+  C.items.forEach((it,i)=>{
+    const p=it.p,s=it.s;if(p.gen)return;
+    // region mismatch
+    if(!al.has(p.r)){
+      const acts=[];
+      const cands=[];S.plan.slice(0,S.days).forEach((d,j)=>{if(j!==di&&(NEAR[d.base]||[]).includes(p.r))cands.push(j)});
+      cands.sort((a,b)=>((S.plan[b].base===p.r)-(S.plan[a].base===p.r))||Math.abs(a-di)-Math.abs(b-di));
+      cands.slice(0,2).forEach(j=>acts.push({l:'Move to Day '+(j+1)+' ('+REG[S.plan[j].base].n+')',cls:'pri',fn:()=>moveStop(di,s.uid,j)}));
+      if(BASES.includes(p.r))acts.push({l:'Make Day '+(di+1)+' a '+REG[p.r].n+' day',fn:()=>{day.base=p.r}});
+      add('reg:'+di+':'+s.uid,s.uid,'region','📍 <b>'+esc(p.n)+'</b> is in '+REG[p.r].n+', but Day '+(di+1)+' is based in '+REG[day.base].n+'. Keeping it here adds a long trip'+(it.leg.type==='inter'?' (≈ '+fmtDur(it.o.min)+')':'')+'.'+(cands.length?' Day '+(cands[0]+1)+' is already in '+REG[S.plan[cands[0]].base].n+'.':''),acts);
+    }
+    // duplicate
+    S.plan.slice(0,S.days).forEach((d,j)=>{
+      if(j===di)return;const other=d.stops.find(x=>x.pid===p.id);if(!other)return;
+      const acts=[{l:'Remove it from Day '+(j+1),cls:'pri',fn:()=>{d.stops=d.stops.filter(x=>x!==other)}}];
+      const alt=alternatives(p,s.kind,di,it.pt,1)[0];
+      if(alt)acts.push({l:'Swap here for '+alt.q.n,fn:()=>{s.pid=alt.q.id}});
+      add('dup:'+di+':'+s.uid+':'+j,s.uid,'dup','🔁 <b>'+esc(p.n)+'</b> is also on Day '+(j+1)+'. Do you want to keep both?',acts);
+    });
+    // hours
+    it.hrs.forEach(h=>{
+      const acts=[];
+      if(h.t==='early')acts.push({l:'Start at '+h.open,cls:'pri',fn:()=>{s.time=h.open}});
+      const alt=alternatives(p,s.kind,di,it.pt,4).find(a=>!checkHours(a.q,it.begin,it.end,di).length);
+      if(alt)acts.push({l:'Swap for '+alt.q.n+(alt.d?' ('+alt.d.toFixed(1)+' km away)':''),fn:()=>{s.pid=alt.q.id}});
+      if(h.t==='closed'){
+        const j=S.plan.slice(0,S.days).findIndex((d,j)=>j!==di&&(NEAR[d.base]||[]).includes(p.r)&&!(p.closed||[]).includes(weekday(j)));
+        if(j>=0)acts.push({l:'Move to Day '+(j+1),fn:()=>moveStop(di,s.uid,j)});
+      }
+      add('hrs:'+di+':'+s.uid+':'+h.t+':'+weekday(di),s.uid,'hours','🕘 <b>'+esc(p.n)+'</b>: '+h.msg+' (you arrive '+fmtT(it.begin)+' on '+WD[weekday(di)]+').',acts);
+    });
+    // closer alternative (detour)
+    if(i>0&&al.has(p.r)&&['breakfast','lunch','dinner','snack'].includes(s.kind)){
+      const prevPt=it.prev,next=C.items[i+1]?C.items[i+1].pt:null;
+      const cur=hav(prevPt,it.pt)+(next?hav(it.pt,next):0);
+      const best=alternatives(p,s.kind,di,prevPt,6).map(a=>({a,ext:hav(prevPt,a.q)+(next?hav(a.q,next):0)})).sort((x,y)=>x.ext-y.ext)[0];
+      if(best&&cur-best.ext>(p.star?8:4)&&best.ext<cur*0.6){
+        add('det:'+di+':'+s.uid+':'+best.a.q.id,s.uid,'detour','🧭 <b>'+esc(p.n)+'</b> is a detour. <b>'+esc(best.a.q.n)+'</b> fits your route better and saves ~'+(cur-best.ext).toFixed(1)+' km.',
+          [{l:'Switch to '+best.a.q.n,cls:'pri',fn:()=>{s.pid=best.a.q.id}},{l:'Preview it',fn:()=>{openPreview(best.a.q.id);return 'keep'}}]);
+      }
+    }
+    // budget
+    if(S.budget==='saver'&&p.tier===3){
+      const alt=alternatives(p,s.kind,di,it.pt,6).find(a=>a.q.tier===1);
+      if(alt)add('bud:'+di+':'+s.uid,s.uid,'budget','💸 <b>'+esc(p.n)+'</b> costs ~'+money(p.cost)+' per person. A saver option nearby is <b>'+esc(alt.q.n)+'</b> (~'+money(alt.q.cost)+').',[{l:'Switch',cls:'pri',fn:()=>{s.pid=alt.q.id}}]);
+    }
+  });
+  // late
+  if(lates.length){
+    add('late:'+di+':'+lates.map(x=>x.s.uid).join(','),null,'late','⏰ Your plan runs behind at '+lates.length+' stop'+(lates.length>1?'s':'')+' ('+lates.map(x=>esc(x.p.n)+' arrives '+fmtT(x.arrive)).join('; ')+').',
+      [{l:'Auto-fix times',cls:'pri',fn:()=>{lates.forEach(x=>x.s.time=null)}}]);
+  }
+  // reorder
+  const regions=new Set(C.items.map(it=>it.pt.region));
+  const flexIdx=day.stops.map((s,i)=>i).filter(i=>{const p=PL[day.stops[i].pid];return p&&!p.gen&&['sight','hike','snack'].includes(day.stops[i].kind)});
+  if(regions.size===1&&flexIdx.length>=2&&flexIdx.length<=6){
+    const base=day.stops.map(s=>s.pid),curKm=routeKm(di,base);
+    let best=null,bk=curKm;
+    permutations(flexIdx.map(i=>base[i])).forEach(perm=>{const arr=base.slice();flexIdx.forEach((ix,k)=>arr[ix]=perm[k]);const km=routeKm(di,arr);if(km<bk-0.01){bk=km;best=arr}});
+    if(best&&curKm-bk>2&&bk<curKm*0.85){
+      const names=flexIdx.map(i=>PL[best[i]].n).join(' → ');
+      add('ord:'+di+':'+base.join(','),null,'order','🔀 Reordering the sightseeing stops ('+esc(names)+') saves ~'+(curKm-bk).toFixed(1)+' km of travel.',
+        [{l:'Reorder',cls:'pri',fn:()=>{const pool=flexIdx.map(i=>day.stops[i]);flexIdx.forEach((ix,k)=>{const s=pool.find(x=>x.pid===best[ix]);day.stops[ix]=s;s.time=null})}}]);
+    }
+  }
+  // splurge tip (comfort)
+  if(S.budget==='comfort'){
+    const meal=C.items.find(it=>['lunch','dinner'].includes(it.s.kind)&&it.p.tier<3);
+    if(meal){const alt=alternatives(meal.p,meal.s.kind,di,meal.pt,10).find(a=>a.q.tier===3);
+      if(alt)add('spl:'+di+':'+alt.q.id,meal.s.uid,'splurge','💎 Comfort budget idea: swap '+esc(meal.p.n)+' for <b>'+esc(alt.q.n)+'</b> (~'+money(alt.q.cost)+' pp).',[{l:'Swap',cls:'pri',fn:()=>{meal.s.pid=alt.q.id}}]);}
+  }
+  return out;
+}
+
+/* ================= WIKIPEDIA PREVIEWS ================= */
+const WIKI={};
+function wiki(term){
+  if(!term)return Promise.resolve(null);
+  if(WIKI[term])return WIKI[term];
+  const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&prop=pageimages|extracts|info&inprop=url&piprop=thumbnail&pithumbsize=800&exintro=1&explaintext=1&exsentences=3&gsrsearch='+encodeURIComponent(term);
+  WIKI[term]=fetch(u).then(r=>r.json()).then(j=>{const pg=j.query&&Object.values(j.query.pages)[0];return pg?{title:pg.title,img:pg.thumbnail&&pg.thumbnail.source,ext:pg.extract,url:pg.fullurl}:null}).catch(()=>null);
+  return WIKI[term];
+}
+function fillImgs(root){
+  const els=[...root.querySelectorAll('[data-img]')];
+  const load=el=>{const t=el.dataset.img;el.removeAttribute('data-img');wiki(t).then(w=>{if(w&&w.img){el.style.backgroundImage='url("'+w.img.replace(/"/g,'%22')+'")';el.classList.add('has')}})};
+  if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){io.unobserve(e.target);load(e.target)}}),{rootMargin:'200px'});els.forEach(el=>io.observe(el))}
+  else els.forEach(load);
+}
+
+/* ================= LINKS ================= */
+function gq(pt){return pt.q||(pt.lat+','+pt.lng)}
+function gmPlace(p){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.q||(p.zh+' '+REG[p.r].zh))}
+function gmDir(a,b,mode){return 'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(gq(a))+'&destination='+encodeURIComponent(gq(b))+'&travelmode='+(mode||'transit')}
+function gImages(p){return 'https://www.google.com/search?tbm=isch&q='+encodeURIComponent(p.n+' '+(p.zh||'')+' Taiwan')}
+
+/* ================= RENDER ================= */
+function render(){
+  ACT={};actN=0;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===S.tab));
+  const m=$('#main');
+  if(S.tab==='plan')m.innerHTML=renderPlan();
+  else if(S.tab==='explore')m.innerHTML=renderExplore();
+  else if(S.tab==='compare')m.innerHTML=renderCompare();
+  else m.innerHTML=renderTrip();
+  fillImgs(m);
+  if(S.tab==='plan')drawMap();
+  save();
+}
+function renderHeader(){
+  $('#sDate').value=S.startDate;
+  $('#sDays').innerHTML=Array.from({length:14},(_,i)=>'<option'+(i+1===S.days?' selected':'')+'>'+(i+1)+'</option>').join('');
+  $('#sTrav').innerHTML=Array.from({length:10},(_,i)=>'<option'+(i+1===S.trav?' selected':'')+'>'+(i+1)+'</option>').join('');
+  document.querySelectorAll('#sBudget button').forEach(b=>b.classList.toggle('on',b.dataset.b===S.budget));
+  document.querySelectorAll('#sCur button').forEach(b=>b.classList.toggle('on',b.dataset.c===S.cur));
+  $('#sRate').value=S.rate;
+  $('#rateInfo').textContent=S.rateSrc==='live'&&S.rateDate?'live · '+new Date(S.rateDate).toLocaleDateString('en-GB'):S.rateSrc==='manual'?'set by you':'default estimate';
+}
+
+function placeSelect(kind,di,cur){
+  const al=allowed(di),fits=PLACES.filter(p=>p.k.includes(kind));
+  const inA=fits.filter(p=>!p.gen&&al.has(p.r)),star=inA.filter(p=>p.star),more=inA.filter(p=>!p.star);
+  const gen=fits.filter(p=>p.gen),other=fits.filter(p=>!p.gen&&!al.has(p.r)).sort((a,b)=>a.r.localeCompare(b.r));
+  const opt=(p,showR)=>'<option value="'+p.id+'"'+(p.id===cur?' selected':'')+'>'+(p.star?'★ ':'')+esc(p.n)+(p.tier===3?' 💎':'')+(showR||!al.has(p.r)&&!p.gen?' · '+esc(REG[p.r]?REG[p.r].n:''):'')+(p.cost&&!p.gen?' · ~NT$'+p.cost:'')+'</option>';
+  let h='';
+  if(cur&&!fits.find(p=>p.id===cur)&&PL[cur])h+='<optgroup label="Current">'+opt(PL[cur],1)+'</optgroup>';
+  if(star.length)h+='<optgroup label="★ Most recommended nearby">'+star.map(p=>opt(p,al.size>1)).join('')+'</optgroup>';
+  if(more.length)h+='<optgroup label="More nearby">'+more.map(p=>opt(p,al.size>1)).join('')+'</optgroup>';
+  if(gen.length)h+='<optgroup label="Flexible">'+gen.map(p=>opt(p)).join('')+'</optgroup>';
+  if(other.length)h+='<optgroup label="Other cities (we’ll suggest the right day)">'+other.map(p=>opt(p,1)).join('')+'</optgroup>';
+  return h;
+}
+function ptControls(which,di,pt,isAuto){
+  const opts=['<option value="">'+(which==='start'?'Auto: where you slept last night':'Auto: near '+esc(REG[S.plan[di].base].hub))+'</option>']
+    .concat(Object.keys(REG).map(r=>'<option value="hub:'+r+'">'+esc(REG[r].hub)+'</option>')).join('');
+  return '<div class="ptbox"><span class="ptlabel">'+esc(pt.label)+'</span>'+(isAuto?' <span class="pill">auto</span>':'')+
+    ' <select class="inp" data-act="ptPreset" data-w="'+which+'" aria-label="Choose a preset"><option value="__" selected>Change…</option>'+opts+'</select>'+
+    ' <button class="btn sm" data-act="ptGeo" data-w="'+which+'">📍 My location</button>'+
+    ' <input class="inp" data-w="'+which+'" id="ptq-'+which+'" placeholder="Hotel name or address" style="width:190px">'+
+    ' <button class="btn sm" data-act="ptFind" data-w="'+which+'">🔎 Find</button></div>';
+}
+function legHTML(it,di){
+  const L=it.leg,o=it.o,s=it.s;
+  if(L.type==='none')return '';
+  const recO=L.opts[L.rec];
+  let h='<div class="leg"><div class="main">'+(L.type==='inter'?'<span class="inter-badge">CITY CHANGE</span>':'')+
+    '<b>'+o.i+' '+esc(o.m)+'</b><span>· '+fmtDur(o.min)+'</span><span>· '+money(o.gc)+(S.trav>1&&o.gc?' <small>for '+S.trav+'</small>':'')+'</span>'+
+    (L.chosen===L.rec?'<span class="pill">★ best for '+S.budget+'</span>':'<span class="pill">your pick · ★ '+esc(recO.m)+' recommended</span>')+'</div>';
+  if(L.opts.length>1)h+='<div class="opts">'+L.opts.map((x,i)=>'<button class="chip'+(i===L.chosen?' on':'')+'" data-act="pick" data-uid="'+s.uid+'" data-k="'+x.k+'">'+(i===L.rec?'<span class="rec">★</span> ':'')+x.i+' '+esc(x.m)+' · '+fmtDur(x.min)+' · NT$'+Math.round(x.gc).toLocaleString()+'</button>').join('')+'</div>';
+  let how='';
+  if(o.inter&&o.k!=='car'){
+    const seg=[];
+    if(o.pre&&o.pre.min)seg.push('To <b>'+esc(o.hubA.label)+'</b>: '+o.pre.i+' '+esc(o.pre.m)+' (~'+fmtDur(o.pre.min)+')'+(o.pre.steps?'<br><small>'+o.pre.steps.join(' → ')+'</small>':''));
+    seg.push(o.i+' <b>'+esc(o.m)+'</b>: NT$'+o.pp.toLocaleString()+' per person'+(o.note?'. '+esc(o.note):'')+(o.book?' · <a href="'+o.book+'" target="_blank" rel="noopener">Book / timetable ↗</a>':''));
+    if(o.post&&o.post.min)seg.push('From <b>'+esc(o.hubB.label)+'</b> to the stop: '+o.post.i+' '+esc(o.post.m)+' (~'+fmtDur(o.post.min)+')'+(o.post.steps?'<br><small>'+o.post.steps.join(' → ')+'</small>':''));
+    how='<ol>'+seg.map(x=>'<li>'+x+'</li>').join('')+'</ol>';
+  }else if(o.steps){how='<ol>'+o.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol><small>'+o.txt+'</small>'}
+  else if(o.txt||o.note){how=esc(o.note||'')+(o.txt?' '+o.txt:'')}
+  if(it.pt.acc)how+='<div style="margin-top:4px">ℹ️ <b>Getting there:</b> '+esc(it.pt.acc)+'</div>';
+  if(L.type==='inter'){const alt=L.opts.filter((x,i)=>i!==L.chosen&&x.k!=='car');if(alt.length)how+='<div style="margin-top:4px"><small>Alternatives: '+alt.map(x=>esc(x.m)+' '+fmtDur(x.min)+' / '+money(x.gc)).join(' · ')+'</small></div>'}
+  h+='<div class="how">'+how+'<div style="margin-top:6px"><a href="'+gmDir(it.prev,it.pt,o.gm)+'" target="_blank" rel="noopener">Open this route in Google Maps ↗</a></div></div></div>';
+  return h;
+}
+function timeSel(act,cur,extra){
+  let h='',has=false;
+  for(let m=0;m<1440;m+=15){const t=fmtT(m);if(t===cur)has=true;h+='<option value="'+t+'"'+(t===cur?' selected':'')+'>'+t+'</option>'}
+  if(!has&&cur)h='<option value="'+cur+'" selected>'+cur+'</option>'+h;
+  return '<select class="inp tsel" data-act="'+act+'" '+(extra||'')+' aria-label="Time">'+h+'</select>';
+}
+function stopHTML(it,di,n){
+  const p=it.p,s=it.s,k=KINDS[s.kind]||KINDS.sight;
+  const durs=[15,20,30,45,60,75,90,120,150,180,240,300,360];
+  if(!durs.includes(it.dur))durs.push(it.dur),durs.sort((a,b)=>a-b);
+  const meta=[];
+  meta.push('⏱ <select class="inp" data-act="dur" data-uid="'+s.uid+'" style="min-height:26px;padding:1px 4px">'+durs.map(d=>'<option value="'+d+'"'+(d===it.dur?' selected':'')+'>'+fmtDur(d)+'</option>').join('')+'</select>');
+  meta.push('💰 <b>'+(p.cost?money(p.cost):'Free')+'</b>'+(p.cost?' <small>pp</small>':''));
+  if(p.open)meta.push('🕘 '+esc(p.open)+(p.closed?' · closed '+p.closed.map(d=>WD[d].slice(0,3)).join('/'):''));
+  if(p.st)meta.push('🚇 '+esc(p.st)+(p.ex?' · Exit '+esc(p.ex):''));
+  it.hrs.forEach(h=>meta.push('<span class="issue">⚠ '+esc(h.msg)+'</span>'));
+  if(!p.gen&&!allowed(di).has(p.r))meta.push('<span class="issue">⚠ Not near this day’s base</span>');
+  return '<div class="stop" id="s-'+s.uid+'">'+
+    '<div class="time">'+timeSel('time',fmtT(it.begin).slice(0,5),'data-uid="'+s.uid+'"')+
+      '<div class="calc">'+(s.time?'':'<span class="auto">auto</span><br>')+'until '+fmtT(it.end)+(it.late?'<br><span class="issue">arrive '+fmtT(it.arrive)+'</span>':'')+'</div></div>'+
+    '<div class="body"><div class="top"><span title="'+k.l+'">'+n+'.</span>'+
+      '<select class="inp kind" data-act="kind" data-uid="'+s.uid+'" aria-label="Type">'+Object.keys(KINDS).map(x=>'<option value="'+x+'"'+(x===s.kind?' selected':'')+'>'+KINDS[x].i+' '+KINDS[x].l+'</option>').join('')+'</select>'+
+      '<select class="inp place" data-act="place" data-uid="'+s.uid+'" aria-label="Place">'+placeSelect(s.kind,di,s.pid)+'</select></div>'+
+      '<div class="meta">'+meta.join('')+'</div>'+
+      '<div class="desc">'+(p.zh?'<b>'+esc(p.zh)+'</b> · ':'')+esc(p.d||'')+'</div>'+
+      '<div class="btns">'+(p.gen?'':'<button class="btn sm" data-act="preview" data-pid="'+p.id+'">👀 Preview</button><a class="btn sm" href="'+gmPlace(p)+'" target="_blank" rel="noopener">🗺️ Maps</a>')+
+      '<button class="btn sm" data-act="up" data-uid="'+s.uid+'" aria-label="Move up">↑</button><button class="btn sm" data-act="down" data-uid="'+s.uid+'" aria-label="Move down">↓</button>'+
+      '<button class="btn sm" data-act="addAfter" data-uid="'+s.uid+'">＋ Add after</button>'+(s.time?'<button class="btn sm" data-act="autoTime" data-uid="'+s.uid+'">⟲ Auto time</button>':'')+
+      '<button class="btn sm" data-act="del" data-uid="'+s.uid+'" aria-label="Remove">✕</button></div></div>'+
+    '<div class="thumb" '+(p.img&&!p.gen?'data-img="'+esc(p.img)+'" data-act="preview" data-pid="'+p.id+'"':'')+'>'+k.i+'</div></div>';
+}
+function renderPlan(){
+  const di=Math.min(S.active,S.days-1);S.active=di;
+  const day=S.plan[di],C=computeDay(di);
+  let h='<div class="daytabs">'+S.plan.slice(0,S.days).map((d,i)=>'<button class="'+(i===di?'on':'')+'" data-act="day" data-i="'+i+'"><b>Day '+(i+1)+'</b><small>'+dateLabel(i)+' · '+esc(REG[d.base].n.split(' ')[0])+'</small></button>').join('')+'</div>';
+  const tplOpts=Object.entries(TPL).sort((a,b)=>(b[1].base===day.base)-(a[1].base===day.base)).map(([id,t])=>'<option value="'+id+'"'+(id===day.tpl?' selected':'')+'>'+(t.base===day.base?'★ ':'')+esc(t.n)+'</option>').join('');
+  h+='<div class="card dayhead"><div class="drow" style="justify-content:space-between"><h2>Day '+(di+1)+' <small class="muted">'+dateLabel(di,1)+'</small></h2>'+
+     '<div class="drow"><button class="btn sm" data-act="prevDay" '+(di===0?'disabled':'')+'>← Prev</button><button class="btn sm" data-act="nextDay" '+(di>=S.days-1?'disabled':'')+'>Next →</button></div></div>'+
+     '<div class="drow"><span class="lbl">Sleeping in</span><select class="inp" data-act="base">'+BASES.map(r=>'<option value="'+r+'"'+(r===day.base?' selected':'')+'>'+esc(REG[r].n)+'</option>').join('')+'</select></div>'+
+     '<div class="drow"><span class="lbl">Ready-made day</span><select class="inp" id="tplSel" style="max-width:100%;flex:1 1 280px">'+tplOpts+'</select><button class="btn pri" data-act="applyTpl">Use this plan</button></div>'+
+     '<div class="drow"><span class="lbl">Leave at</span>'+timeSel('startTime',day.startTime||'08:00')+'</div>'+
+     '<div class="drow"><span class="lbl">Start from</span>'+ptControls('start',di,C.start,!day.start)+'</div>'+
+     '<div class="drow"><span class="lbl">Tonight’s hotel</span>'+ptControls('hotel',di,hotelPoint(di),!day.hotel)+'</div>'+
+     '<small>🔒 Your location stays in this browser and only goes into the Google Maps links you click. Address search sends the text you type to OpenStreetMap.</small></div>';
+  const sugs=suggestions(di,C);
+  if(sugs.length)h+='<div class="sugs">'+sugs.map(sg=>'<div class="sug"><div class="t">'+sg.html+'</div><div class="acts">'+sg.acts.map(a=>'<button class="btn sm '+(a.cls||'')+'" data-act="sug" data-id="'+act(a.fn)+'">'+esc(a.l)+'</button>').join('')+'</div></div>').join('')+'</div>';
+  h+='<div class="grid2"><div>';
+  h+='<div class="card" style="padding:10px 14px;margin-bottom:10px"><b>🏁 '+esc(C.start.label)+'</b> <small>· leave '+esc(day.startTime||'08:00')+'</small></div>';
+  if(!C.items.length)h+='<div class="card empty">No stops yet. Choose a ready-made day above or add a stop.</div>';
+  h+='<div class="tl">'+C.items.map((it,i)=>legHTML(it,di)+stopHTML(it,di,i+1)).join('')+'</div>';
+  h+='<div class="addrow"><button class="btn pri" data-act="addEnd">＋ Add a stop</button></div></div>';
+  // side
+  const pts=[C.start].concat(C.items.filter(it=>!it.pt.gen||it.p.gen==='hotel').map(it=>it.pt));
+  const dayLink='https://www.google.com/maps/dir/'+pts.map(p=>encodeURIComponent(gq(p))).join('/');
+  h+='<aside class="side"><div class="card sum"><h3>Day '+(di+1)+' estimate <small>· '+S.trav+' '+(S.trav>1?'people':'person')+' · '+S.budget+'</small></h3><table>'+
+     '<tr><td>🍜 Food & tickets</td><td>'+money(C.food)+'</td></tr>'+
+     '<tr><td>🚇 Local transport</td><td>'+money(C.trans)+'</td></tr>'+
+     (C.inter?'<tr><td>🚄 Intercity</td><td>'+money(C.inter)+'</td></tr>':'')+
+     '<tr><td>🛏️ Hotel <small>('+Math.ceil(S.trav/2)+' room'+(S.trav>2?'s':'')+')</small></td><td>'+money(C.hotel)+'</td></tr>'+
+     '<tr class="tot"><td>Total</td><td>'+money(C.total)+'</td></tr></table>'+
+     '<p style="margin:8px 0 0"><small>⏱ '+fmtDur(C.travel)+' moving · ~'+Math.round(C.km*1.3)+' km · ends ~'+fmtT(C.end)+'</small></p>'+
+     '<p style="margin:8px 0 0"><a class="btn" href="'+dayLink+'" target="_blank" rel="noopener">🗺️ Whole day in Google Maps</a></p></div>'+
+     '<div id="map" aria-label="Map of the day"></div>'+
+     '<div class="card sum"><h3>Hotel budget per room / night</h3><div class="drow"><input class="inp" type="number" min="0" step="100" data-act="hotelCost" value="'+S.hotel[S.budget]+'" style="width:110px"><small>NT$ ('+S.budget+') = '+money(S.hotel[S.budget])+'</small></div></div>'+
+     '</aside></div>';
+  return h;
+}
+let MAP=null;
+function drawMap(){
+  const el=$('#map');if(!el)return;
+  if(MAP){MAP.remove();MAP=null}
+  if(!window.L){el.innerHTML='<div class="empty">Map unavailable offline.</div>';return}
+  const C=computeDay(S.active);
+  const pts=[{pt:C.start,n:'S',name:C.start.label}].concat(C.items.map((it,i)=>({pt:it.pt,n:i+1,name:it.p.gen?it.p.n:it.p.n})));
+  MAP=L.map(el,{scrollWheelZoom:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(MAP);
+  const ll=[];const seen={};
+  pts.forEach(p=>{
+    const key=p.pt.lat.toFixed(4)+','+p.pt.lng.toFixed(4);ll.push([p.pt.lat,p.pt.lng]);
+    if(seen[key]){seen[key].push(p.n);return}seen[key]=[p.n];
+    const m=L.marker([p.pt.lat,p.pt.lng],{icon:L.divIcon({className:'',html:'<div class="mapnum'+(p.n==='S'?' s':'')+'">'+p.n+'</div>',iconSize:[24,24],iconAnchor:[12,12]})}).addTo(MAP);
+    m.bindPopup(esc(p.name));
+  });
+  L.polyline(ll,{color:getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#c8102e',weight:3,opacity:.7,dashArray:'6 6'}).addTo(MAP);
+  if(ll.length>1)MAP.fitBounds(ll,{padding:[24,24]});else MAP.setView(ll[0]||[23.7,121],ll.length?14:7);
+}
+
+/* explore */
+let EX={r:'',k:'',q:''};
+function renderExplore(){
+  const list=PLACES.filter(p=>!p.gen&&(!EX.r||p.r===EX.r)&&(!EX.k||p.k.includes(EX.k))&&(!EX.q||(p.n+' '+p.zh+' '+(p.d||'')).toLowerCase().includes(EX.q.toLowerCase())))
+    .sort((a,b)=>(b.star||0)-(a.star||0));
+  let h='<div class="filters"><select class="inp" data-act="exR"><option value="">All of Taiwan</option>'+Object.keys(REG).map(r=>'<option value="'+r+'"'+(EX.r===r?' selected':'')+'>'+esc(REG[r].n)+'</option>').join('')+'</select>'+
+    '<select class="inp" data-act="exK"><option value="">Everything</option>'+Object.keys(KINDS).filter(k=>k!=='rest').map(k=>'<option value="'+k+'"'+(EX.k===k?' selected':'')+'>'+KINDS[k].i+' '+KINDS[k].l+'</option>').join('')+'</select>'+
+    '<input class="inp" data-act="exQ" placeholder="Search… e.g. beef, sunset, temple" value="'+esc(EX.q)+'" style="flex:1 1 200px">'+
+    '<span class="pill">'+list.length+' places · ★ = top pick</span></div>';
+  h+='<div class="pgrid">'+list.map(p=>'<div class="card pcard"><div class="img" data-img="'+esc(p.img||'')+'" data-act="preview" data-pid="'+p.id+'">'+KINDS[p.k[0]].i+'</div><div class="b">'+
+    '<h4>'+(p.star?'<span class="star">★</span> ':'')+esc(p.n)+(p.tier===3?' 💎':'')+'</h4><small>'+esc(p.zh)+' · '+esc(REG[p.r].n)+' · '+p.k.map(k=>KINDS[k].i).join(' ')+' · '+(p.cost?'~'+money(p.cost)+' pp':'Free')+'</small>'+
+    '<div class="d">'+esc(p.d)+'</div><div class="f"><button class="btn sm" data-act="preview" data-pid="'+p.id+'">👀 Preview</button>'+
+    '<button class="btn sm pri" data-act="addTo" data-pid="'+p.id+'">＋ Add to Day '+(S.active+1)+'</button></div></div></div>').join('')+'</div>';
+  return h;
+}
+/* compare */
+let CMP={a:'taipei',b:'tainan'};
+function renderCompare(){
+  const sel=(id,v)=>'<select class="inp" data-act="'+id+'">'+Object.keys(REG).map(r=>'<option value="'+r+'"'+(r===v?' selected':'')+'>'+esc(REG[r].n)+'</option>').join('')+'</select>';
+  let h='<div class="card cmp"><h2 style="margin:0 0 4px">Compare ways to travel between cities</h2><p class="muted" style="margin:0 0 12px">Station to station · '+S.trav+' '+(S.trav>1?'people':'person')+' · fares are approximate. Check the official sites before booking.</p>'+
+    '<div class="drow">From '+sel('cmpA',CMP.a)+' <button class="btn sm" data-act="cmpSwap">⇄</button> to '+sel('cmpB',CMP.b)+'</div>';
+  if(CMP.a===CMP.b)return h+'<p>Pick two different places.</p></div>';
+  const A=hubPoint(CMP.a),B=hubPoint(CMP.b),opts=interOpts(A,B);
+  const fast=Math.min(...opts.map(o=>o.min)),cheap=Math.min(...opts.map(o=>o.gc)),rec=bestOf(opts,null);
+  h+=opts.map((o,i)=>'<div class="copt"><div class="ic">'+o.i+'</div><div><b>'+esc(o.m)+'</b>'+(o.min===fast?'<span class="badge f">Fastest</span>':'')+(o.gc===cheap?'<span class="badge c">Cheapest</span>':'')+(i===rec?'<span class="badge b">★ Best for '+S.budget+'</span>':'')+
+    '<br><small>⏱ '+fmtDur(o.min)+' · '+(o.perCar?'per car':'NT$'+o.pp.toLocaleString()+' per person')+(o.note?' · '+esc(o.note):'')+'</small>'+(o.book?' <a href="'+o.book+'" target="_blank" rel="noopener"><small>Book ↗</small></a>':'')+'</div>'+
+    '<div class="r">'+money(o.gc)+'<br><small class="muted">total for '+S.trav+'</small></div></div>').join('');
+  h+='<p style="margin-top:12px"><a class="btn" href="'+gmDir(A,B,'transit')+'" target="_blank" rel="noopener">Live timetable in Google Maps ↗</a></p></div>';
+  return h;
+}
+/* trip */
+function renderTrip(){
+  let rows='',tot={food:0,trans:0,inter:0,hotel:0,total:0};
+  for(let i=0;i<S.days;i++){const C=computeDay(i);['food','trans','inter','hotel','total'].forEach(k=>tot[k]+=C[k]);
+    rows+='<tr><td><a href="#" data-act="day" data-i="'+i+'" data-go="plan">Day '+(i+1)+'</a><br><small>'+dateLabel(i)+'</small></td><td>'+esc(REG[S.plan[i].base].n)+'<br><small>'+C.items.filter(x=>!x.p.gen).length+' stops</small></td><td>'+money(C.food)+'</td><td>'+money(C.trans)+'</td><td>'+money(C.inter)+'</td><td>'+money(C.hotel)+'</td><td><b>'+money(C.total)+'</b></td></tr>'}
+  let h='<div class="card trip"><h2 style="margin:0 0 4px">Trip total · '+S.days+' days · '+S.trav+' '+(S.trav>1?'people':'person')+' · '+S.budget+'</h2>'+
+    '<p class="muted" style="margin:0 0 12px">Per person ≈ <b>'+money(tot.total/S.trav)+'</b>. Flights to Taiwan, shopping and SIM are not included.</p>'+
+    '<table><thead><tr><th>Day</th><th>Base</th><th>Food & tickets</th><th>Local transport</th><th>Intercity</th><th>Hotel</th><th>Total</th></tr></thead><tbody>'+rows+'</tbody>'+
+    '<tfoot><tr><td>All days</td><td></td><td>'+money(tot.food)+'</td><td>'+money(tot.trans)+'</td><td>'+money(tot.inter)+'</td><td>'+money(tot.hotel)+'</td><td>'+money(tot.total)+'</td></tr></tfoot></table>'+
+    '<div class="drow" style="margin-top:14px"><button class="btn" data-act="export">⬇️ Export plan (.json)</button><label class="btn">⬆️ Import plan<input type="file" accept="application/json" data-act="import" hidden></label>'+
+    '<button class="btn" onclick="window.print()">🖨️ Print</button><button class="btn" data-act="reset">↺ Reset to recommended 14 days</button></div></div>';
+  h+='<div class="card tips"><h2 style="margin:0">First-timer tips</h2><ul>'+
+    '<li>💳 Get an <b>EasyCard (悠遊卡)</b> at the airport or any 7-Eleven. It works on the MRT, buses, local trains, YouBike and in convenience stores.</li>'+
+    '<li>🚆 <b>Book east-coast trains early</b> (Taipei ↔ Hualien/Taitung). TRA Puyuma and Taroko Express seats go on sale 28 days ahead and sell out on weekends: <a href="'+TRA+'" target="_blank" rel="noopener">tip.railway.gov.tw</a>.</li>'+
+    '<li>🚄 <b>HSR</b> runs up the west side only (Taipei, Taichung, Chiayi, Tainan, Kaohsiung). Check early-bird fares and foreign-visitor passes at <a href="'+HSR+'" target="_blank" rel="noopener">thsrc.com.tw</a>. Several HSR stations (Tainan, Chiayi, Taichung) are outside town, so add a shuttle.</li>'+
+    '<li>⛰️ <b>Hualien & Taroko</b>: some roads and trails have been closed since the April 2024 earthquake and recent typhoons. Check the national park site the week before.</li>'+
+    '<li>🌀 Typhoon season is Jul–Oct. Watch Central Weather Administration alerts, and keep a flexible day.</li>'+
+    '<li>💵 Many night-market stalls are <b>cash only</b>. Carry NT$1,000–2,000 in small notes.</li>'+
+    '<li>🥾 Big mountains (Yushan, Xueshan, Jiaming Lake) need national-park permits. Apply weeks ahead at hike.taiwan.gov.tw.</li>'+
+    '<li>🧾 Rates and prices here are estimates. Tap “↻ Live rate” for today’s NT$ ⇄ Rp exchange rate.</li></ul></div>';
+  return h;
+}
+
+/* ================= MODALS ================= */
+function openModal(html){$('#modalBody').innerHTML=html;$('#modal').classList.remove('hide');fillImgs($('#modalBody'))}
+function closeModal(){$('#modal').classList.add('hide');$('#modalBody').innerHTML=''}
+function openPreview(pid){
+  const p=PL[pid];if(!p)return;
+  const kinds=p.k.map(k=>KINDS[k].i+' '+KINDS[k].l).join(' · ');
+  const howGet=p.st?esc(p.st)+' MRT'+(p.ex?', Exit '+esc(p.ex):'')+(p.w!=null?', ~'+p.w+' min walk':''):'';
+  let h='<div class="hero" id="pvHero">'+(KINDS[p.k[0]]||{}).i+'</div><div class="pv">'+
+    '<div><h3>'+(p.star?'<span class="star">★</span> ':'')+esc(p.n)+'</h3><small>'+esc(p.zh)+' · '+esc(REG[p.r].n)+' · '+kinds+'</small></div>'+
+    '<div class="cap" id="pvCap"></div><div>'+esc(p.d)+'</div>'+(p.tip?'<div>💡 <b>Tip:</b> '+esc(p.tip)+'</div>':'')+
+    '<div class="kv"><div>Cost</div><div>'+(p.cost?money(p.cost)+' per person'+(S.trav>1?' · '+money(p.cost*S.trav)+' for '+S.trav:''):'Free')+'</div>'+
+    (p.open?'<div>Hours</div><div>'+esc(p.open)+(p.closed?' · closed '+p.closed.map(d=>WD[d]).join(', '):'')+' <small>(verify)</small></div>':'')+
+    '<div>Time needed</div><div>'+fmtDur(p.dur)+'</div>'+(howGet?'<div>MRT</div><div>'+howGet+'</div>':'')+(p.acc?'<div>Getting there</div><div>'+esc(p.acc)+'</div>':'')+'</div>'+
+    '<div id="pvExt" class="muted" style="font-size:13px"></div>'+
+    '<iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+encodeURIComponent(p.q||(p.zh+' '+REG[p.r].zh))+'&z=15&output=embed" title="Map"></iframe>'+
+    '<div class="drow"><a class="btn" href="'+gmPlace(p)+'" target="_blank" rel="noopener">🗺️ Google Maps & reviews</a><a class="btn" href="'+gImages(p)+'" target="_blank" rel="noopener">🖼️ More photos</a><span id="pvWiki"></span>'+
+    (S.tab!=='plan'?'<button class="btn pri" data-act="addTo" data-pid="'+p.id+'">＋ Add to Day '+(S.active+1)+'</button>':'')+'</div></div>';
+  openModal(h);
+  wiki(p.img).then(w=>{
+    if(!w)return;const hero=$('#pvHero');if(!hero)return;
+    if(w.img){hero.style.backgroundImage='url("'+w.img.replace(/"/g,'%22')+'")';hero.classList.add('has');
+      $('#pvCap').textContent=p.dish?'Photo of the dish, from Wikipedia (“'+w.title+'”), not this exact shop.':'Photo: Wikipedia, “'+w.title+'”.'}
+    if(w.ext&&!p.dish)$('#pvExt').textContent=w.ext;
+    if(w.url)$('#pvWiki').innerHTML='<a class="btn" href="'+w.url+'" target="_blank" rel="noopener">📖 Wikipedia</a>';
+  });
+}
+function askAbout(di,uidv){
+  const C=computeDay(di);
+  const sg=suggestions(di,C).filter(x=>x.uid===uidv&&['region','dup','hours'].includes(x.type));
+  if(!sg.length)return;
+  ACT={};actN=0;
+  const h='<div class="ask"><h3>Quick check before you continue</h3>'+sg.map(x=>'<div class="sug"><div class="t">'+x.html+'</div><div class="acts">'+x.acts.filter(a=>a.l!=='Dismiss').map(a=>'<button class="btn sm '+(a.cls||'')+'" data-act="sug" data-id="'+act(a.fn)+'" data-close="1">'+esc(a.l)+'</button>').join('')+'</div></div>').join('')+
+    '<div class="drow"><button class="btn" data-act="keepIt" data-keys="'+esc(sg.map(x=>x.key).join('|'))+'">Keep it as I planned</button></div></div>';
+  openModal(h);
+}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+
+/* ================= EVENTS ================= */
+function findStop(u){const d=S.plan[S.active];const i=d.stops.findIndex(s=>s.uid===u);return {d,i,s:d.stops[i]}}
+function setPoint(which,pt){const d=S.plan[S.active];if(which==='start')d.start=pt;else d.hotel=pt;render()}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act;
+  if(['ptPreset','kind','place','base','dur','exR','exK','cmpA','cmpB','startTime','time','hotelCost','import'].includes(a))return;
+  if(b.tagName==='A'&&a!=='day')return;
+  e.preventDefault();
+  const di=S.active;
+  switch(a){
+    case 'closeModal':closeModal();break;
+    case 'day':S.active=+b.dataset.i;if(b.dataset.go)S.tab='plan';render();window.scrollTo({top:0,behavior:'smooth'});break;
+    case 'prevDay':S.active=Math.max(0,di-1);render();break;
+    case 'nextDay':S.active=Math.min(S.days-1,di+1);render();break;
+    case 'applyTpl':{const tid=$('#tplSel').value;if(!tid)return;const old=S.plan[di];
+      if(old.stops.length&&!confirm('Replace Day '+(di+1)+' with “'+TPL[tid].n+'”?'))return;
+      const n=fromTpl(tid);if(old.start&&!TPL[tid].start)n.start=old.start;n.hotel=old.hotel&&old.base===n.base?old.hotel:null;S.plan[di]=n;settle(di);render();break}
+    case 'ptGeo':{const w=b.dataset.w;if(!navigator.geolocation){toast('Location not available in this browser');return}
+      navigator.geolocation.getCurrentPosition(pos=>{const lat=pos.coords.latitude,lng=pos.coords.longitude;setPoint(w,{label:'My location',lat,lng,region:nearestRegion(lat,lng),q:lat.toFixed(5)+','+lng.toFixed(5)})},()=>toast('Could not get your location'),{enableHighAccuracy:true,timeout:10000});break}
+    case 'ptFind':{const w=b.dataset.w,inp=$('#ptq-'+w),q=(inp&&inp.value||'').trim();if(!q){inp&&inp.focus();return}
+      b.disabled=true;b.textContent='…';
+      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tw&q='+encodeURIComponent(q)).then(r=>r.json()).then(j=>{
+        if(!j||!j[0]){toast('Not found. Try the hotel name plus the city, or a street address.');b.disabled=false;b.textContent='🔎 Find';return}
+        const lat=+j[0].lat,lng=+j[0].lon;setPoint(w,{label:q,lat,lng,region:nearestRegion(lat,lng),q});toast('Set: '+j[0].display_name.split(',').slice(0,3).join(','))
+      }).catch(()=>{toast('Search failed. Check your connection.');b.disabled=false;b.textContent='🔎 Find'});break}
+    case 'pick':{S.plan[di].pick[b.dataset.uid]=b.dataset.k;render();break}
+    case 'preview':openPreview(b.dataset.pid);break;
+    case 'up':case 'down':{const {d,i}=findStop(b.dataset.uid);const j=a==='up'?i-1:i+1;if(j<0||j>=d.stops.length)return;[d.stops[i],d.stops[j]]=[d.stops[j],d.stops[i]];d.stops[i].time=null;d.stops[j].time=null;render();break}
+    case 'del':{const {d,i}=findStop(b.dataset.uid);d.stops.splice(i,1);render();break}
+    case 'autoTime':{const {s}=findStop(b.dataset.uid);s.time=null;render();break}
+    case 'addAfter':case 'addEnd':{
+      const d=S.plan[di];const used=usedSet(-1);const al=allowed(di);
+      const pick=PLACES.find(p=>!p.gen&&p.star&&p.k.includes('sight')&&al.has(p.r)&&!used.has(p.id))||PL.g_free;
+      const ns={uid:uid(),pid:pick.id,kind:'sight',time:null,dur:null};
+      if(a==='addEnd')d.stops.push(ns);else{const {i}=findStop(b.dataset.uid);d.stops.splice(i+1,0,ns)}
+      render();const el=$('#s-'+ns.uid);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});const sel=el.querySelector('select.place');sel&&sel.focus()}break}
+    case 'sug':{const fn=ACT[b.dataset.id];if(fn){const r=fn();if(b.dataset.close)closeModal();if(r!=='keep')render()}break}
+    case 'keepIt':{(b.dataset.keys||'').split('|').forEach(k=>{if(k)S.dismissed[k]=1});closeModal();render();break}
+    case 'addTo':{const p=PL[b.dataset.pid];const ns={uid:uid(),pid:p.id,kind:p.k[0],time:null,dur:null};insertStop(di,ns);closeModal();save();toast('Added '+p.n+' to Day '+(di+1));
+      if(S.tab==='plan')render();askAbout(di,ns.uid);break}
+    case 'cmpSwap':[CMP.a,CMP.b]=[CMP.b,CMP.a];render();break;
+    case 'export':{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const l=document.createElement('a');l.href=u;l.download='taiwan-plan.json';l.click();setTimeout(()=>URL.revokeObjectURL(u),1000);break}
+    case 'reset':if(confirm('Reset all 14 days to the recommended plan? Your changes will be lost.')){const keep={startDate:S.startDate,trav:S.trav,budget:S.budget,cur:S.cur,rate:S.rate,rateDate:S.rateDate,rateSrc:S.rateSrc,days:S.days};S=Object.assign(defState(),keep);settleAll();render()}break;
+  }
+});
+document.addEventListener('change',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,di=S.active,v=b.value;
+  switch(a){
+    case 'base':S.plan[di].base=v;render();break;
+    case 'startTime':S.plan[di].startTime=v||'08:00';render();break;
+    case 'ptPreset':{if(v==='__')return;const w=b.dataset.w;if(!v){setPoint(w,null);return}const r=v.split(':')[1];setPoint(w,hubPoint(r));break}
+    case 'time':{const {s}=findStop(b.dataset.uid);s.time=v||null;render();break}
+    case 'dur':{const {s}=findStop(b.dataset.uid);s.dur=+v;render();break}
+    case 'kind':{const {s}=findStop(b.dataset.uid);s.kind=v;const p=PL[s.pid];
+      if(!p.k.includes(v)){const al=allowed(di),used=usedSet(-1);const n=PLACES.find(q=>!q.gen&&q.star&&q.k.includes(v)&&al.has(q.r)&&!used.has(q.id))||PLACES.find(q=>q.k.includes(v)&&al.has(q.r))||PLACES.find(q=>q.gen&&q.k.includes(v))||PLACES.find(q=>q.k.includes(v));if(n)s.pid=n.id}
+      render();askAbout(di,s.uid);break}
+    case 'place':{const {s}=findStop(b.dataset.uid);s.pid=v;s.dur=null;render();askAbout(di,s.uid);break}
+    case 'hotelCost':S.hotel[S.budget]=Math.max(0,+v||0);render();break;
+    case 'exR':EX.r=v;render();break;
+    case 'exK':EX.k=v;render();break;
+    case 'cmpA':CMP.a=v;render();break;
+    case 'cmpB':CMP.b=v;render();break;
+    case 'import':{const f=b.files&&b.files[0];if(!f)return;f.text().then(t=>{try{const s=JSON.parse(t);if(s.v!==1||!Array.isArray(s.plan)||s.plan.length!==14)throw 0;S=Object.assign(defState(),s);renderHeader();render();toast('Plan imported')}catch(err){toast('That file is not a plan exported from this app')}});break}
+  }
+});
+let exT;
+document.addEventListener('input',e=>{
+  const b=e.target;
+  if(b.dataset&&b.dataset.act==='exQ'){clearTimeout(exT);exT=setTimeout(()=>{EX.q=b.value;const pos=b.selectionStart;render();const n=$('[data-act="exQ"]');if(n){n.focus();n.setSelectionRange(pos,pos)}},250)}
+  if(b.id==='cNT'){$('#cRP').value=b.value===''?'':Math.round(+b.value*S.rate)}
+  if(b.id==='cRP'){$('#cNT').value=b.value===''?'':Math.round(+b.value/S.rate*100)/100}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('#modal').classList.contains('hide'))closeModal();
+  if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('ptq-')){const w=e.target.dataset.w;const btn=$('[data-act="ptFind"][data-w="'+w+'"]');btn&&btn.click()}
+});
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.tab=b.dataset.tab;render()});
+$('#sDate').addEventListener('change',e=>{if(e.target.value){S.startDate=e.target.value;render()}});
+$('#sDays').addEventListener('change',e=>{S.days=+e.target.value;S.active=Math.min(S.active,S.days-1);render()});
+$('#sTrav').addEventListener('change',e=>{S.trav=+e.target.value;render()});
+$('#sBudget').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.budget=b.dataset.b;renderHeader();render()});
+$('#sCur').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cur=b.dataset.c;renderHeader();render()});
+$('#sRate').addEventListener('change',e=>{const v=+e.target.value;if(v>0){S.rate=v;S.rateSrc='manual';renderHeader();render()}});
+$('#rateBtn').addEventListener('click',()=>refreshRate(true));
+
+async function refreshRate(force){
+  if(!force&&S.rateSrc==='manual')return;
+  if(!force&&S.rateDate&&Date.now()-S.rateDate<864e5)return;
+  try{const r=await fetch('https://open.er-api.com/v6/latest/TWD');const j=await r.json();
+    if(j&&j.rates&&j.rates.IDR){S.rate=Math.round(j.rates.IDR*100)/100;S.rateDate=Date.now();S.rateSrc='live';renderHeader();render();if(force)toast('Updated: 1 NT$ = Rp '+S.rate)}
+    else throw 0;
+  }catch(e){if(force)toast('Could not fetch the live rate. Using Rp '+S.rate)}
+}
+
+/* ================= BOOT ================= */
+load();renderHeader();render();refreshRate(false);
+</script>
+</body>
+</html>
