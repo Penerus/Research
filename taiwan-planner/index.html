@@ -650,8 +650,8 @@ function registerPlace(p){
   if(!PL[p.id])PLACES.includes(p)||PLACES.push(p);PL[p.id]=p;
 }
 PLACES.forEach(registerPlace);
-const COLL={vincent:{l:'Vincent’s picks',i:'⭐'},cheap:{l:'Famous & cheap',i:'💰'},easy:{l:'Easy to eat',i:'🥢'},chain:{l:'Cheap chains',i:'🔁'},cvs:{l:'7-Eleven & FamilyMart',i:'🏪'},drink:{l:'Drinks',i:'🥤'},mine:{l:'My places',i:'📌'},splurge:{l:'Splurge',i:'💎'}};
-function inColl(p,c){return !c||(c==='drink'?p.k.includes('drink'):c==='splurge'?p.tier===3:(p.tags||[]).includes(c))}
+const COLL={vincent:{l:'Vincent’s picks',i:'⭐'},photo:{l:'Photo spots',i:'📷'},gem:{l:'Hidden gems',i:'🔎'},hike:{l:'Hikes',i:'🥾'},cheap:{l:'Famous & cheap',i:'💰'},easy:{l:'Easy to eat',i:'🥢'},chain:{l:'Cheap chains',i:'🔁'},cvs:{l:'7-Eleven & FamilyMart',i:'🏪'},drink:{l:'Drinks',i:'🥤'},mine:{l:'My places',i:'📌'},splurge:{l:'Splurge',i:'💎'}};
+function inColl(p,c){return !c||(c==='drink'?p.k.includes('drink'):c==='hike'?p.k.includes('hike'):c==='splurge'?p.tier===3:(p.tags||[]).includes(c))}
 const isBasic=p=>p.id.startsWith('g_');
 function regName(p){return p.gen?'Anywhere (branches everywhere)':REG[p.r]?REG[p.r].n:''}
 function badges(p){const t=p.tags||[];return (t.includes('vincent')?'<span class="bdg v">⭐ Vincent</span>':'')+(t.includes('mine')?'<span class="bdg">📌 Mine</span>':'')+(t.includes('cheap')?'<span class="bdg c">💰 Cheap</span>':'')+(t.includes('cvs')?'<span class="bdg">🏪</span>':'')+(p.tier===3?'<span class="bdg">💎</span>':'')}
@@ -1046,6 +1046,11 @@ const WIKI={};
 function wiki(term){
   if(!term)return Promise.resolve(null);
   if(WIKI[term])return WIKI[term];
+  if(/^File:/i.test(term)){
+    const cu='https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=url&iiurlwidth=900&titles='+encodeURIComponent(term);
+    WIKI[term]=fetch(cu).then(r=>r.json()).then(j=>{const pg=j.query&&Object.values(j.query.pages)[0];const ii=pg&&pg.imageinfo&&pg.imageinfo[0];return ii?{title:term.replace(/^File:/i,'').replace(/\.[a-z]+$/i,'').replace(/_/g,' '),img:ii.thumburl||ii.url,url:ii.descriptionurl,commons:1}:null}).catch(()=>null);
+    return WIKI[term];
+  }
   const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&prop=pageimages|extracts|info&inprop=url&piprop=thumbnail&pithumbsize=800&exintro=1&explaintext=1&exsentences=3&gsrsearch='+encodeURIComponent(term);
   WIKI[term]=fetch(u).then(r=>r.json()).then(j=>{const pg=j.query&&Object.values(j.query.pages)[0];return pg?{title:pg.title,img:pg.thumbnail&&pg.thumbnail.source,ext:pg.extract,url:pg.fullurl}:null}).catch(()=>null);
   return WIKI[term];
@@ -1488,18 +1493,19 @@ function openPreview(pid,ctx){
     row({t:'Good for',v:p.k.map(k=>KINDS[k].l).join(', ')})+
     row({t:'Cost',v:p.cost?money(p.cost)+' <span class="idr">per person</span>':'Free'})+
     (p.open?row({t:'Hours',v:esc(p.open)+(p.closed?'<span class="idr">closed '+p.closed.map(d=>WD[d].slice(0,3)).join(', ')+'</span>':'')}):'')+
+    (p.best?row({t:'Best time',v:esc(p.best)}):'')+(p.level?row({t:'Difficulty',v:esc(p.level)}):'')+(p.permit?row({t:'Permit',v:esc(p.permit)}):'')+
     row({t:'Time needed',v:fmtDur(p.dur)})+(howGet?row({t:'MRT',v:howGet}):'')+'</div>'+
     (p.acc?'<div class="sec-h">Getting there</div><div class="list"><div class="row para">'+esc(p.acc)+'</div></div>':'')+
     (p.gen?'':'<iframe class="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+encodeURIComponent(p.lat&&p.custom?p.lat+','+p.lng:q)+'&z=15&output=embed" title="Map of '+esc(p.n)+'"></iframe>')+
-    '<div class="list">'+row({t:'<span class="blue">'+(p.gen?'Find the nearest one on Google Maps':'Google Maps, photos & reviews')+'</span>',href:gmPlace(p),chev:1})+row({t:'<span class="blue">More photos</span>',href:gImages(p),chev:1})+'<span id="pvWiki"></span></div>';
+    '<div class="list">'+row({t:'<span class="blue">'+(p.gen?'Find the nearest one on Google Maps':'Google Maps, photos & reviews')+'</span>',href:gmPlace(p),chev:1})+row({t:'<span class="blue">More photos (Google Images)</span>',href:gImages(p),chev:1})+(p.gen?'':row({t:'<span class="blue">Free photos on Wikimedia Commons</span>',href:'https://commons.wikimedia.org/w/index.php?title=Special:MediaSearch&type=image&search='+encodeURIComponent(p.n.replace(/\(.*?\)/g,'')+' Taiwan'),chev:1}))+(p.src?row({t:'<span class="blue">Source / official info</span>',href:p.src,chev:1}):'')+'<span id="pvWiki"></span></div>';
   openStatic(p.n,h,back);
   if(!p.img)return;
   wiki(p.img).then(w=>{
     if(!w||!$('#pvHero'))return;
     if(w.img){const hero=$('#pvHero');hero.style.backgroundImage='url("'+w.img.replace(/"/g,'%22')+'")';hero.classList.add('has');
-      $('#pvCap').textContent=p.dish?'Photo of the dish from Wikipedia (“'+w.title+'”), not this exact shop.':'Photo: Wikipedia, “'+w.title+'”.'}
+      $('#pvCap').textContent=p.dish?'Photo of the dish from Wikipedia (“'+w.title+'”), not this exact shop.':w.commons?'Sample photo: Wikimedia Commons, “'+w.title+'”.':'Photo: Wikipedia, “'+w.title+'”.'}
     if(w.ext&&!p.dish)$('#pvExt').textContent=w.ext;
-    if(w.url&&$('#pvWiki'))$('#pvWiki').outerHTML=row({t:'<span class="blue">Wikipedia</span>',href:w.url,chev:1});
+    if(w.url&&$('#pvWiki'))$('#pvWiki').outerHTML=row({t:'<span class="blue">'+(w.commons?'Photo source & licence (Commons)':'Wikipedia')+'</span>',href:w.url,chev:1});
   });
 }
 function askAbout(di,uidv){
