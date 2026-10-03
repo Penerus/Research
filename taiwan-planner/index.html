@@ -282,10 +282,10 @@ const TRA='https://tip.railway.gov.tw/', HSR='https://www.thsrc.com.tw/';
 
 const KINDS={
   breakfast:{l:'Breakfast',i:'🍳'}, lunch:{l:'Lunch',i:'🍜'}, dinner:{l:'Dinner',i:'🍽️'},
-  snack:{l:'Snack / café',i:'🧋'}, drink:{l:'Drink',i:'🥤'}, sight:{l:'Sightseeing',i:'📸'}, hike:{l:'Hike / nature',i:'🥾'},
+  snack:{l:'Snack / café',i:'🧋'}, drink:{l:'Drink',i:'🥤'}, shop:{l:'Shopping',i:'🛍️'}, sight:{l:'Sightseeing',i:'📸'}, hike:{l:'Hike / nature',i:'🥾'},
   night:{l:'Evening',i:'🏮'}, travel:{l:'Airport',i:'✈️'}, rest:{l:'Hotel / rest',i:'🛏️'}
 };
-const RANK={drink:3,breakfast:1,sight:3,hike:3,snack:3,travel:3,lunch:4,rest:5,dinner:6,night:7};
+const RANK={shop:3,drink:3,breakfast:1,sight:3,hike:3,snack:3,travel:3,lunch:4,rest:5,dinner:6,night:7};
 
 const REG={
   tpe:{n:'Taoyuan Airport',zh:'桃園',hub:'Taoyuan Airport (TPE)',hubq:'桃園國際機場',lat:25.0797,lng:121.2342},
@@ -658,31 +658,31 @@ function badges(p){const t=p.tags||[];return (t.includes('vincent')?'<span class
 
 /* Ready-made days: [time, placeId, kind, durationOverride] */
 const TPL={
- tp_arrival:{n:'Taipei · Arrival: Ximen, Longshan Temple, Dihua St, Ningxia NM',base:'taipei',start:'tpe',st:'11:00',stops:[['12:30','g_rest','rest',45],['13:30','aychung','lunch'],['14:15','ximending','sight'],['15:15','sansiblings','snack'],['16:15','longshan','sight'],['17:15','dihua','sight'],['19:00','ningxia','dinner']]},
- tp_classic:{n:'Taipei classics: Fuhang, CKS, Din Tai Fung, Taipei 101, Elephant Mtn, Raohe',base:'taipei',st:'07:00',stops:[['07:00','fuhang','breakfast'],['09:30','cks','sight'],['11:30','dtf','lunch'],['13:30','smoothie','snack'],['14:45','t101','sight'],['17:00','xiangshan','hike'],['19:15','fuzhou','snack'],['19:45','raohe','dinner']]},
- north_day:{n:'Day trip: Shifen lanterns, Jiufen, Golden Waterfall, Keelung',base:'taipei',st:'07:30',stops:[['07:30','yonghe','breakfast'],['09:45','shifen','sight'],['11:00','shifenfall','sight'],['13:00','jiufen','lunch'],['15:00','golden','sight'],['16:15','agan','snack'],['17:15','amei','snack'],['19:30','miaokou','dinner']]},
- tp_north:{n:'Palace Museum, Beitou hot springs, Tamsui sunset, Shilin NM',base:'taipei',st:'08:00',stops:[['08:00','tianjin','breakfast'],['09:15','npm','sight'],['12:15','silks','lunch'],['14:15','beitou','sight'],['16:45','tamsui','sight'],['19:30','shilin','dinner']]},
- tp_yms:{n:'Yangmingshan volcano hike + Maokong tea',base:'taipei',st:'07:30',stops:[['07:30','jinfeng','breakfast'],['08:45','yangming','hike'],['13:30','yongkangbn','lunch'],['15:00','maokong','sight'],['19:30','lindongfang','dinner']]},
- tp_splurge:{n:'Taipei splurge day: Le Palais, Taipei 101, RAW',base:'taipei',st:'09:00',stops:[['09:00','g_bf','breakfast'],['10:30','huashan','sight'],['12:00','lepalais','lunch'],['14:30','chiate','snack'],['15:30','t101','sight'],['18:30','raw','dinner']]},
- north_hike:{n:'Caoling Trail silvergrass hike + Houtong cats + Keelung',base:'taipei',st:'07:00',stops:[['07:00','trabento','breakfast'],['09:00','caoling','hike'],['15:00','houtong','sight'],['18:30','miaokou','dinner']]},
- north_falls:{n:'Sandiaoling waterfalls + Shifen + Jiufen',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','sandiaoling','hike'],['13:00','shifen','sight'],['15:30','jiufen','sight'],['18:30','miaokou','dinner']]},
- yl_day:{n:'Yilan: Lanyang Museum, whale watching, hot springs, Luodong NM',base:'yilan',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','lanyang','sight'],['11:30','whale','sight'],['14:30','g_meal','lunch'],['16:00','jiaoxi','sight'],['19:00','luodong','dinner']]},
- hl_taroko:{n:'Train to Hualien → Qingshui Cliff, Taroko Gorge, Qixingtan',base:'hualien',st:'06:30',stops:[['06:30','trabento','breakfast'],['09:30','gongzheng','snack'],['10:30','qingshui','sight'],['12:00','taroko','hike'],['15:00','shakadang','hike'],['17:00','qixingtan','sight'],['19:00','dongdamen','dinner']]},
- tt_chishang:{n:'Hualien → Chishang rice fields → Taitung (Xiaoyeliu, Tiehua)',base:'taitung',st:'07:30',stops:[['07:30','zhoujia','breakfast'],['10:00','chishang','sight'],['12:30','chishangbento','lunch'],['15:30','g_rest','rest',45],['16:30','xiaoyeliu','sight'],['19:00','tiehua','dinner']]},
- tt_coast:{n:'Taitung East Coast: Sanxiantai, Chenggong seafood, Luye',base:'taitung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','sanxiantai','sight'],['12:30','chenggong','lunch'],['16:00','luye','sight'],['19:00','g_meal','dinner']]},
- kh_arrive:{n:'Taitung → Kaohsiung: Pier-2, Cijin sunset, Dome of Light',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['12:00','pier2','sight'],['13:30','g_meal','lunch'],['15:30','cijin','sight'],['18:00','cijinseafood','dinner'],['20:30','dome','sight'],['21:00','milkking','drink']]},
- kh_day:{n:'Kaohsiung: Lotus Pond, Fo Guang Shan, Weiwuying, Ruifeng NM',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:00','lotus','sight'],['11:00','fgs','sight'],['14:30','g_meal','lunch'],['16:00','weiwuying','sight'],['19:00','ruifeng','dinner']]},
- kh_islands:{n:'Xiao Liuqiu sea turtles + Donggang tuna',base:'kaohsiung',st:'07:00',stops:[['07:00','g_bf','breakfast'],['08:30','liuqiu','sight'],['15:30','donggang','lunch'],['19:30','liuhe','dinner']]},
- kt_day:{n:'Kenting: Eluanbi Lighthouse, Longpan cliffs, Maobitou sunset',base:'kenting',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','eluanbi','sight'],['11:00','longpan','sight'],['12:30','g_meal','lunch'],['16:45','maobitou','sight'],['19:00','kentingst','dinner']]},
- tn_day:{n:'Tainan food & history: beef soup, Du Hsiao Yueh, Anping',base:'tainan',st:'07:00',stops:[['08:00','wenzhang','breakfast'],['09:30','chikan','sight'],['11:00','hayashi','sight'],['12:15','duxiaoyue','lunch'],['13:45','anping','sight'],['15:00','treehouse','sight'],['16:00','zhou','snack'],['18:00','shennong','night'],['19:30','garden','dinner']]},
- tn_day2:{n:'Tainan: Chimei Museum + salt-field sunset',base:'tainan',st:'08:00',stops:[['08:00','shijingjiu','breakfast'],['09:45','chimei','sight'],['13:30','zhou','lunch'],['16:00','jingzaijiao','sight'],['19:30','garden','dinner']]},
- tn_alishan:{n:'Tainan → Chiayi turkey rice → up to Alishan',base:'alishan',st:'07:00',stops:[['07:30','shijingjiu','breakfast'],['09:30','chimei','sight'],['13:00','penshui','lunch'],['17:30','g_rest','rest'],['19:00','g_meal','dinner']]},
- al_day:{n:'Alishan full day: sunrise, giant trees, Fenqihu',base:'alishan',st:'04:30',stops:[['04:30','zhushan','sight'],['07:30','g_bf','breakfast'],['08:30','alishanforest','hike'],['12:30','fenqihu','lunch'],['18:00','g_meal','dinner']]},
- al_sml:{n:'Alishan sunrise & giant trees → Sun Moon Lake',base:'sml',st:'04:30',stops:[['04:30','zhushan','sight'],['07:30','g_bf','breakfast'],['08:30','alishanforest','hike'],['15:30','itathao','snack'],['18:30','g_meal','dinner']]},
- sml_day:{n:'Sun Moon Lake full day: boat, pagoda, Ita Thao, ropeway',base:'sml',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','cien','hike'],['11:00','xiangshan_vc','sight'],['12:30','itathao','lunch'],['14:30','ropeway','sight'],['18:30','g_meal','dinner']]},
- sml_tc:{n:'Sun Moon Lake morning → Taichung: Chun Shui Tang, Gaomei sunset, Feng Chia',base:'taichung',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','cien','sight'],['11:00','xiangshan_vc','sight'],['14:00','chunshui','lunch'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
- tc_day:{n:'Taichung: Miyahara, Rainbow Village, opera house, Gaomei, Feng Chia',base:'taichung',st:'09:00',stops:[['09:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','rainbow','sight'],['12:30','chunshui','lunch'],['14:30','opera','sight'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
- tc_depart:{n:'Taichung morning → fly home from Taoyuan',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','suncake','snack'],['12:00','opera','sight'],['15:00','taoyuan','travel']]}
+ tp_arrival:{focus:['sightseeing','shopping'],n:'Taipei · Arrival: Ximen, Longshan Temple, Dihua St, Ningxia NM',base:'taipei',start:'tpe',st:'11:00',stops:[['12:30','g_rest','rest',45],['13:30','aychung','lunch'],['14:15','ximending','sight'],['15:15','sansiblings','snack'],['16:15','longshan','sight'],['17:15','dihua','sight'],['19:00','ningxia','dinner']]},
+ tp_classic:{focus:['sightseeing','photo','food'],n:'Taipei classics: Fuhang, CKS, Din Tai Fung, Taipei 101, Elephant Mtn, Raohe',base:'taipei',st:'07:00',stops:[['07:00','fuhang','breakfast'],['09:30','cks','sight'],['11:30','dtf','lunch'],['13:30','smoothie','snack'],['14:45','t101','sight'],['17:00','xiangshan','hike'],['19:15','fuzhou','snack'],['19:45','raohe','dinner']]},
+ north_day:{focus:['sightseeing','photo'],n:'Day trip: Shifen lanterns, Jiufen, Golden Waterfall, Keelung',base:'taipei',st:'07:30',stops:[['07:30','yonghe','breakfast'],['09:45','shifen','sight'],['11:00','shifenfall','sight'],['13:00','jiufen','lunch'],['15:00','golden','sight'],['16:15','agan','snack'],['17:15','amei','snack'],['19:30','miaokou','dinner']]},
+ tp_north:{focus:['culture','relax','sightseeing'],n:'Palace Museum, Beitou hot springs, Tamsui sunset, Shilin NM',base:'taipei',st:'08:00',stops:[['08:00','tianjin','breakfast'],['09:15','npm','sight'],['12:15','silks','lunch'],['14:15','beitou','sight'],['16:45','tamsui','sight'],['19:30','shilin','dinner']]},
+ tp_yms:{focus:['hiking','relax'],n:'Yangmingshan volcano hike + Maokong tea',base:'taipei',st:'07:30',stops:[['07:30','jinfeng','breakfast'],['08:45','yangming','hike'],['13:30','yongkangbn','lunch'],['15:00','maokong','sight'],['19:30','lindongfang','dinner']]},
+ tp_splurge:{focus:['food','shopping'],n:'Taipei splurge day: Le Palais, Taipei 101, RAW',base:'taipei',st:'09:00',stops:[['09:00','g_bf','breakfast'],['10:30','huashan','sight'],['12:00','lepalais','lunch'],['14:30','chiate','snack'],['15:30','t101','sight'],['18:30','raw','dinner']]},
+ north_hike:{focus:['hiking','photo'],n:'Caoling Trail silvergrass hike + Houtong cats + Keelung',base:'taipei',st:'07:00',stops:[['07:00','trabento','breakfast'],['09:00','caoling','hike'],['15:00','houtong','sight'],['18:30','miaokou','dinner']]},
+ north_falls:{focus:['hiking','photo'],n:'Sandiaoling waterfalls + Shifen + Jiufen',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','sandiaoling','hike'],['13:00','shifen','sight'],['15:30','jiufen','sight'],['18:30','miaokou','dinner']]},
+ yl_day:{focus:['relax','sightseeing'],n:'Yilan: Lanyang Museum, whale watching, hot springs, Luodong NM',base:'yilan',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','lanyang','sight'],['11:30','whale','sight'],['14:30','g_meal','lunch'],['16:00','jiaoxi','sight'],['19:00','luodong','dinner']]},
+ hl_taroko:{focus:['sightseeing','hiking','photo'],n:'Train to Hualien → Qingshui Cliff, Taroko Gorge, Qixingtan',base:'hualien',st:'06:30',stops:[['06:30','trabento','breakfast'],['09:30','gongzheng','snack'],['10:30','qingshui','sight'],['12:00','taroko','hike'],['15:00','shakadang','hike'],['17:00','qixingtan','sight'],['19:00','dongdamen','dinner']]},
+ tt_chishang:{focus:['photo','sightseeing'],n:'Hualien → Chishang rice fields → Taitung (Xiaoyeliu, Tiehua)',base:'taitung',st:'07:30',stops:[['07:30','zhoujia','breakfast'],['10:00','chishang','sight'],['12:30','chishangbento','lunch'],['15:30','g_rest','rest',45],['16:30','xiaoyeliu','sight'],['19:00','tiehua','dinner']]},
+ tt_coast:{focus:['photo','relax'],n:'Taitung East Coast: Sanxiantai, Chenggong seafood, Luye',base:'taitung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','sanxiantai','sight'],['12:30','chenggong','lunch'],['16:00','luye','sight'],['19:00','g_meal','dinner']]},
+ kh_arrive:{focus:['sightseeing','photo','night'],n:'Taitung → Kaohsiung: Pier-2, Cijin sunset, Dome of Light',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['12:00','pier2','sight'],['13:30','g_meal','lunch'],['15:30','cijin','sight'],['18:00','cijinseafood','dinner'],['20:30','dome','sight'],['21:00','milkking','drink']]},
+ kh_day:{focus:['culture','sightseeing'],n:'Kaohsiung: Lotus Pond, Fo Guang Shan, Weiwuying, Ruifeng NM',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:00','lotus','sight'],['11:00','fgs','sight'],['14:30','g_meal','lunch'],['16:00','weiwuying','sight'],['19:00','ruifeng','dinner']]},
+ kh_islands:{focus:['relax','food'],n:'Xiao Liuqiu sea turtles + Donggang tuna',base:'kaohsiung',st:'07:00',stops:[['07:00','g_bf','breakfast'],['08:30','liuqiu','sight'],['15:30','donggang','lunch'],['19:30','liuhe','dinner']]},
+ kt_day:{focus:['photo','relax'],n:'Kenting: Eluanbi Lighthouse, Longpan cliffs, Maobitou sunset',base:'kenting',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','eluanbi','sight'],['11:00','longpan','sight'],['12:30','g_meal','lunch'],['16:45','maobitou','sight'],['19:00','kentingst','dinner']]},
+ tn_day:{focus:['food','culture'],n:'Tainan food & history: beef soup, Du Hsiao Yueh, Anping',base:'tainan',st:'07:00',stops:[['08:00','wenzhang','breakfast'],['09:30','chikan','sight'],['11:00','hayashi','sight'],['12:15','duxiaoyue','lunch'],['13:45','anping','sight'],['15:00','treehouse','sight'],['16:00','zhou','snack'],['18:00','shennong','night'],['19:30','garden','dinner']]},
+ tn_day2:{focus:['photo','culture'],n:'Tainan: Chimei Museum + salt-field sunset',base:'tainan',st:'08:00',stops:[['08:00','shijingjiu','breakfast'],['09:45','chimei','sight'],['13:30','zhou','lunch'],['16:00','jingzaijiao','sight'],['19:30','garden','dinner']]},
+ tn_alishan:{focus:['travel'],n:'Tainan → Chiayi turkey rice → up to Alishan',base:'alishan',st:'07:00',stops:[['07:30','shijingjiu','breakfast'],['09:30','chimei','sight'],['13:00','penshui','lunch'],['17:30','g_rest','rest'],['19:00','g_meal','dinner']]},
+ al_day:{focus:['hiking','photo'],n:'Alishan full day: sunrise, giant trees, Fenqihu',base:'alishan',st:'04:30',stops:[['04:30','zhushan','sight'],['07:30','g_bf','breakfast'],['08:30','alishanforest','hike'],['12:30','fenqihu','lunch'],['18:00','g_meal','dinner']]},
+ al_sml:{focus:['travel','hiking'],n:'Alishan sunrise & giant trees → Sun Moon Lake',base:'sml',st:'04:30',stops:[['04:30','zhushan','sight'],['07:30','g_bf','breakfast'],['08:30','alishanforest','hike'],['15:30','itathao','snack'],['18:30','g_meal','dinner']]},
+ sml_day:{focus:['sightseeing','photo','relax'],n:'Sun Moon Lake full day: boat, pagoda, Ita Thao, ropeway',base:'sml',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','cien','hike'],['11:00','xiangshan_vc','sight'],['12:30','itathao','lunch'],['14:30','ropeway','sight'],['18:30','g_meal','dinner']]},
+ sml_tc:{focus:['travel','photo'],n:'Sun Moon Lake morning → Taichung: Chun Shui Tang, Gaomei sunset, Feng Chia',base:'taichung',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','cien','sight'],['11:00','xiangshan_vc','sight'],['14:00','chunshui','lunch'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
+ tc_day:{focus:['sightseeing','photo','shopping'],n:'Taichung: Miyahara, Rainbow Village, opera house, Gaomei, Feng Chia',base:'taichung',st:'09:00',stops:[['09:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','rainbow','sight'],['12:30','chunshui','lunch'],['14:30','opera','sight'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
+ tc_depart:{focus:['travel','shopping'],n:'Taichung morning → fly home from Taoyuan',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','suncake','snack'],['12:00','opera','sight'],['15:00','taoyuan','travel']]}
 };
 const DEFAULT=['tp_arrival','tp_classic','north_day','tp_north','hl_taroko','tt_chishang','tt_coast','kh_arrive','kh_day','tn_day','tn_alishan','al_sml','sml_tc','tc_depart'];
 
@@ -1082,7 +1082,7 @@ function placeSelect(kind,di,cur){
 }
 
 /* ================= UI HELPERS ================= */
-const KCOL={drink:'var(--teal)',breakfast:'var(--orange)',lunch:'var(--red)',dinner:'var(--pink)',snack:'var(--purple)',sight:'var(--blue)',hike:'var(--green)',night:'var(--indigo)',travel:'var(--teal)',rest:'var(--gray)'};
+const KCOL={shop:'#a2845e',drink:'var(--teal)',breakfast:'var(--orange)',lunch:'var(--red)',dinner:'var(--pink)',snack:'var(--purple)',sight:'var(--blue)',hike:'var(--green)',night:'var(--indigo)',travel:'var(--teal)',rest:'var(--gray)'};
 const SHORT={tpe:'Airport',taipei:'Taipei',north:'Jiufen',yilan:'Yilan',hualien:'Hualien',chishang:'Chishang',taitung:'Taitung',kaohsiung:'Kaohsiung',kenting:'Kenting',tainan:'Tainan',chiayi:'Chiayi',alishan:'Alishan',sml:'Sun Moon Lake',taichung:'Taichung'};
 const MAXDAYS=14;
 const icon=(kind,big)=>'<span class="ic'+(big?' big':'')+'" style="background:'+(KCOL[kind]||'var(--gray)')+'" aria-hidden="true">'+(KINDS[kind]||KINDS.sight).i+'</span>';
@@ -1176,8 +1176,9 @@ function renderPlan(){
     row({icon:ibox('🕗','var(--orange)'),t:'Leave at',v:timeSel('startTime',day.startTime||'08:00')})+
     row({icon:ibox('🏁','var(--green)'),t:'Start from',v:esc(C.start.label),chev:1,act:'loc',data:' data-w="start"'})+
     row({icon:ibox('🛏️','var(--gray)'),t:'Tonight’s hotel',v:esc(day.hotel?day.hotel.label:'Not set'),chev:1,act:'loc',data:' data-w="hotel"'})+
-    row({icon:ibox('✨','var(--purple)'),t:'<span class="blue">Use a suggested plan</span>',chev:1,act:'tplSheet'})+
+    row({icon:ibox('✨','var(--purple)'),t:'<span class="blue">Plan this day by focus</span>',s:'Hiking, shopping, photos, food, culture, rainy day…',chev:1,act:'tplSheet'})+
   '</div>';
+  h+='<div class="sec-h">Plan this day around…</div><div class="chips">'+Object.keys(FOCUS).filter(f=>f!=='travel').map(f=>'<button class="chip" data-act="tplSheet" data-f="'+f+'">'+FOCUS[f].i+' '+FOCUS[f].l+'</button>').join('')+'</div>';
   const sugs=suggestions(di,C);
   if(sugs.length){
     h+='<details class="list sugbox"'+(S.sugOpen?' open':'')+' data-act="sugToggle"><summary class="row ir">'+ibox('💡','var(--yellow)')+'<span class="tx"><span class="t">'+sugs.length+' suggestion'+(sugs.length>1?'s':'')+' for this day</span><span class="s">Better routes, opening hours, duplicates</span></span><span class="chev" aria-hidden="true">›</span></summary>'+
@@ -1300,7 +1301,7 @@ function openStatic(title,html,back){SHEET={type:'static',back:back||null};showS
 function closeSheet(){SHEET=null;$('#sw').classList.add('hide');$('#shBody').innerHTML='';document.body.classList.remove('noscroll')}
 function renderSheet(fresh){
   if(!SHEET||SHEET.type==='static')return;
-  const r=SHEET.type==='stop'?stopSheet(SHEET.uid):SHEET.type==='add'?addSheet():SHEET.type==='swap'?swapSheet():SHEET.type==='custom'?customSheet():SHEET.type==='settings'?settingsSheet():SHEET.type==='loc'?locSheet(SHEET.w):null;
+  const r=SHEET.type==='plan'?planSheet():SHEET.type==='stop'?stopSheet(SHEET.uid):SHEET.type==='add'?addSheet():SHEET.type==='swap'?swapSheet():SHEET.type==='custom'?customSheet():SHEET.type==='settings'?settingsSheet():SHEET.type==='loc'?locSheet(SHEET.w):null;
   if(!r){closeSheet();return}
   showSheet(r.title,r.html,!fresh);
   $('.sh-back').classList.toggle('hide',!SHEET.back);
@@ -1460,7 +1461,7 @@ function settingsSheet(){
 function dayMenu(){
   const di=S.active,n=S.days;
   openStatic('Day '+(di+1)+' · '+dateLabel(di),'<div class="list">'+
-    row({icon:ibox('✨','var(--purple)'),t:'<span class="blue">Use a suggested plan</span>',act:'tplSheet',chev:1})+
+    row({icon:ibox('✨','var(--purple)'),t:'<span class="blue">Plan this day by focus</span>',act:'tplSheet',chev:1})+
     row({icon:ibox('＋','var(--blue)'),t:'<span class="blue">Add a stop</span>',act:'addSheet'})+
     (n<MAXDAYS?row({icon:ibox('📅','var(--orange)'),t:'<span class="blue">Insert a new day after this one</span>',act:'addDay',data:' data-i="'+di+'"'}):'')+
     (di>0?row({icon:ibox('←','var(--gray)'),t:'Move this day earlier',act:'moveDay',data:' data-d="-1"'}):'')+
@@ -1468,6 +1469,26 @@ function dayMenu(){
     row({icon:ibox('🧹','var(--gray)'),t:'Clear all stops',act:'clearDay'})+'</div>'+
     '<div class="list">'+row({t:'<span class="red">Delete Day '+(di+1)+'</span>',act:'delDay',data:' data-i="'+di+'"'})+'</div>'+
     '<p class="sec-f">Deleting a day moves the later days one date earlier.</p>');
+}
+const FOCUS={hiking:{l:'Hiking',i:'🥾'},photo:{l:'Photos',i:'📷'},sightseeing:{l:'Sightseeing',i:'🏛️'},food:{l:'Food crawl',i:'🍜'},shopping:{l:'Shopping',i:'🛍️'},culture:{l:'Culture & temples',i:'⛩️'},relax:{l:'Relax & hot springs',i:'♨️'},rainy:{l:'Rainy day',i:'☔'},night:{l:'Nightlife & views',i:'🌃'},travel:{l:'Travel day',i:'🚆'}};
+function planSheet(){
+  const A=SHEET,di=S.active,d=S.plan[di];
+  let h='<p class="sec-f" style="margin:0 0 14px">Pick what you want Day '+(di+1)+' to be about, and where. Each plan comes with notes on what to expect. Choosing one replaces this day’s stops; you can still edit every stop afterwards.</p>';
+  h+='<div class="chips" role="tablist"><button class="chip'+(!A.foc?' on':'')+'" data-act="plFocus" data-f="">All</button>'+Object.keys(FOCUS).map(f=>'<button class="chip'+(A.foc===f?' on':'')+'" data-act="plFocus" data-f="'+f+'">'+FOCUS[f].i+' '+FOCUS[f].l+'</button>').join('')+'</div>';
+  h+='<div class="list">'+row({icon:ibox('📍','var(--red)'),t:'Area',v:'<select class="vsel" data-act="plArea"><option value="">All of Taiwan</option>'+BASES.map(r=>'<option value="'+r+'"'+(A.area===r?' selected':'')+'>'+esc(REG[r].n)+(r===d.base?' (this day)':'')+'</option>').join('')+'</select>'})+'</div>';
+  const list=Object.entries(TPL).filter(([,t])=>(!A.foc||(t.focus||[]).includes(A.foc))&&(!A.area||t.base===A.area||(t.areas||[]).includes(A.area)))
+    .sort((a,b)=>((b[1].base===d.base)-(a[1].base===d.base)));
+  if(!list.length)h+='<div class="empty">No ready-made plan for that combination yet. Try another area or focus, or build the day yourself with “Add a stop”.</div>';
+  h+=list.map(([id,t])=>{
+    const stops=t.stops.map(x=>PL[x[1]]).filter(Boolean);
+    const cost=t.stops.reduce((a,x)=>a+((PL[x[1]]||{}).cost||0),0);
+    return '<div class="list"><div class="row" style="display:block"><div class="t" style="font-weight:600">'+esc(t.n)+'</div>'+
+      '<div class="s" style="margin-top:4px">'+(t.focus||[]).filter(f=>FOCUS[f]).map(f=>'<span class="bdg">'+FOCUS[f].i+' '+FOCUS[f].l+'</span>').join('')+'<span class="bdg">📍 '+esc(REG[t.base].n)+'</span><span class="bdg">'+stops.filter(p=>!isBasic(p)).length+' stops · ~'+esc(moneyTxt(cost))+' pp</span></div>'+
+      (t.notes?'<div class="para" style="margin-top:8px"><b>What to expect:</b> '+esc(t.notes)+'</div>':'')+
+      '<details class="how" style="margin-top:8px"><summary>See the stops ›</summary><ol style="margin:4px 0 0;padding-left:20px;font-size:15px">'+t.stops.map(x=>{const p=PL[x[1]];return p?'<li>'+esc(x[0]||'')+' · '+esc(p.n)+(p.gen||isBasic(p)?'':' <button class="btn-s plain" style="padding:0 4px;font-size:13px" data-act="preview" data-pid="'+p.id+'">Preview</button>')+'</li>':''}).join('')+'</ol>'+(t.src?'<div class="s" style="margin-top:6px">Based on: '+t.src.map(u=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])+'</a>').join(', ')+'</div>':'')+'</details>'+
+      '<div style="margin-top:10px"><button class="btn-s pri" data-act="applyTpl" data-t="'+id+'">Use this plan for Day '+(di+1)+'</button></div></div></div>';
+  }).join('');
+  return {title:'Plan Day '+(di+1),html:h};
 }
 function tplSheet(){
   const di=S.active,d=S.plan[di];
@@ -1525,7 +1546,7 @@ function setPoint(w,pt){const d=S.plan[S.active];if(w==='start')d.start=pt;else 
 function addDayAfter(i){
   if(S.plan.length>=MAXDAYS){toast('The planner holds up to '+MAXDAYS+' days');return}
   const base=S.plan[i]?S.plan[i].base:'taipei';S.plan.splice(i+1,0,blankDay(base));S.active=i+1;S.tab='plan';closeSheet();render();
-  toast('Day '+(i+2)+' added ('+dateLabel(i+1)+'). Use a suggested plan or add stops.');
+  toast('Day '+(i+2)+' added ('+dateLabel(i+1)+'). Pick a focus (hiking, shopping, photos…) or add stops.');
 }
 function deleteDay(i){
   if(S.plan.length<=1){toast('Your trip needs at least one day');return}
@@ -1551,7 +1572,8 @@ document.addEventListener('click',e=>{
     case 'dayMenu':dayMenu();break;
     case 'moveDay':{const j=di+(+b.dataset.d);if(j<0||j>=S.plan.length)return;[S.plan[di],S.plan[j]]=[S.plan[j],S.plan[di]];S.active=j;closeSheet();render();toast('Moved to Day '+(j+1));break}
     case 'clearDay':if(confirm('Remove all stops from Day '+(di+1)+'?')){S.plan[di].stops=[];closeSheet();render()}break;
-    case 'tplSheet':tplSheet();break;
+    case 'tplSheet':openSheet({type:'plan',foc:b.dataset.f||'',area:S.plan[di].base});break;
+    case 'plFocus':SHEET.foc=b.dataset.f;renderSheet();break;
     case 'applyTpl':{const tid=b.dataset.t,old=S.plan[di];
       if(old.stops.some(s=>!PL[s.pid].gen)&&!confirm('Replace the stops on Day '+(di+1)+' with “'+TPL[tid].n+'”?'))return;
       const n=fromTpl(tid);if(old.start&&!TPL[tid].start)n.start=old.start;n.hotel=old.hotel&&old.base===n.base?old.hotel:null;S.plan[di]=n;settle(di);closeSheet();render();toast('Plan applied to Day '+(di+1));break}
@@ -1625,6 +1647,7 @@ document.addEventListener('change',e=>{
     case 'moveTo':{const to=+v;moveStop(di,b.dataset.uid,to);S.active=to;closeSheet();render();toast('Moved to Day '+(to+1)+' · '+dateLabel(to));askAbout(to,b.dataset.uid);break}
     case 'addDaySel':SHEET.di=+v;renderSheet();break;
     case 'addKindSel':SHEET.kind=v;renderSheet();break;
+    case 'plArea':SHEET.area=v;renderSheet();break;
     case 'cKind':SHEET.kind=v;break;
     case 'sDate':if(v){S.startDate=v;render()}break;
     case 'rateIn':{const r=+v;if(r>0){S.rate=r;S.rateSrc='manual';render()}break}
