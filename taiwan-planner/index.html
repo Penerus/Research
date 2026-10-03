@@ -164,6 +164,12 @@ details.how[open] summary{margin-bottom:6px}
 .sacts{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px 118px}
 .mini{font-size:13px;font-weight:600;color:var(--blue);background:var(--tint);border-radius:999px;padding:5px 11px;white-space:nowrap}
 .mini.red{color:var(--red);background:rgba(255,59,48,.1)}
+.mini.grip{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;color:var(--label2);background:var(--fill)}
+.stop.dragging{opacity:.35}
+.dropline{height:3px;background:var(--blue);border-radius:2px;margin:2px 16px}
+.dragghost{position:fixed;z-index:3000;pointer-events:none;background:var(--card);color:var(--label);border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.28);padding:10px 14px;font-weight:600;font-size:15px;max-width:80vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dchip.droptarget{outline:3px solid var(--blue);outline-offset:2px}
+body.dragging-on{user-select:none;-webkit-user-select:none;cursor:grabbing}
 @media (max-width:520px){.sacts{padding-left:16px}.list > * + .stop::before{left:16px}}
 .bdg{display:inline-block;font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;margin:0 4px 0 0;background:var(--fill);color:var(--label2);vertical-align:1px;white-space:nowrap}
 .bdg.v{background:rgba(255,204,0,.28);color:#8a6d00}
@@ -1437,10 +1443,10 @@ function stopRow(it,di){
   if(it.late)warns.push('You arrive at '+fmtT(it.arrive));
   if(p.status==='closed')warns.unshift('CLOSED NOW: '+(p.statusNote||''));
   const sub=[KINDS[s.kind].l,fmtDur(it.dur)];if(p.cost)sub.push(moneyTxt(p.cost*S.trav));
-  return '<div class="stop"><button class="row stoprow" data-act="openStop" data-uid="'+s.uid+'"><span class="time"><b>'+fmtT(it.begin)+'</b><small>'+fmtT(it.end)+'</small></span>'+icon(s.kind)+
+  return '<div class="stop" data-suid="'+s.uid+'"><button class="row stoprow" data-act="openStop" data-uid="'+s.uid+'"><span class="time"><b>'+fmtT(it.begin)+'</b><small>'+fmtT(it.end)+'</small></span>'+icon(s.kind)+
     '<span class="tx"><span class="t">'+esc(p.n)+'</span><span class="s">'+esc(sub.join(' · '))+'</span>'+(badges(p)?'<span class="bdgs">'+badges(p)+'</span>':'')+(warns.length?'<span class="warn">⚠︎ '+esc(warns.join(' · '))+'</span>':'')+'</span>'+
     ((p.img||p.photo)?'<span class="thumb" data-img="'+esc(imgKey(p))+'">'+KINDS[s.kind].i+'</span>':'')+'<span class="chev" aria-hidden="true">›</span></button>'+
-    '<div class="sacts">'+(isBasic(p)?'':'<button class="mini" data-act="preview" data-pid="'+p.id+'" data-uid="'+s.uid+'">👀 Preview</button>')+
+    '<div class="sacts"><button class="mini grip" data-drag="'+s.uid+'" aria-label="Drag to move '+esc(p.n)+'" title="Drag to another time, or onto another day">⠿ Drag</button>'+(isBasic(p)?'':'<button class="mini" data-act="preview" data-pid="'+p.id+'" data-uid="'+s.uid+'">👀 Preview</button>')+
     '<button class="mini" data-act="swap" data-uid="'+s.uid+'">⇄ Change</button><button class="mini" data-act="openStop" data-uid="'+s.uid+'">✎ Edit</button><button class="mini red" data-act="delStop" data-uid="'+s.uid+'" aria-label="Delete '+esc(p.n)+'">Delete</button></div></div>';
 }
 function renderPlan(){
@@ -1467,7 +1473,7 @@ function renderPlan(){
   C.items.forEach(it=>{h+=connHTML(it)+stopRow(it,di)});
   if(!C.items.length)h+='<div class="empty">No stops yet. Add one, or use a suggested plan.</div>';
   h+='<button class="row ir addrow" data-act="addSheet">'+ibox('＋','var(--blue)')+'<span class="tx"><span class="t blue">Add a stop</span></span></button></div>';
-  h+='<p class="sec-f" style="margin-top:-12px">👀 Preview a stop to see photos and what to expect. ⇄ Change swaps it for something else (you can preview each option first). ✎ Edit sets the time, the day or the type. Pick how you travel from the dropdown between stops.</p>';
+  h+='<p class="sec-f" style="margin-top:-12px">⠿ Drag a stop to change its time, or drop it on another day in the strip at the top. 👀 Preview a stop to see photos and what to expect. ⇄ Change swaps it for something else (you can preview each option first). ✎ Edit sets the time, the day or the type. Pick how you travel from the dropdown between stops.</p>';
   h+='</div>';
   // side
   const pts=[C.start].concat(C.items.filter(it=>!it.pt.gen||it.p.gen==='hotel').map(it=>it.pt));
@@ -1841,6 +1847,7 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;
   const a=b.dataset.act;
   if(['sugToggle','import'].includes(a))return;
+  if(b.dataset.drag)return;
   if(b.tagName==='SELECT'||b.tagName==='INPUT'||b.tagName==='LABEL')return;
   if(b.tagName==='A')return;
   e.preventDefault();
@@ -1969,6 +1976,65 @@ async function refreshRate(force){
     else throw 0;
   }catch(e){if(force)toast('Couldn’t fetch the live rate. Using Rp '+S.rate)}
 }
+
+/* ================= DRAG & DROP ================= */
+let DRAG=null;
+document.addEventListener('pointerdown',e=>{
+  const g=e.target.closest('[data-drag]');if(!g||e.button>0)return;
+  const el=document.querySelector('.stop[data-suid="'+g.dataset.drag+'"]');if(!el)return;
+  e.preventDefault();
+  const f=findStop(g.dataset.drag);if(!f.s)return;
+  const ghost=document.createElement('div');ghost.className='dragghost';ghost.textContent='⠿ '+PL[f.s.pid].n;document.body.appendChild(ghost);
+  const line=document.createElement('div');line.className='dropline';
+  DRAG={uid:g.dataset.drag,el,ghost,line,di:f.di,idx:null,day:null,moved:false,x0:e.clientX,y0:e.clientY};
+  el.classList.add('dragging');document.body.classList.add('dragging-on');
+  try{g.setPointerCapture(e.pointerId)}catch(_){}
+  moveDrag(e);
+});
+function moveDrag(e){
+  if(!DRAG)return;
+  if(Math.abs(e.clientX-DRAG.x0)+Math.abs(e.clientY-DRAG.y0)>4)DRAG.moved=true;
+  DRAG.ghost.style.left=(e.clientX+12)+'px';DRAG.ghost.style.top=(e.clientY-18)+'px';
+  document.querySelectorAll('.dchip.droptarget').forEach(c=>c.classList.remove('droptarget'));
+  DRAG.day=null;
+  const under=document.elementFromPoint(e.clientX,e.clientY);
+  const chip=under&&under.closest('.dchip[data-act="day"]');
+  if(chip&&+chip.dataset.i!==DRAG.di){chip.classList.add('droptarget');DRAG.day=+chip.dataset.i;DRAG.line.remove();return}
+  const stops=[...document.querySelectorAll('.stop[data-suid]')].filter(x=>x!==DRAG.el);
+  let idx=stops.length;
+  for(let i=0;i<stops.length;i++){const r=stops[i].getBoundingClientRect();if(e.clientY<r.top+r.height/2){idx=i;break}}
+  DRAG.idx=idx;
+  const ref=stops[idx];
+  if(ref){const prev=ref.previousElementSibling;ref.parentNode.insertBefore(DRAG.line,prev&&prev.classList.contains('conn')?prev:ref)}
+  else if(stops.length){const last=stops[stops.length-1];last.parentNode.insertBefore(DRAG.line,last.nextSibling)}
+  if(e.clientY<70)window.scrollBy(0,-14);else if(e.clientY>window.innerHeight-70)window.scrollBy(0,14);
+}
+function endDrag(cancel){
+  if(!DRAG)return;
+  const D=DRAG;DRAG=null;
+  D.ghost.remove();D.line.remove();D.el.classList.remove('dragging');document.body.classList.remove('dragging-on');
+  document.querySelectorAll('.dchip.droptarget').forEach(c=>c.classList.remove('droptarget'));
+  if(cancel||!D.moved)return;
+  const day=S.plan[D.di],before=day.stops.map(x=>Object.assign({},x));
+  const s=day.stops.find(x=>x.uid===D.uid);if(!s)return;
+  if(D.day!=null){
+    const tgt=S.plan[D.day],tBefore=tgt.stops.map(x=>Object.assign({},x));
+    moveStop(D.di,D.uid,D.day);settle(D.day);render();
+    toast('Moved '+PL[s.pid].n+' to Day '+(D.day+1),()=>{S.plan[D.di].stops=before;S.plan[D.day].stops=tBefore});
+    return;
+  }
+  const from=day.stops.indexOf(s);let to=D.idx==null?from:D.idx;
+  if(to===from)return;
+  day.stops.splice(from,1);day.stops.splice(to,0,s);
+  s.time=null;day.stops.forEach((x,i)=>{if(i>Math.min(from,to)&&i<=Math.max(from,to))x.time=null});
+  settle(D.di);render();
+  const it=computeDay(D.di).items.find(x=>x.s.uid===s.uid);
+  toast(PL[s.pid].n+' now at '+(it?fmtT(it.begin):'its new spot'),()=>{S.plan[D.di].stops=before});
+}
+document.addEventListener('pointermove',e=>{if(DRAG){e.preventDefault();moveDrag(e)}},{passive:false});
+document.addEventListener('pointerup',()=>endDrag(false));
+document.addEventListener('pointercancel',()=>endDrag(true));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&DRAG)endDrag(true)});
 
 /* ================= BOOT ================= */
 load();render();refreshRate(false);
