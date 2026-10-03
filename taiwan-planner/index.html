@@ -168,6 +168,8 @@ details.how[open] summary{margin-bottom:6px}
 .bdg{display:inline-block;font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;margin:0 4px 0 0;background:var(--fill);color:var(--label2);vertical-align:1px;white-space:nowrap}
 .bdg.v{background:rgba(255,204,0,.28);color:#8a6d00}
 .bdg.c{background:rgba(52,199,89,.18);color:#1f8a3c}
+.bdg.x{background:rgba(255,59,48,.15);color:var(--red)}
+.bdg.w{background:rgba(255,149,0,.18);color:#a05a00}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bdg.v{color:var(--yellow)}:root:not([data-theme="light"]) .bdg.c{color:var(--green)}}
 .bdgs{margin-top:3px}
 .sh-back{color:var(--blue);font-size:17px;justify-self:start;white-space:nowrap}
@@ -301,15 +303,19 @@ const REG={
   chiayi:{n:'Chiayi',zh:'嘉義',hub:'Chiayi Station',hubq:'嘉義車站',lat:23.4790,lng:120.4410},
   alishan:{n:'Alishan',zh:'阿里山',hub:'Alishan Station',hubq:'阿里山車站',lat:23.5100,lng:120.8040},
   sml:{n:'Sun Moon Lake & Cingjing',zh:'日月潭',hub:'Shuishe Pier (Sun Moon Lake)',hubq:'水社碼頭',lat:23.8660,lng:120.9110},
-  taichung:{n:'Taichung',zh:'台中',hub:'Taichung Station',hubq:'台中車站',lat:24.1370,lng:120.6860}
+  taichung:{n:'Taichung',zh:'台中',hub:'Taichung Station',hubq:'台中車站',lat:24.1370,lng:120.6860},
+  penghu:{n:'Penghu',zh:'澎湖',hub:'Magong',hubq:'馬公',lat:23.5650,lng:119.5790},
+  greenisland:{n:'Green Island',zh:'綠島',hub:'Nanliao Harbor',hubq:'綠島南寮漁港',lat:22.6740,lng:121.4730},
+  matsu:{n:'Matsu',zh:'馬祖',hub:'Nangan (Fuao Harbor)',hubq:'福澳港',lat:26.1600,lng:119.9500},
+  kinmen:{n:'Kinmen',zh:'金門',hub:'Jincheng',hubq:'金城車站',lat:24.4320,lng:118.3170}
 };
-const BASES=['taipei','north','yilan','hualien','chishang','taitung','kaohsiung','kenting','tainan','chiayi','alishan','sml','taichung'];
+const BASES=['taipei','north','yilan','hualien','chishang','taitung','kaohsiung','kenting','tainan','chiayi','alishan','sml','taichung','penghu','greenisland','matsu','kinmen'];
 const NEAR={
   taipei:['taipei','north','yilan','tpe'], north:['north','taipei','yilan'], yilan:['yilan','north','taipei'],
   hualien:['hualien'], chishang:['chishang','taitung','hualien'], taitung:['taitung','chishang'],
   kaohsiung:['kaohsiung','tainan'], kenting:['kenting','kaohsiung'], tainan:['tainan','kaohsiung','chiayi'],
   chiayi:['chiayi','alishan','tainan'], alishan:['alishan','chiayi'], sml:['sml','taichung'],
-  taichung:['taichung','sml'], tpe:['tpe','taipei']
+  taichung:['taichung','sml'], tpe:['tpe','taipei'], penghu:['penghu'], greenisland:['greenisland','taitung'], matsu:['matsu'], kinmen:['kinmen']
 };
 
 /* MRT stations (approx coords) */
@@ -338,6 +344,7 @@ const MRT={
   'Jiannan Rd.':{s:'tpe',l:['BR'],lat:25.0849,lng:121.5556},
   'Xingtian Temple':{s:'tpe',l:['O'],lat:25.0599,lng:121.5332},
   "Da'an":{s:'tpe',l:['R','BR'],lat:25.0330,lng:121.5436},
+  'Xihu':{s:'tpe',l:['BR'],lat:25.0821,lng:121.5672},
   'Formosa Boulevard':{s:'khh',l:['KR','KO'],lat:22.6311,lng:120.3021},
   'Yanchengpu':{s:'khh',l:['KO'],lat:22.6215,lng:120.2853},
   'Sizihwan':{s:'khh',l:['KO'],lat:22.6216,lng:120.2741},
@@ -383,10 +390,10 @@ const PLACES=[
   d:'Spicy Sichuan-style braised beef noodle soup with huge tender chunks. Also try the steamed pork ribs on sweet potato.'},
  {id:'lindongfang',n:'Lin Dong Fang Beef Noodles',zh:'林東芳牛肉麵',r:'taipei',k:['lunch','dinner','night'],lat:25.0480,lng:121.5404,st:'Zhongxiao Fuxing',w:12,cost:260,dur:40,open:'11:00-03:00',img:'Beef noodle soup',dish:1,
   d:'Clear herbal beef broth (not spicy) with beef and tendon. Open late, and famous for the chili-butter sauce on the table.'},
- {id:'aychung',n:'Ay-Chung Flour-Rice Noodle',zh:'阿宗麵線',r:'taipei',k:['snack','lunch'],lat:25.0434,lng:121.5077,st:'Ximen',ex:'6',w:2,cost:80,dur:20,open:'08:30-22:30',img:'Misua',dish:1,star:1,
+ {id:'aychung',n:'Ay-Chung Flour-Rice Noodle',zh:'阿宗麵線',r:'taipei',k:['snack','lunch'],lat:25.0434,lng:121.5077,st:'Ximen',ex:'6',w:2,cost:75,dur:20,open:'08:30-22:30',img:'Misua',dish:1,star:1,
   d:'A cup of thick bonito-broth flour-rice noodles with pig intestine, eaten standing in the street. Add garlic, vinegar and chili.'},
  {id:'lanjia',n:'Lan Jia Gua Bao',zh:'藍家割包',r:'taipei',k:['snack','lunch'],lat:25.0151,lng:121.5340,st:'Gongguan',ex:'4',w:3,cost:90,dur:25,img:'Gua bao',dish:1,
-  d:'The Taiwanese “pork-belly burger”: braised pork, pickled mustard greens, peanut powder and cilantro. Ask for mixed fat and lean (綜合).'},
+  d:'The Taiwanese “pork-belly burger”: braised pork, pickled mustard greens, peanut powder and cilantro. Ask for mixed fat and lean (綜合).',closed:[1],open:'11:00-24:00'},
  {id:'smoothie',n:'Smoothie House',zh:'思慕昔',q:'思慕昔 永康街',r:'taipei',k:['snack'],lat:25.0320,lng:121.5297,st:'Dongmen',ex:'5',w:3,cost:260,dur:40,tier:2,open:'09:00-22:30',img:'Baobing',dish:1,
   d:'Mango snowflake shaved ice with mango ice cream. Best in mango season (May–Sep), but they make it year-round.'},
  {id:'fuzhou',n:'Fuzhou Shi Zu Pepper Buns',zh:'福州世祖胡椒餅',q:'福州世祖胡椒餅 饒河',r:'taipei',k:['snack'],lat:25.0510,lng:121.5776,st:'Songshan',ex:'5',w:2,cost:60,dur:20,open:'15:30-23:30',img:'Hujiao bing',dish:1,star:1,
@@ -396,7 +403,7 @@ const PLACES=[
  {id:'shilin',n:'Shilin Night Market',zh:'士林夜市',r:'taipei',k:['dinner','night'],lat:25.0880,lng:121.5241,st:'Jiantan',ex:'1',w:3,cost:400,dur:120,open:'16:00-24:00',img:'Shilin Night Market',
   d:'Taipei’s biggest night market: giant fried chicken, oyster omelette, stinky tofu, games and a basement food court.'},
  {id:'ningxia',n:'Ningxia Night Market',zh:'寧夏夜市',r:'taipei',k:['dinner','night'],lat:25.0560,lng:121.5153,st:'Shuanglian',w:9,cost:300,dur:75,open:'17:00-24:00',img:'Ningxia Night Market',star:1,
-  d:'A food-focused night market that locals love.',tip:'Look for Liu Yu Zi (劉芋仔) fried taro balls and Yuan Huan Bian oyster omelette (圓環邊蚵仔煎).'},
+  d:'A food-focused night market that locals love.',tip:'Liu Yu Zi (劉芋仔) taro balls are closed Thursdays. Also Fang Chia chicken rice (stall #060) and Rong’s pork-liver soup (closed Mon).'},
  {id:'addiction',n:'Addiction Aquatic Development',zh:'上引水產',r:'taipei',k:['lunch','dinner'],lat:25.0675,lng:121.5373,st:'Xingtian Temple',w:15,cost:800,dur:75,tier:2,img:'Sashimi',dish:1,
   d:'An upscale seafood market hall with a standing sushi bar, sashimi, grilled seafood and hot pot.'},
  {id:'lepalais',n:'Le Palais (Palais de Chine Hotel)',zh:'頤宮',q:'頤宮 君品酒店',r:'taipei',k:['lunch','dinner'],lat:25.0496,lng:121.5170,st:'Taipei Main Station',w:6,cost:3500,dur:120,tier:3,img:'Peking duck',dish:1,
@@ -412,11 +419,11 @@ const PLACES=[
 
  // ---- TAIPEI sights
  {id:'t101',n:'Taipei 101 Observatory',zh:'台北101觀景台',r:'taipei',k:['sight'],lat:25.0339,lng:121.5645,st:'Taipei 101/World Trade Center',ex:'4',w:2,cost:600,dur:90,tier:2,open:'10:00-21:00',img:'Taipei 101',star:1,
-  d:'An indoor observatory 382 m up on the 89th floor, with the giant tuned mass damper. There’s a mall below.',tip:'Buy tickets online. Go about an hour before sunset to see both day and night views.'},
+  d:'An indoor observatory 382 m up on the 89th floor, with the giant tuned mass damper. There’s a mall below.',tip:'NT$600 (88F–91F); about NT$980 adds the open-air 101st floor. Buy online; go ~1 h before sunset for day and night views.',photo:'File:Taipei_101_(from_ground_level).jpg'},
  {id:'xiangshan',n:'Elephant Mountain (Xiangshan)',zh:'象山步道',r:'taipei',k:['hike','sight'],lat:25.0274,lng:121.5705,st:'Xiangshan',ex:'2',w:10,cost:0,dur:90,img:'Xiangshan (Taipei)',star:1,
-  d:'20–30 minutes of steep stairs to the postcard view of Taipei 101. The Six Giant Rocks are the classic photo spot.',tip:'Arrive 40 min before sunset. Bring water.'},
+  d:'20–30 minutes of steep stairs to the postcard view of Taipei 101. The Six Giant Rocks are the classic photo spot.',tip:'Arrive 40 min before sunset. Bring water.',photo:'File:Taipeh,_Taiwan_Skyline_vom_Elephant_Mountain.jpg',best:'Dusk: about 18:00–18:45 in summer, sunset ~17:15 in December'},
  {id:'cks',n:'Chiang Kai-shek Memorial Hall',zh:'中正紀念堂',r:'taipei',k:['sight'],lat:25.0346,lng:121.5218,st:'Chiang Kai-shek Memorial Hall',ex:'5',w:2,cost:0,dur:60,open:'09:00-18:00',img:'Chiang Kai-shek Memorial Hall',star:1,
-  d:'A monumental white-and-blue hall, plus the Liberty Square gate and the National Theater & Concert Hall. The guard changes on the hour during the day.'},
+  d:'A monumental white-and-blue hall, plus the Liberty Square gate and the National Theater & Concert Hall. The guard changes on the hour during the day.',tip:'Grounds open 05:00–24:00. Since 2024 the changing of the guard is outdoors on Liberty Square, on the hour 09:00–17:00.'},
  {id:'longshan',n:'Longshan Temple',zh:'艋舺龍山寺',r:'taipei',k:['sight'],lat:25.0372,lng:121.4999,st:'Longshan Temple',ex:'1',w:2,cost:0,dur:45,open:'06:00-22:00',img:'Bangka Lungshan Temple',star:1,
   d:'Taipei’s most famous temple (1738), with ornate dragon roofs. Locals come to pray and cast moon blocks.'},
  {id:'ximending',n:'Ximending',zh:'西門町',r:'taipei',k:['sight','night'],lat:25.0421,lng:121.5079,st:'Ximen',ex:'6',w:1,cost:0,dur:90,img:'Ximending',
@@ -424,77 +431,77 @@ const PLACES=[
  {id:'dihua',n:'Dihua Street & Dadaocheng',zh:'迪化街',r:'taipei',k:['sight'],lat:25.0560,lng:121.5100,st:'Beimen',w:10,cost:0,dur:90,open:'09:00-19:00',img:'Dihua Street',
   d:'Taipei’s oldest street: Baroque shophouses, dried goods and tea shops, the Xiahai City God Temple (with the matchmaker god) and hip cafés.'},
  {id:'npm',n:'National Palace Museum',zh:'國立故宮博物院',r:'taipei',k:['sight'],lat:25.1024,lng:121.5485,st:'Shilin',ex:'1',acc:'Shilin Station Exit 1 → bus R30 / 255 / 304 (~15 min) to the museum.',cost:350,dur:180,open:'09:00-17:00',closed:[1],img:'National Palace Museum',star:1,
-  d:'World-class imperial Chinese art, including the Jadeite Cabbage and the Meat-shaped Stone (check which pieces are on display).',tip:'Rent the audio guide and arrive at opening, before the tour groups.'},
+  d:'World-class imperial Chinese art, including the Jadeite Cabbage and the Meat-shaped Stone (check which pieces are on display).',tip:'Closed Mondays. Rent the audio guide and arrive at opening, before tour groups.'},
  {id:'maokong',n:'Maokong Gondola & tea houses',zh:'貓空纜車',r:'taipei',k:['sight'],lat:24.9960,lng:121.5763,st:'Taipei Zoo',ex:'2',w:5,cost:240,dur:180,open:'09:00-21:00',closed:[1],img:'Maokong Gondola',
-  d:'A 4 km gondola up to tea plantations. Drink Tieguanyin tea with city views. The glass-floor “Eyes of Maokong” cabins have their own queue.',tip:'Closed most Mondays for maintenance.'},
+  d:'A 4 km gondola up to tea plantations. Drink Tieguanyin tea with city views. The glass-floor “Eyes of Maokong” cabins have their own queue.',tip:'Closed most Mondays for maintenance.',statusNote:'Shuts for maintenance a few weeks each year (2026: 20–24 Apr and 8–28 Jun) and most Mondays.',status:'check'},
  {id:'tamsui',n:'Tamsui Old Street & Fisherman’s Wharf',zh:'淡水老街',r:'taipei',k:['sight','night'],lat:25.1700,lng:121.4400,st:'Tamsui',ex:'2',w:5,cost:50,dur:150,img:'Tamsui District',star:1,
   d:'A riverside town at the end of the Red line, with sunset over the river, Fort San Domingo, the Lover’s Bridge at Fisherman’s Wharf, A-gei and iron eggs.',tip:'Take the small ferry from Tamsui to Fisherman’s Wharf for sunset.'},
  {id:'beitou',n:'Beitou Hot Spring Museum & Thermal Valley',zh:'北投溫泉博物館',r:'taipei',k:['sight'],lat:25.1366,lng:121.5070,st:'Xinbeitou',w:5,cost:60,dur:120,open:'09:00-17:00',closed:[1],img:'Beitou Hot Spring Museum',
-  d:'A 1913 bathhouse, the steaming jade-green Thermal Valley and a beautiful wooden library. Soak at the NT$60 public outdoor bath or a hotel spa.',tip:'Xinbeitou is a branch line, so change trains at Beitou.'},
+  d:'A 1913 bathhouse, the steaming jade-green Thermal Valley and a beautiful wooden library. Soak at the NT$60 public outdoor bath or a hotel spa.',tip:'Closed Mondays (museum and Thermal Valley). Xinbeitou is a branch line, so change at Beitou.',d:'Former 1913 public bathhouse, the steaming jade-green Thermal Valley and the wooden Beitou Library. The cheap Millennium public bath is closed for renovation (since Jan 2025), so soak at a hotel day-spa instead.'},
  {id:'huashan',n:'Huashan 1914 Creative Park',zh:'華山1914文化創意產業園區',r:'taipei',k:['sight'],lat:25.0441,lng:121.5294,st:'Zhongxiao Xinsheng',ex:'1',w:5,cost:0,dur:60,img:'Huashan 1914 Creative Park',
   d:'An old winery turned into exhibition halls, design shops and cafés.'},
- {id:'yangming',n:'Yangmingshan: Qixingshan & Xiaoyoukeng',zh:'陽明山 小油坑',r:'taipei',k:['hike','sight'],lat:25.1770,lng:121.5450,st:'Jiantan',ex:'1',acc:'Jiantan Exit 1 → bus R5 or 260 to Yangmingshan Bus Station (~30 min) → park shuttle 108 to Xiaoyoukeng.',cost:60,dur:240,img:'Qixing Mountain',
-  d:'A volcanic national park: steaming fumaroles at Xiaoyoukeng and the 1,120 m Qixingshan summit (Taipei’s highest). Silvergrass Oct–Nov, calla lilies Mar–Apr.',tip:'2.5–4 h round trip. The weather turns fast, so bring a jacket.'},
+ {id:'yangming',n:'Yangmingshan: Qixingshan & Xiaoyoukeng',zh:'陽明山 小油坑',r:'taipei',k:['hike','sight'],lat:25.1770,lng:121.5450,st:'Jiantan',ex:'1',acc:'MRT Shilin Exit 2 → bus 1717 to Xiaoyoukeng; hike over Qixingshan to Lengshuikeng and return on the 108 park loop bus.',cost:60,dur:240,img:'Qixing Mountain',
+  d:'A volcanic national park: steaming fumaroles at Xiaoyoukeng and the 1,120 m Qixingshan summit (Taipei’s highest). Silvergrass Oct–Nov, calla lilies Mar–Apr.',tip:'The last 108 loop bus is around 17:30, so finish before then. The weather changes fast, so bring a jacket.',best:'Silvergrass Oct–Dec (peak Nov); calla lilies mid-Mar to mid-Apr'},
  {id:'taoyuan',n:'Taoyuan International Airport (TPE)',zh:'桃園國際機場',r:'tpe',k:['travel'],lat:25.0797,lng:121.2342,cost:0,dur:60,img:'Taiwan Taoyuan International Airport',
   d:'Arrival and departure. Get an EasyCard and a SIM/eSIM in the arrivals hall.',tip:'Airport MRT Express to Taipei Main Station: ~38 min, about NT$160.'},
 
  // ---- NORTH (Jiufen / Shifen / Keelung)
- {id:'jiufen',last:{m:'Bus from Ruifang Station up to Jiufen',i:'🚌',min:20,pp:20},n:'Jiufen Old Street',zh:'九份老街',r:'north',k:['sight','lunch','snack'],lat:25.1095,lng:121.8443,acc:'Bus 1062 from Zhongxiao Fuxing MRT Exit 1 (~90 min), or TRA to Ruifang + frequent buses up the hill.',cost:200,dur:150,img:'Jiufen',star:1,
-  d:'A hillside gold-rush town with narrow, lantern-lit alleys, tea houses and sea views.',tip:'A weekday from late afternoon to dusk is best. Weekends are packed.'},
+ {id:'jiufen',last:{m:'Bus from Ruifang Station up to Jiufen',i:'🚌',min:20,pp:20},n:'Jiufen Old Street',zh:'九份老街',r:'north',k:['sight','lunch','snack'],lat:25.1095,lng:121.8443,acc:'Bus 1062 from MRT Zhongxiao Fuxing Exit 2 (~90 min, NT$105, EasyCard OK), bus 965 from Fuzhong/Beimen, or TRA to Ruifang + bus up the hill.',cost:200,dur:150,img:'Jiufen',star:1,
+  d:'A hillside gold-rush town with narrow, lantern-lit alleys, tea houses and sea views.',tip:'A weekday from late afternoon to dusk is best. Weekends are packed.',photo:'File:Lanterns_in_Jiufeng.jpg',best:'Blue hour on a weekday'},
  {id:'amei',last:{m:'Bus from Ruifang Station up to Jiufen',i:'🚌',min:20,pp:20},n:'A-Mei Teahouse',zh:'阿妹茶樓',r:'north',k:['snack','dinner'],lat:25.1092,lng:121.8449,cost:500,dur:75,tier:2,img:'Jiufen',
   d:'The famous red-lantern teahouse on Jiufen’s stairs. Tea ceremony with snacks and the iconic night view.'},
  {id:'agan',last:{m:'Bus from Ruifang Station up to Jiufen',i:'🚌',min:20,pp:20},n:'A-Gan Yi Taro Balls',zh:'阿柑姨芋圓',r:'north',k:['snack'],lat:25.1083,lng:121.8441,cost:60,dur:30,img:'Taro ball',dish:1,
   d:'Chewy taro and sweet-potato balls on shaved ice or in hot soup, with a view from the back dining room.'},
  {id:'shifen',last:{m:'Pingxi Line train from Ruifang',i:'🚆',min:30,pp:30},n:'Shifen Old Street & sky lanterns',zh:'十分老街',r:'north',k:['sight'],lat:25.0418,lng:121.7757,acc:'TRA to Ruifang → Pingxi Line to Shifen (day pass ~NT$80).',cost:250,dur:75,img:'Shifen',star:1,
-  d:'Write your wishes on a sky lantern and release it from the railway tracks between trains.',tip:'A single-color lantern is about NT$200–250, four colors about NT$300+.'},
+  d:'Write your wishes on a sky lantern and release it from the railway tracks between trains.',tip:'Lanterns ~NT$200–250; release between 16:00 and 18:00 for the best light. Tuesday–Thursday is least crowded. Pingxi Line day pass NT$80.'},
  {id:'shifenfall',last:{m:'Pingxi Line to Shifen + 20 min walk',i:'🚆',min:50,pp:30},n:'Shifen Waterfall',zh:'十分瀑布',r:'north',k:['sight','hike'],lat:25.0482,lng:121.7874,cost:0,dur:60,open:'09:00-16:30',img:'Shifen Waterfall',
-  d:'A wide curtain waterfall, the “Niagara of Taiwan”, about 20 min on foot from Shifen station.'},
- {id:'golden',last:{m:'Bus from Ruifang to Jinguashi',i:'🚌',min:30,pp:20},n:'Golden Waterfall & Yin-Yang Sea',zh:'黃金瀑布',r:'north',k:['sight'],lat:25.1150,lng:121.8625,acc:'Bus or taxi from Jiufen (~10 min).',cost:0,dur:45,img:'Jinguashi',
+  d:'A wide curtain waterfall, the “Niagara of Taiwan”, about 20 min on foot from Shifen station.',photo:'File:Shifen_Waterfall_2019.jpg'},
+ {id:'golden',last:{m:'Bus from Ruifang to Jinguashi',i:'🚌',min:30,pp:20},n:'Golden Waterfall & Yin-Yang Sea',zh:'黃金瀑布',r:'north',k:['sight'],lat:25.1150,lng:121.8625,acc:'Bus 826 / 856 / 891 from the Gold Museum, or taxi from Jiufen (10 min).',cost:0,dur:45,img:'Jinguashi',
   d:'A gold-orange cascade stained by minerals, then the two-tone Yin-Yang Sea bay below.'},
  {id:'yehliu',n:'Yehliu Geopark',zh:'野柳地質公園',r:'north',k:['sight'],lat:25.2069,lng:121.6900,acc:'Kuo-Kuang bus toward Jinshan from Taipei Main Station (~90 min), or a north-coast tour.',cost:120,dur:90,open:'08:00-17:00',img:'Yehliu',
-  d:'Wind-sculpted hoodoo rocks, including the famous Queen’s Head.'},
+  d:'Wind-sculpted hoodoo rocks, including the famous Queen’s Head.',tip:'Go at opening time before the tour buses. The Queen’s Head neck is down to ~117 cm, so see it while you can. Night tours run late June to mid July.',photo:'File:Queen\'s_head,_Yehliu_Geopark,_Taiwan_-_野柳地質公園,_台湾_(11353535854).jpg'},
  {id:'houtong',last:{m:'Local train Ruifang → Houtong',i:'🚆',min:6,pp:15},n:'Houtong Cat Village',zh:'猴硐貓村',r:'north',k:['sight'],lat:25.0870,lng:121.8273,acc:'TRA local train to Houtong.',cost:0,dur:60,img:'Houtong',
-  d:'A former coal-mining village now full of friendly cats.'},
+  d:'A former coal-mining village now full of friendly cats.',photo:'File:Houtong_cats10.JPG'},
  {id:'miaokou',last:{m:'Train to Keelung + 10 min walk',i:'🚆',min:25,pp:30},n:'Keelung Miaokou Night Market',zh:'基隆廟口夜市',r:'north',k:['dinner','night'],lat:25.1285,lng:121.7435,acc:'TRA to Keelung (~45 min from Taipei), then walk 10 min.',cost:350,dur:90,img:'Miaokou Night Market',star:1,
-  d:'A seafood-heavy night market under yellow lanterns. Try the “nutritious sandwich” (營養三明治), ding bian cuo and crab soup.'},
+  d:'A seafood-heavy night market under yellow lanterns. Try the “nutritious sandwich” (營養三明治), ding bian cuo and crab soup.',tip:'Stall #58 for the “nutritious sandwich” (營養三明治, ~NT$60).'},
  {id:'sandiaoling',last:{m:'Local train Ruifang → Sandiaoling',i:'🚆',min:12,pp:15},n:'Sandiaoling Waterfall Trail',zh:'三貂嶺瀑布群步道',r:'north',k:['hike'],lat:25.0584,lng:121.8225,acc:'TRA to Sandiaoling Station, then hike to Dahua Station on the Pingxi Line.',cost:0,dur:180,img:'Sandiaoling',
-  d:'An easy-to-moderate jungle trail past three waterfalls. A quieter add-on to Shifen.'},
+  d:'An easy-to-moderate jungle trail past three waterfalls. A quieter add-on to Shifen.',status:'check',statusNote:'Hikers reported it closed / overgrown in May 2026 (not official). Check before going, or hike Teapot Mountain instead.'},
  {id:'caoling',last:{m:'Train Ruifang → Fulong',i:'🚆',min:35,pp:60},n:'Caoling Historic Trail',zh:'草嶺古道',r:'north',k:['hike'],lat:25.0072,lng:121.9086,acc:'TRA to Fulong (start) → over the ridge to Dali Station (~4–5 h).',cost:0,dur:270,img:'Caoling Historic Trail',star:1,
-  d:'A Qing-dynasty trail over a grassy ridge with Pacific and Turtle Island views. Silvergrass Oct–Nov.'},
+  d:'A Qing-dynasty trail over a grassy ridge with Pacific and Turtle Island views. Silvergrass Oct–Nov.',best:'Oct–Apr (avoid May–Sep: typhoons and mud)'},
 
  // ---- YILAN
  {id:'jiaoxi',n:'Jiaoxi Hot Springs',zh:'礁溪溫泉公園',r:'yilan',k:['sight'],lat:24.8280,lng:121.7700,acc:'Highway bus from Taipei (~50 min) to Jiaoxi.',cost:80,dur:120,img:'Jiaoxi',
   d:'Free foot baths and public soaking pools in town, plus many private hot-spring hotels.'},
  {id:'lanyang',n:'Lanyang Museum',zh:'蘭陽博物館',r:'yilan',k:['sight'],lat:24.8692,lng:121.8320,acc:'TRA to Toucheng, then a 20 min walk or taxi.',cost:100,dur:90,open:'09:00-17:00',closed:[3],img:'Lanyang Museum',
-  d:'An angular building that rises out of a lagoon like the coastal rocks. A great architecture photo.'},
+  d:'An angular building that rises out of a lagoon like the coastal rocks. A great architecture photo.',photo:'File:宜蘭_蘭陽博物館_I-lan_LanYang_Museum_Taiwan.jpg',tip:'Closed Wednesdays. Shoot the reflection across the Wushigang lagoon.'},
  {id:'luodong',n:'Luodong Night Market',zh:'羅東夜市',r:'yilan',k:['dinner','night'],lat:24.6780,lng:121.7700,acc:'TRA to Luodong, then walk 8 min.',cost:300,dur:90,open:'17:00-24:00',img:'Luodong Night Market',
   d:'Yilan’s best night market: scallion pancakes made with famous Sanxing scallions, mutton soup and local snacks.'},
  {id:'whale',n:'Whale watching, Wushi Harbor',zh:'烏石港賞鯨',r:'yilan',k:['sight'],lat:24.8710,lng:121.8380,cost:1200,dur:150,tier:2,img:'Guishan Island',
   d:'Dolphin and whale cruises circling Guishan (Turtle) Island, roughly Mar–Nov.',tip:'Take a seasickness tablet. Trips are cancelled in rough seas.'},
 
  // ---- HUALIEN
- {id:'taroko',n:'Taroko Gorge (Swallow Grotto)',zh:'太魯閣 燕子口',r:'hualien',k:['sight','hike'],lat:24.1736,lng:121.5660,acc:'From Hualien/Xincheng station: Taiwan Tourist Shuttle, a taxi charter (~NT$2,500–3,500/day) or a day tour. Check road and trail status first (2024 quake).',cost:0,dur:180,img:'Taroko Gorge',star:1,
-  d:'Marble canyon walls, the turquoise Liwu River, tunnels and swallow nests.',tip:'Wear the helmet in rockfall zones, and check the Taroko National Park site for closures.'},
+ {id:'taroko',n:'Taroko Gorge (open areas: Taroko Terrace, Tianxiang)',zh:'太魯閣 燕子口',r:'hualien',k:['sight','hike'],lat:24.1736,lng:121.5660,acc:'Buses 302/310 from Hualien only reach the Taroko Visitor Center; for Tianxiang take a taxi charter (~NT$2,500–3,500/day) or a tour. Highway 8 has traffic-release windows. Check the Taroko National Park site the week you go.',cost:0,dur:180,img:'Taroko Gorge',star:1,
+  d:'Marble canyon walls, the turquoise Liwu River, tunnels and swallow nests.',tip:'Wear the helmet in rockfall zones, and check the Taroko National Park site for closures.',d:'Marble gorge. After the April 2024 earthquake only parts are open: the visitor centre, Taroko Terrace, Tianxiang, Dacingshui, and the Shakadang Bridge stop. Shakadang, Swallow Grotto and Baiyang trails are closed until at least 2031, and Changchun Shrine until 2029.',status:'partial',statusNote:'Partly open since the 2024 earthquake. Only the open areas are worth the trip: Taroko Terrace, Tianxiang, Dacingshui and the Shakadang Bridge stop.',src:'https://www.taipeitimes.com/News/taiwan/archives/2026/03/06/2003853379'},
  {id:'shakadang',n:'Shakadang Trail',zh:'砂卡礑步道',r:'hualien',k:['hike'],lat:24.1600,lng:121.6200,acc:'Near the Taroko park entrance; taxi or shuttle.',cost:0,dur:90,img:'Shakadang Trail',
-  d:'A flat cliffside path above an impossibly blue river. Parts may still be closed after the 2024 quake, so check first.'},
- {id:'qingshui',n:'Qingshui Cliff',zh:'清水斷崖',r:'hualien',k:['sight'],lat:24.2140,lng:121.6620,acc:'Viewpoint on the Suhua Highway (Huide Park) by car or taxi, or watch from the train window.',cost:0,dur:45,img:'Qingshui Cliff',star:1,
+  d:'A flat cliffside path above an impossibly blue river. Parts may still be closed after the 2024 quake, so check first.',status:'closed',statusNote:'Closed until at least 2031 (2024 earthquake). You can still stop on Shakadang Bridge for the view.'},
+ {id:'qingshui',n:'Qingshui Cliff (Chongde viewpoint)',zh:'清水斷崖',r:'hualien',k:['sight'],lat:24.2140,lng:121.6620,acc:'Chongde viewpoint on Highway 9 (reopened 1 Jul 2025) by car or taxi; the Huide viewpoint is closed for rebuilding. You also see the cliffs from the train window.',cost:0,dur:45,img:'Qingshui Cliff',star:1,
   d:'Cliffs dropping straight into the Pacific. The east coast’s “wow” shot.'},
  {id:'qixingtan',n:'Qixingtan Beach',zh:'七星潭',r:'hualien',k:['sight'],lat:24.0300,lng:121.6290,acc:'Taxi, 15 min from Hualien city.',cost:0,dur:60,img:'Qixingtan',
   d:'A crescent pebble beach with mountains behind. A sunrise spot.'},
  {id:'gongzheng',n:'Gongzheng Baozi',zh:'公正包子',r:'hualien',k:['breakfast','snack'],lat:23.9775,lng:121.6050,acc:'Hualien city center, taxi 10 min from the station.',cost:70,dur:25,img:'Baozi',dish:1,star:1,
-  d:'Legendary cheap steamed buns and dumplings. Perfect takeaway before Taroko.'},
+  d:'Legendary cheap steamed buns and dumplings. Perfect takeaway before Taroko.',open:'09:20-21:00',tip:'Moved around Nov 2024 to 46 Ren’ai St (verify on the map). Buns ~NT$7 each; 10 steamed dumplings ~NT$40.'},
  {id:'zhoujia',n:'Zhou Jia Steamed Dumplings',zh:'周家蒸餃',r:'hualien',k:['breakfast','lunch','snack'],lat:23.9790,lng:121.6045,cost:100,dur:30,img:'Jiaozi',dish:1,
-  d:'Hualien’s famous steamed dumplings and wonton soup, open almost all day.'},
+  d:'Hualien’s famous steamed dumplings and wonton soup, open almost all day.',open:'00:00-24:00',tip:'Open 24 hours.'},
  {id:'dongdamen',n:'Dongdamen Night Market',zh:'東大門夜市',r:'hualien',k:['dinner','night'],lat:23.9760,lng:121.6110,cost:300,dur:90,open:'18:00-24:00',img:'Dongdamen Night Market',star:1,
   d:'A big night market with an Indigenous food section (bamboo-tube rice, wild boar sausage) and Hualien seafood.'},
 
  // ---- CHISHANG / TAITUNG
  {id:'chishang',n:'Chishang Brown Boulevard rice fields',zh:'伯朗大道',r:'chishang',k:['sight'],lat:23.1100,lng:121.2280,acc:'Rent a bike next to Chishang Station (~NT$100–200), then a 10 min ride.',cost:150,dur:120,img:'Chishang',star:1,
   d:'Endless rice paddies with no power lines and the Central Mountain Range behind. Golden at harvest (Jun–Jul, Oct–Nov).'},
- {id:'chishangbento',n:'Chishang Rice Bento',zh:'池上便當',q:'池上飯包 池上車站',r:'chishang',k:['lunch'],lat:23.1250,lng:121.2190,cost:100,dur:30,img:'Bento',dish:1,
-  d:'Bento made with famous Chishang rice, sold at shops around the station.'},
+ {id:'chishangbento',n:'Chuan Mei Hang Chishang Bento',zh:'全美行 池上便當',q:'全美行 池上',r:'chishang',k:['lunch'],lat:23.1250,lng:121.2190,cost:115,dur:30,img:'Bento',dish:1,
+  d:'Bento made with famous Chishang rice, sold at shops around the station.',open:'06:30-21:00',d:'The original station-platform Chishang rice bento, opposite Chishang station. Basic ~NT$100, chicken leg ~NT$130.'},
  {id:'sanxiantai',n:'Sanxiantai',zh:'三仙台',r:'taitung',k:['sight'],lat:23.1220,lng:121.4170,acc:'Car or scooter (~1 h from Taitung), or the Taiwan Tourist Shuttle (East Coast line).',cost:0,dur:90,img:'Sanxiantai',star:1,
-  d:'An eight-arch dragon bridge over the sea to a rocky islet. A sunrise spot.'},
+  d:'An eight-arch dragon bridge over the sea to a rocky islet. A sunrise spot.',status:'partial',statusNote:'The eight-arch bridge and islet trail are closed May 2026 to end 2027. The recreation area is open, so photograph the bridge from the shore.'},
  {id:'xiaoyeliu',n:'Xiaoyeliu',zh:'小野柳',r:'taitung',k:['sight'],lat:22.7915,lng:121.1940,acc:'Taxi, 15 min from Taitung city.',cost:0,dur:60,img:'Xiaoyeliu',
   d:'Strange sandstone formations on the coast: tofu rocks and honeycomb rocks.'},
  {id:'duoliang',n:'Duoliang Station',zh:'多良車站',r:'taitung',k:['sight'],lat:22.5050,lng:120.9580,acc:'By car or taxi, ~50 min south of Taitung.',cost:0,dur:45,img:'Duoliang railway station',
@@ -512,13 +519,13 @@ const PLACES=[
  {id:'pier2',n:'Pier-2 Art Center',zh:'駁二藝術特區',r:'kaohsiung',k:['sight'],lat:22.6200,lng:120.2820,st:'Yanchengpu',ex:'1',w:5,cost:0,dur:120,img:'Pier-2 Art Center',star:1,
   d:'Harbor warehouses turned art district: giant installations, murals, design stores and the light rail.'},
  {id:'lotus',n:'Lotus Pond: Dragon & Tiger Pagodas',zh:'蓮池潭龍虎塔',r:'kaohsiung',k:['sight'],lat:22.6820,lng:120.2940,st:'Ecological District',w:20,acc:'Or TRA Zuoying (Xinzuoying) Station, ~15 min walk.',cost:0,dur:75,img:'Dragon and Tiger Pagodas',
-  d:'Walk in through the dragon’s mouth and out through the tiger’s for good luck. Colorful pavilions over the lake.'},
+  d:'Walk in through the dragon’s mouth and out through the tiger’s for good luck. Colorful pavilions over the lake.',status:'check',statusNote:'The pond is open 24 h, but the Dragon and Tiger Pagodas have conflicting reports (reopened 2025, reported closed Dec 2025). Check before going.'},
  {id:'cijin',n:'Cijin Island & Rainbow Church',zh:'旗津',r:'kaohsiung',k:['sight'],lat:22.6130,lng:120.2660,st:'Sizihwan',ex:'1',w:10,acc:'Walk to Gushan Ferry Pier → 5-min ferry (~NT$30).',cost:60,dur:150,img:'Cijin District',star:1,
   d:'Beach, lighthouse, the rainbow church installation, bike paths and a seafood street. Great at sunset.'},
  {id:'cijinseafood',n:'Cijin Seafood Street',zh:'旗津海產街',r:'kaohsiung',k:['dinner','lunch'],lat:22.6150,lng:120.2670,cost:600,dur:75,img:'Seafood',dish:1,
   d:'Pick your seafood from the displays and have it cooked. Agree on the price first.'},
- {id:'fgs',n:'Fo Guang Shan Buddha Museum',zh:'佛陀紀念館',r:'kaohsiung',k:['sight'],lat:22.7550,lng:120.4400,acc:'Bus from Zuoying HSR (~40 min) or taxi.',cost:0,dur:180,open:'09:00-19:00',img:'Fo Guang Shan Buddha Museum',
-  d:'A colossal seated bronze Buddha, eight pagodas and grand halls. There’s vegetarian food on site.'},
+ {id:'fgs',n:'Fo Guang Shan Buddha Museum',zh:'佛陀紀念館',r:'kaohsiung',k:['sight'],lat:22.7550,lng:120.4400,acc:'Bus from Zuoying HSR (~40 min) or taxi.',cost:0,dur:180,open:'09:00-18:00',img:'Fo Guang Shan Buddha Museum',
+  d:'A colossal seated bronze Buddha, eight pagodas and grand halls. There’s vegetarian food on site.',closed:[2],tip:'Closed Tuesdays. Free entry.'},
  {id:'weiwuying',n:'Weiwuying Arts Center',zh:'衛武營國家藝術文化中心',r:'kaohsiung',k:['sight'],lat:22.6250,lng:120.3420,st:'Weiwuying',ex:'6',w:3,cost:0,dur:60,img:'National Kaohsiung Center for the Arts',
   d:'An undulating banyan-inspired roof by Mecanoo, one of the world’s largest performing-arts centers under one roof.'},
  {id:'liuhe',n:'Liuhe Night Market',zh:'六合夜市',r:'kaohsiung',k:['dinner','night'],lat:22.6315,lng:120.2995,st:'Formosa Boulevard',ex:'11',w:1,cost:300,dur:75,open:'17:00-24:00',img:'Liuhe Night Market',
@@ -526,7 +533,7 @@ const PLACES=[
  {id:'ruifeng',n:'Ruifeng Night Market',zh:'瑞豐夜市',r:'kaohsiung',k:['dinner','night'],lat:22.6660,lng:120.2995,st:'Kaohsiung Arena',ex:'1',w:3,cost:300,dur:90,open:'18:00-24:00',closed:[1,3],img:'Ruifeng Night Market',star:1,
   d:'Where Kaohsiung locals actually go: a maze of stalls with huge variety.'},
  {id:'donggang',n:'Donggang Seafood Market (bluefin tuna)',zh:'東港華僑市場',r:'kaohsiung',k:['lunch','dinner'],lat:22.4660,lng:120.4450,acc:'Bus from Kaohsiung (~1 h) or taxi. The Xiao Liuqiu ferry leaves nearby.',cost:700,dur:75,img:'Donggang',
-  d:'Pingtung’s bluefin-tuna town: thick-cut tuna sashimi, sakura shrimp and mullet roe.'},
+  d:'Pingtung’s bluefin-tuna town: thick-cut tuna sashimi, sakura shrimp and mullet roe.',tip:'Wanduoli has the cheapest sashimi plates (from ~NT$100). Some stalls have a NT$200 minimum per adult. Eat here before the Xiao Liuqiu ferry.'},
  {id:'liuqiu',n:'Xiao Liuqiu (snorkel with turtles)',zh:'小琉球',r:'kaohsiung',k:['sight'],lat:22.3400,lng:120.3700,acc:'Ferry from Donggang (~25 min, ~NT$410 round trip) + scooter or e-bike on the island.',cost:900,dur:360,img:'Liuqiu, Pingtung',
   d:'A coral island where green sea turtles swim right off the beach. See Vase Rock and Beauty Cave.'},
 
@@ -538,15 +545,15 @@ const PLACES=[
  {id:'longpan',n:'Longpan Park',zh:'龍磐公園',r:'kenting',k:['sight'],lat:21.9300,lng:120.8590,acc:'Scooter or taxi.',cost:0,dur:45,img:'Longpan Park Kenting',
   d:'Windswept grassland on top of coral cliffs. Stargazing at night.'},
  {id:'kentingst',n:'Kenting Main Street Night Market',zh:'墾丁大街',r:'kenting',k:['dinner','night'],lat:21.9450,lng:120.7980,cost:350,dur:90,open:'18:00-24:00',img:'Kenting National Park',
-  d:'A beach-town night strip of seafood, grilled corn and bars.'},
+  d:'A beach-town night strip of seafood, grilled corn and bars.',tip:'About 17:00–24:00; car-free 18:00–22:00 on Fri–Sat.'},
 
  // ---- TAINAN
- {id:'duxiaoyue',n:'Du Hsiao Yueh (original shop)',zh:'度小月擔仔麵 原始店',q:'度小月 原始店 台南',r:'tainan',k:['lunch','dinner','snack'],lat:22.9905,lng:120.2010,acc:'~2 km from Tainan Station: walk 25 min or taxi.',cost:150,dur:30,open:'11:00-21:00',img:'Danzai noodles',dish:1,star:1,
-  d:'Since 1895: small bowls of danzai noodles with minced-pork sauce and shrimp, cooked at a low stove in the doorway.',tip:'The bowls are small. Add a braised egg, then keep snacking elsewhere.'},
- {id:'wenzhang',n:'Wenzhang Beef Soup',zh:'文章牛肉湯',r:'tainan',k:['breakfast','lunch','dinner'],lat:22.9980,lng:120.1820,cost:220,dur:40,img:'Tainan beef soup',dish:1,star:1,
-  d:'Vincent’s Tainan beef soup: raw sliced local beef, cooked in the bowl by pouring boiling broth over it, with rice and meat sauce on the side. A Tainan breakfast ritual.',tip:'Order the beef soup (牛肉湯) plus a bowl of meat-sauce rice (肉燥飯). Popular shops get busy at breakfast.'},
- {id:'shijingjiu',n:'Shi Jing Jiu Beef Soup',zh:'石精臼牛肉湯',r:'tainan',k:['breakfast','lunch'],lat:22.9965,lng:120.2015,cost:180,dur:30,img:'Tainan beef soup',dish:1,
-  d:'An old-town alternative near Chihkan Tower, in the same Tainan beef-soup style.'},
+ {id:'duxiaoyue',n:'Du Hsiao Yueh (original shop)',zh:'度小月擔仔麵 原始店',q:'度小月 原始店 台南',r:'tainan',k:['lunch','dinner','snack'],lat:22.9905,lng:120.2010,acc:'~2 km from Tainan Station: walk 25 min or taxi.',cost:120,dur:30,open:'11:00-20:00',img:'Danzai noodles',dish:1,star:1,
+  d:'Since 1895: small bowls of danzai noodles with minced-pork sauce and shrimp, cooked at a low stove in the doorway.',tip:'Danzai noodles ~NT$50 a bowl, but bowls are snack-sized: order two, or add a braised egg (NT$15).'},
+ {id:'wenzhang',n:'Wenzhang Beef Soup',zh:'文章牛肉湯',r:'tainan',k:['dinner','lunch','night'],lat:22.9980,lng:120.1780,cost:220,dur:40,img:'Tainan beef soup',dish:1,star:1,
+  d:'Vincent’s Tainan beef soup: raw sliced local beef, cooked in the bowl by pouring boiling broth over it, with rice and meat sauce on the side. A Tainan breakfast ritual.',tip:'Closed Thursdays. Opens 10:30 and runs late (to ~02:00), so it’s a great late dinner. Free broth refills; add beef-mince rice. Main shop 300 Anping Rd; also a Dongning Rd branch.',open:'10:30-02:00',closed:[4]},
+ {id:'shijingjiu',n:'Shi Jing Jiu Beef Soup',zh:'石精臼牛肉湯',r:'tainan',k:['dinner'],lat:22.9965,lng:120.2015,cost:150,dur:30,img:'Tainan beef soup',dish:1,
+  d:'An old-town alternative near Chihkan Tower, in the same Tainan beef-soup style.',open:'17:00-22:00',closed:[1],tip:'Evening only (reported 17:00–22:00, closed Mon). Ask about off-menu cuts like brisket and tendon.'},
  {id:'zhou',n:'Chou’s Shrimp Rolls (Anping)',zh:'周氏蝦捲',r:'tainan',k:['snack','lunch'],lat:22.9975,lng:120.1720,cost:150,dur:30,open:'10:00-22:00',img:'Shrimp roll',dish:1,
   d:'Crispy fried shrimp rolls since 1965, plus milkfish soup.'},
  {id:'anping',n:'Anping Old Fort (Fort Zeelandia)',zh:'安平古堡',r:'tainan',k:['sight'],lat:22.9990,lng:120.1605,acc:'Bus from Tainan Station or taxi (15 min).',cost:70,dur:60,open:'08:30-17:30',img:'Fort Zeelandia (Taiwan)',star:1,
@@ -561,20 +568,20 @@ const PLACES=[
   d:'A narrow Qing-era street of lanterns, galleries and tiny bars. Best after dark.'},
  {id:'chimei',n:'Chimei Museum',zh:'奇美博物館',r:'tainan',k:['sight'],lat:22.9346,lng:120.2259,acc:'TRA to Bao’an Station (one stop south), then a 15 min walk, or taxi.',cost:200,dur:180,open:'09:30-17:30',closed:[3],img:'Chimei Museum',star:1,
   d:'A palace-like white museum with Western art, violins, arms and natural history. Classic photo at the Apollo Fountain.'},
- {id:'garden',n:'Garden Night Market (Thu/Sat/Sun)',zh:'花園夜市',r:'tainan',k:['dinner','night'],lat:23.0110,lng:120.2000,cost:300,dur:90,open:'17:30-24:00',closed:[1,2,3,5],img:'Garden Night Market Tainan',
-  d:'A huge open-lot night market that only runs Thursday, Saturday and Sunday.'},
+ {id:'garden',n:'Garden Night Market (Thu–Sun)',zh:'花園夜市',r:'tainan',k:['dinner','night'],lat:23.0110,lng:120.2000,cost:300,dur:90,open:'17:30-24:00',closed:[1,2,3],img:'Garden Night Market Tainan',
+  d:'A huge open-lot night market that only runs Thursday, Saturday and Sunday.',d:'Tainan’s largest night market (~400 stalls) in an open lot. Runs Thursday to Sunday evenings only.',tip:'Sources disagree on Friday: some list Thu/Sat/Sun only. Check before going.'},
  {id:'jingzaijiao',n:'Jingzaijiao Tile-paved Salt Fields',zh:'井仔腳瓦盤鹽田',r:'tainan',k:['sight'],lat:23.1500,lng:120.0960,acc:'Car or taxi, ~1 h from Tainan. Combine with the Beimen Crystal Church.',cost:0,dur:90,img:'Jingzaijiao Tile-Paved Salt Fields',
   d:'A mosaic of tiled salt pans and white salt cones, with one of Taiwan’s best sunset reflections.'},
 
  // ---- CHIAYI / ALISHAN
  {id:'penshui',n:'Penshui Turkey Rice',zh:'噴水雞肉飯',r:'chiayi',k:['lunch','dinner','breakfast'],lat:23.4800,lng:120.4490,acc:'15 min walk from Chiayi Station, by the fountain roundabout.',cost:80,dur:30,img:'Chiayi turkey rice',dish:1,star:1,
-  d:'Chiayi’s signature dish: shredded turkey over rice with savory schmaltz and fried shallots.'},
+  d:'Chiayi’s signature dish: shredded turkey over rice with savory schmaltz and fried shallots.',open:'09:30-21:30'},
  {id:'wenhua',n:'Wenhua Road Night Market',zh:'文化路夜市',r:'chiayi',k:['dinner','night'],lat:23.4790,lng:120.4495,cost:250,dur:75,open:'17:00-24:00',img:'Chiayi City',
   d:'Chiayi’s main night-market strip, full of turkey rice and grilled snacks.'},
  {id:'zhushan',n:'Zhushan sunrise (Alishan)',zh:'祝山觀日',r:'alishan',k:['sight','hike'],lat:23.5080,lng:120.8170,acc:'Sunrise train from Alishan Station (~25 min), or walk ~1 h. Times are posted the night before.',cost:150,dur:150,img:'Alishan National Scenic Area',star:1,
-  d:'Sunrise over a sea of clouds, with Yushan on the horizon.'},
+  d:'Sunrise over a sea of clouds, with Yushan on the horizon.',tip:'Sunrise train NT$150 one way, buy the day before. Cherry blossoms around mid-March to early April.'},
  {id:'alishanforest',n:'Alishan Giant Trees & Sisters Ponds',zh:'阿里山巨木群棧道',r:'alishan',k:['hike','sight'],lat:23.5100,lng:120.8040,cost:300,dur:180,img:'Alishan Forest Railway',
-  d:'A boardwalk through red cypress giants 1,000–2,000 years old, past the Sisters Ponds and the forest-railway branch lines.',tip:'Entry is about NT$300 for visitors. It gets misty and cold after 3 pm, so bring a jacket.'},
+  d:'A boardwalk through red cypress giants 1,000–2,000 years old, past the Sisters Ponds and the forest-railway branch lines.',tip:'Entry ~NT$300 (NT$150 with a bus receipt). Stick to the core loop: upper Tashan is closed until mid-2027; the Mianyue Line trail reportedly reopened 1 Sep 2026 with a permit. Misty and cold after 3 pm.'},
  {id:'fenqihu',n:'Fenqihu Old Street',zh:'奮起湖老街',r:'alishan',k:['sight','lunch'],lat:23.5050,lng:120.6930,acc:'Stop on the Alishan Forest Railway or bus 7322.',cost:120,dur:90,img:'Fenqihu',
   d:'A mountain railway village famous for its railway bento and old street.'},
 
@@ -582,42 +589,42 @@ const PLACES=[
  {id:'shuishe',n:'Shuishe Pier & lake boat',zh:'水社碼頭',r:'sml',k:['sight'],lat:23.8660,lng:120.9110,cost:300,dur:120,img:'Sun Moon Lake',star:1,
   d:'A lake cruise hopping Shuishe → Xuanguang Temple → Ita Thao (about NT$300 for an all-day pass). Mirror-calm water at sunrise.'},
  {id:'cien',n:'Ci’en Pagoda',zh:'慈恩塔',r:'sml',k:['sight','hike'],lat:23.8345,lng:120.9295,acc:'Lake bus or rent an e-bike at Shuishe.',cost:0,dur:75,img:'Ci\'en Pagoda',
-  d:'Climb the pagoda on Shabalan Mountain for a 360° view of the lake.'},
+  d:'Climb the pagoda on Shabalan Mountain for a 360° view of the lake.',tip:'Shuishe Dashan (the lake’s highest peak) is closed since Jan 2026; the Maolan Trail is the open alternative.'},
  {id:'xiangshan_vc',n:'Xiangshan Visitor Center',zh:'向山遊客中心',r:'sml',k:['sight'],lat:23.8510,lng:120.9000,acc:'Bike path 15 min from Shuishe, or the lake bus.',cost:0,dur:45,img:'Xiangshan Visitor Center',
   d:'Curved concrete architecture by Norihiko Dan, with a reflecting pool facing the lake.'},
- {id:'itathao',n:'Ita Thao & Grandma’s tea eggs',zh:'伊達邵 阿婆茶葉蛋',r:'sml',k:['snack','sight','dinner'],lat:23.8530,lng:120.9330,cost:120,dur:90,img:'Ita Thao',star:1,
-  d:'A Thao tribe village by the pier: mushroom-and-tea simmered eggs, Thao barbecue, millet wine and Ruby 18 black tea.'},
+ {id:'itathao',n:'Ita Thao village',zh:'伊達邵 阿婆茶葉蛋',r:'sml',k:['snack','sight','dinner'],lat:23.8530,lng:120.9330,cost:120,dur:90,img:'Ita Thao',star:1,
+  d:'A Thao tribe village by the pier: mushroom-and-tea simmered eggs, Thao barbecue, millet wine and Ruby 18 black tea.',d:'Thao tribe village by the pier: Thao barbecue skewers, millet wine, Ruby 18 black tea and lake views. (The famous tea-egg stall is at Xuanguang Temple pier.)'},
  {id:'ropeway',n:'Sun Moon Lake Ropeway',zh:'日月潭纜車',r:'sml',k:['sight'],lat:23.8500,lng:120.9360,cost:300,dur:90,open:'10:00-16:00',img:'Sun Moon Lake Ropeway',
-  d:'A cable car over the hills to the Formosan Aboriginal Culture Village.'},
+  d:'A cable car over the hills to the Formosan Aboriginal Culture Village.',tip:'Closed the first Wednesday of each month.'},
  {id:'cingjing',n:'Cingjing Farm (Green Green Grassland)',zh:'清境農場 青青草原',r:'sml',k:['sight'],lat:24.0550,lng:121.1620,acc:'Bus from Puli, or a car from Sun Moon Lake (~1.5 h).',cost:200,dur:150,img:'Cingjing Farm',
   d:'Alpine sheep pastures at about 1,750 m, with Swiss-style B&Bs and sheep shows.'},
- {id:'hehuan',n:'Hehuanshan & Wuling Pass',zh:'合歡山 武嶺',r:'sml',k:['hike','sight'],lat:24.1370,lng:121.2730,acc:'Car or taxi from Cingjing (~1 h). No permit needed for East Peak or Main Peak.',cost:0,dur:240,img:'Hehuan Mountain',star:1,
-  d:'Taiwan’s highest road pass (3,275 m), easy 3,400 m+ peaks, sunrise and sunset seas of clouds, and snow in winter.'},
+ {id:'hehuan',n:'Hehuanshan & Wuling Pass',zh:'合歡山 武嶺',r:'sml',k:['hike','sight'],lat:24.1370,lng:121.2730,acc:'Bus 6664 (Taichung Gancheng / HSR) to Cingjing, then bus 6658A up (3 a day: 08:20, 11:10, 14:30), or a car. No permit for Main/East peaks.',cost:0,dur:240,img:'Hehuan Mountain',star:1,
+  d:'Taiwan’s highest road pass (3,275 m), easy 3,400 m+ peaks, sunrise and sunset seas of clouds, and snow in winter.',best:'Sunrise sea of clouds; Milky Way (Dark Sky Park); snow in winter'},
 
  // ---- TAICHUNG
- {id:'chunshui',n:'Chun Shui Tang (Siwei original)',zh:'春水堂 四維創始店',r:'taichung',k:['lunch','snack'],lat:24.1510,lng:120.6640,acc:'Taxi 10 min from Taichung Station, or city bus.',cost:200,dur:60,open:'08:00-22:00',img:'Chun Shui Tang',star:1,
+ {id:'chunshui',n:'Chun Shui Tang (Siwei original)',zh:'春水堂 四維創始店',r:'taichung',k:['lunch','snack','drink'],lat:24.1400,lng:120.6680,acc:'Taxi 10 min from Taichung Station, or city bus.',cost:200,dur:60,open:'08:30-22:00',img:'Chun Shui Tang',star:1,
   d:'The teahouse that says it invented bubble milk tea in the 1980s. Also good beef noodles and dougan snacks.'},
  {id:'miyahara',n:'Miyahara',zh:'宮原眼科',r:'taichung',k:['snack','sight'],lat:24.1375,lng:120.6835,acc:'5 min walk from Taichung Station.',cost:200,dur:45,open:'10:00-22:00',img:'Miyahara Taichung',star:1,
   d:'A 1927 eye clinic turned into a Harry-Potter-like sweets hall: ice cream with dozens of toppings, and pineapple cakes.'},
- {id:'suncake',n:'Sun cakes on Ziyou Road',zh:'太陽堂老店',q:'太陽堂老店 台中 自由路',r:'taichung',k:['snack'],lat:24.1410,lng:120.6825,cost:300,dur:20,img:'Suncake (Taiwan)',dish:1,
-  d:'Taichung’s flaky malt-sugar sun cakes. Ziyou Road is lined with shops (e.g. Taiyang Tang Laodian).'},
+ {id:'suncake',n:'A-Ming-Shi Taiyangtang (sun cakes)',zh:'阿明師老店太陽堂',q:'阿明師老店太陽堂 台中',r:'taichung',k:['snack'],lat:24.1400,lng:120.6810,cost:300,dur:20,img:'Suncake (Taiwan)',dish:1,
+  d:'Taichung’s flaky malt-sugar sun cakes. Ziyou Road is lined with shops (e.g. Taiyang Tang Laodian).',open:'08:00-22:30',d:'About 80-year-old bakery on Ziyou Road for Taichung’s flaky malt-sugar sun cakes. Good gift boxes.'},
  {id:'fengchia',n:'Feng Chia Night Market',zh:'逢甲夜市',r:'taichung',k:['dinner','night'],lat:24.1750,lng:120.6460,acc:'Taxi ~20 min from Taichung Station, or bus.',cost:350,dur:120,open:'17:00-24:00',img:'Fengjia Night Market',star:1,
   d:'One of Taiwan’s largest night markets, and where many viral snacks were born.'},
  {id:'opera',n:'National Taichung Theater',zh:'臺中國家歌劇院',r:'taichung',k:['sight'],lat:24.1630,lng:120.6400,acc:'Taichung MRT Green line to Taichung City Hall, then a 10 min walk.',cost:0,dur:60,img:'National Taichung Theater',
   d:'Toyo Ito’s cave-like curved-concrete opera house, with a rooftop garden.'},
  {id:'rainbow',n:'Rainbow Village',zh:'彩虹眷村',r:'taichung',k:['sight'],lat:24.1340,lng:120.6100,cost:0,dur:30,img:'Rainbow Village',
-  d:'A tiny former veterans’ village painted in cartoon colors by “Grandpa Rainbow”.'},
+  d:'A tiny former veterans’ village painted in cartoon colors by “Grandpa Rainbow”.',open:'09:00-17:00',closed:[1],tip:'About half the murals were painted over in 2022 and redone, so expect a partial repaint. Closed Mondays.'},
  {id:'gaomei',n:'Gaomei Wetlands',zh:'高美濕地',r:'taichung',k:['sight'],lat:24.3120,lng:120.5490,acc:'Taxi ~45 min from Taichung, or city bus (check Google Maps for times).',cost:0,dur:90,img:'Gaomei Wetlands',star:1,
-  d:'A boardwalk over a mirror-like tidal flat with wind turbines. One of the best sunset shots in Taiwan.'},
+  d:'A boardwalk over a mirror-like tidal flat with wind turbines. One of the best sunset shots in Taiwan.',photo:'File:Wind_power-Kaumei.jpg',best:'Sunset at low tide'},
  {id:'jlstudio',n:'JL Studio',zh:'JL Studio',q:'JL Studio 台中',r:'taichung',k:['dinner'],lat:24.1520,lng:120.6540,acc:'Taxi in Taichung.',cost:7000,dur:180,tier:3,img:'Fine dining',dish:1,
   d:'Modern Singaporean tasting menu at one of Taiwan’s top Michelin-starred restaurants.'},
  // ---- VINCENT'S PICKS · CHEAP CHAINS · CONVENIENCE STORES · DRINKS
- {id:'liuqian',n:'Six Thousand Beef Soup',zh:'六千牛肉湯',r:'tainan',k:['breakfast','lunch'],lat:22.9925,lng:120.1985,cost:200,dur:45,img:'Tainan beef soup',dish:1,
-  d:'One of Tainan’s most famous beef-soup shops. It opens very early and closes when the beef runs out.',tip:'Get there early. Locals queue from dawn.'},
+ {id:'liuqian',n:'Six Thousand Beef Soup',zh:'六千牛肉湯',r:'tainan',k:['breakfast','lunch'],lat:22.9900,lng:120.1980,cost:200,dur:45,img:'Tainan beef soup',dish:1,
+  d:'One of Tainan’s most famous beef-soup shops. It opens very early and closes when the beef runs out.',tip:'Reported open Fri–Mon only, 05:00 until the beef runs out. Queue before opening.',open:'05:00-11:00',closed:[2,3,4]},
  {id:'sansiblings',n:'3 Siblings Snow Ice (mango bing)',zh:'三兄妹雪花冰',q:'三兄妹雪花冰 西門町',r:'taipei',k:['snack'],lat:25.0447,lng:121.5068,st:'Ximen',ex:'6',w:4,cost:180,dur:40,open:'11:00-23:00',img:'Baobing',dish:1,star:1,
   d:'Vincent’s mango bing in Ximending: a huge bowl of mango snowflake ice with fresh mango, mango sauce and ice cream. The basement walls are covered in visitors’ notes.',tip:'One bowl is easily enough for two.'},
- {id:'milkking',n:'Kaohsiung Milk King (papaya milk)',zh:'高雄牛乳大王',q:'高雄牛乳大王 中華三路',r:'kaohsiung',k:['drink','snack'],lat:22.6245,lng:120.3005,st:'Formosa Boulevard',w:10,cost:80,dur:30,img:'Papaya milk',dish:1,star:1,
-  d:'Vincent’s “famous papaya milk”: the shop credited with inventing papaya milk in 1966. The original store is on Zhonghua 3rd Road. It also serves cheap diner food.'},
+ {id:'milkking',n:'Kaohsiung Milk King (papaya milk)',zh:'高雄牛乳大王',q:'高雄牛乳大王 中華三路',r:'kaohsiung',k:['drink','snack'],lat:22.6300,lng:120.2970,st:'Formosa Boulevard',w:10,cost:80,dur:30,img:'Papaya milk',dish:1,star:1,
+  d:'Vincent’s “famous papaya milk”: the shop credited with inventing papaya milk in 1966. The original store is on Zhonghua 3rd Road. It also serves cheap diner food.',open:'07:00-01:00',tip:'65-5 Zhonghua 3rd Rd. Papaya milk ~NT$35–60 in store. Add toast for breakfast.'},
  {id:'chengpapaya',n:'Cheng’s Papaya Milk (Liuhe Night Market)',zh:'鄭老牌木瓜牛奶',r:'kaohsiung',k:['drink'],lat:22.6316,lng:120.2990,st:'Formosa Boulevard',ex:'11',w:2,cost:70,dur:15,img:'Papaya milk',dish:1,
   d:'A long-running papaya-milk stand with a bright sign at the entrance of Liuhe Night Market.'},
  {id:'twopeck',n:'Two Peck Crispy Chicken',zh:'2派克脆皮雞排',q:'2派克脆皮雞排',r:'',gen:'prev',k:['snack','dinner'],cost:90,dur:15,img:'Taiwanese fried chicken',dish:1,
@@ -633,53 +640,197 @@ const PLACES=[
  {id:'fiftylan',n:'50 Lan bubble tea',zh:'50嵐',q:'50嵐',r:'',gen:'prev',k:['drink','snack'],cost:60,dur:10,img:'Bubble tea',dish:1,
   d:'The everyday bubble-tea chain locals actually drink. Cheap, consistent and everywhere.',tip:'Pick a sugar level (甜度) and ice level (冰塊). 半糖 = half sugar.'},
  {id:'brekkie',n:'Local breakfast shop (早餐店)',zh:'早餐店',q:'早餐店',r:'',gen:'prev',k:['breakfast'],cost:80,dur:25,img:'Danbing',dish:1,
-  d:'Corner breakfast shops (like Mei Er Mei 美而美) sell egg crepes (dan bing), toast sandwiches, turnip cake and milk tea for under NT$100.'}
+  d:'Corner breakfast shops (like Mei Er Mei 美而美) sell egg crepes (dan bing), toast sandwiches, turnip cake and milk tea for under NT$100.'},
+// ---- DEEP-RESEARCH ADDITIONS (2026): photo spots, hikes, cheap eats, islands
+ {id:'goldmuseum',n:'Gold Museum & Jinguashi',zh:'黃金博物館',r:'north',k:['sight'],lat:25.1077,lng:121.8573,acc:'Bus 1062 (Zhongxiao Fuxing) or 965 (Beimen) to Jinguashi.',cost:80,dur:90,open:'09:30-17:00',img:'Gold Museum, New Taipei',ph:1,
+  d:'Japanese-era gold-mining town with old miners’ dorms, a Shinto shrine ruin and a 220 kg gold bar you can touch.',tip:'Closed the first Monday of each month. Walk on to Teapot Mountain.',src:'https://www.gep-en.ntpc.gov.tw/xmdoc/cont?xsmsid=0G274606722488077919'},
+ {id:'yinyang',n:'Yin Yang Sea',zh:'陰陽海',r:'north',k:['sight'],lat:25.1224,lng:121.8640,acc:'Bus 856/891 from the Gold Museum, or taxi.',cost:0,dur:30,img:'Yin Yang Sea',ph:1,
+  d:'A bay split into two colours: mineral-rich yellow water against the blue Pacific.'},
+ {id:'teapot',n:'Teapot Mountain hike',zh:'茶壺山',r:'north',k:['hike'],lat:25.1055,lng:121.8620,acc:'Bus 1062 from MRT Zhongxiao Fuxing Exit 2 to the Quanji Temple stop (also 788/856/965). 3.5 km return, ~305 m climb, 1.5–2 h.',cost:0,dur:150,level:'Moderate, short scramble at the top',best:'Clear days',ph:1,
+  d:'Climb to a teapot-shaped summit rock above Jinguashi, with views down to the Yin Yang Sea and the coast.',tip:'Bring gloves for the rope section at the top; skip it in rain.'},
+ {id:'bitou',n:'Bitou Cape Trail',zh:'鼻頭角步道',r:'north',k:['hike','sight'],lat:25.1290,lng:121.9200,acc:'Kuo-Kuang bus 1811 from Taipei Main Station (~1 h 20 min) or the Tourist Shuttle 856.',cost:0,dur:150,level:'Easy–moderate, 3.5 km loop',best:'Oct–Apr',img:'Bitou Cape',ph:1,gem:1,
+  d:'Clifftop loop to a white lighthouse above jagged reefs: the north coast’s favourite drone shot.'},
+ {id:'wangyou',n:'Wangyou Valley',zh:'望幽谷',r:'north',k:['hike','sight'],lat:25.1435,lng:121.7988,acc:'TRA to Keelung, then bus 103 to Badouzi.',cost:0,dur:75,level:'Easy, 1.7 km',best:'Late afternoon to sunset (no shade)',ph:1,gem:1,
+  d:'Grassy green valley falling to the sea, with a white staircase and Keelung Islet offshore.'},
+ {id:'laomei',n:'Laomei Green Reef',zh:'老梅綠石槽',r:'north',k:['sight'],lat:25.2900,lng:121.5390,acc:'Bus toward Shimen / Fugui Cape from Tamsui (check Google Maps), or car.',cost:0,dur:60,best:'Mar–May (best April), sunny day at low tide',ph:1,gem:1,
+  d:'Volcanic rock troughs covered in bright green algae that look like a giant’s comb.',tip:'Only green in spring; hot weather kills the algae early. Check the tide table.'},
+ {id:'qingtiangang',n:'Qingtiangang Grassland',zh:'擎天崗',r:'taipei',k:['sight','hike'],lat:25.1665,lng:121.5745,acc:'Yangmingshan park shuttle bus 108 (loop).',cost:0,dur:90,best:'Silvergrass Oct–Dec (peak Nov)',img:'Qingtiangang',ph:1,
+  d:'Rolling volcanic grassland with grazing water buffalo, high above Taipei.',tip:'Combine with the Qixingshan hike.'},
+ {id:'zhuzihu',n:'Zhuzihu calla lily fields',zh:'竹子湖',r:'taipei',k:['sight'],lat:25.1665,lng:121.5385,acc:'Yangmingshan bus 108 / 128.',cost:0,dur:90,best:'Mid-March to mid-April (calla lilies); hydrangeas May–June',ph:1,gem:1,
+  d:'Terraced fields that grow most of Taiwan’s calla lilies. Pick-your-own in season.'},
+ {id:'jinmianshan',n:'Jinmianshan (Scissor Rock) hike',zh:'金面山',r:'taipei',k:['hike'],lat:25.0850,lng:121.5700,st:'Xihu',w:15,cost:0,dur:90,level:'Moderate, steep rock steps',best:'Sunset or a clear morning',ph:1,gem:1,
+  d:'A 30–40 min climb from Neihu to a rocky summit with a view of Taipei 101 and the city.'},
+ {id:'huangdidian',n:'Huangdidian ridge',zh:'皇帝殿',r:'taipei',k:['hike'],lat:24.9890,lng:121.6650,acc:'Bus 666 to Shiding (check Google Maps).',cost:0,dur:240,level:'Hard / exposed: narrow rock spine with chains',best:'Dry days only',gem:1,
+  d:'A knife-edge sandstone ridge with chains and carved steps, with 360° views.',tip:'Skip it if wet or windy. Not for anyone afraid of heights.'},
+ {id:'pingxicrags',n:'Pingxi Crags (Xiaozishan)',zh:'孝子山',r:'north',k:['hike'],lat:25.0270,lng:121.7360,acc:'TRA Pingxi Line to Pingxi station, then walk.',cost:0,dur:150,level:'Hard / exposed: ladders and ropes',best:'Dry days only',gem:1,
+  d:'Steep rock pinnacles with carved steps and iron ladders, near the Pingxi Line.',tip:'Combine with Shifen lanterns on the same day.'},
+ {id:'matcha',n:'Matcha Mountain (Holy Mother Trail)',zh:'抹茶山 (聖母登山步道)',r:'yilan',k:['hike'],lat:24.8030,lng:121.7300,cost:0,dur:300,level:'Moderate–hard, 12 km round trip',best:'Spring and autumn',img:'Mount Wufeng Qi',status:'closed',statusNote:'Closed from 10 Jun 2026 until at least mid-to-late November 2026 (trail and road works). Hike Caoling instead.',
+  d:'Ridge walk to a cross above slopes of bright green bamboo grass that look like matcha.'},
+ {id:'daxi',n:'Daxi Old Street',zh:'大溪老街',r:'tpe',k:['sight','shop'],lat:24.8830,lng:121.2870,acc:'Taoyuan bus 5096 / 5098 (~40 min from Taoyuan).',cost:0,dur:90,img:'Daxi Old Street',ph:1,
+  d:'Baroque-façade shophouses and the town’s famous dried tofu (豆干).'},
+ {id:'taipingshan',n:'Taipingshan (Bong Bong Train, Cuifeng Lake)',zh:'太平山',r:'yilan',k:['sight','hike'],lat:24.4960,lng:121.5320,acc:'Tour or car (mountain road).',cost:300,dur:360,best:'Autumn maples, misty mornings',img:'Taiping Mountain',ph:1,gem:1,status:'check',statusNote:'Partly closed 3 Mar–30 Apr 2026; Jianqing Huaigu Trail now ends at ~900 m. Check the forest agency site.',
+  d:'Heritage logging forest with a little “Bong Bong” train (NT$180 return) and Taiwan’s largest alpine lake.'},
+ {id:'lukang',n:'Lukang Old Street & Mo Ru Lane',zh:'鹿港老街 / 摸乳巷',r:'taichung',k:['sight','shop'],lat:24.0560,lng:120.4340,acc:'Changhua Bus from Changhua station or Taichung (~1 h).',cost:0,dur:180,img:'Lukang Township',ph:1,
+  d:'Historic port town: Longshan Temple, Tianhou Temple and the famously narrow Mo Ru Lane.',tip:'Eat at the Tianhou Temple stalls (oyster omelette, shrimp monkey).'},
+ {id:'roundhouse',n:'Changhua Fan-shaped Roundhouse',zh:'彰化扇形車庫',r:'taichung',k:['sight'],lat:24.0830,lng:120.5400,acc:'10 min walk from TRA Changhua.',cost:0,dur:45,img:'Changhua Roundhouse',ph:1,gem:1,
+  d:'Steam-era locomotives parked around a turntable in Taiwan’s last fan-shaped roundhouse.'},
+ {id:'xitou',n:'Xitou Nature Education Area',zh:'溪頭自然教育園區',r:'sml',k:['sight','hike'],lat:23.6750,lng:120.7980,acc:'Bus 6883 from Taichung HSR/Gancheng (check), or car.',cost:250,dur:180,best:'Misty mornings',img:'Xitou Nature Education Area',ph:1,
+  d:'Cedar forest with a bamboo-arched bridge over a pond and a treetop sky walk.'},
+ {id:'maolan',n:'Maolan Trail (Sun Moon Lake)',zh:'貓囒山步道',r:'sml',k:['hike'],lat:23.8800,lng:120.9200,acc:'Shuttle 6670 to Sun Moon Lake, near the Fish Pool tea research station.',cost:0,dur:90,open:'09:00-17:00',level:'Easy, 3 km',best:'Morning',ph:1,
+  d:'Path through tea fields to a lake panorama. The open alternative now that Shuishe Dashan is closed.'},
+ {id:'teaeggs',n:'A-Ma Shiitake Tea Eggs (Xuanguang pier)',zh:'金盆阿嬤香菇茶葉蛋',r:'sml',k:['snack'],lat:23.8487,lng:120.9185,acc:'Lake boat to Xuanguang Temple pier.',cost:15,dur:15,open:'09:30-17:00',img:'Tea egg',dish:1,star:1,
+  d:'Sun Moon Lake’s famous tea eggs, braised 6 hours in Assam tea and Puli shiitake. About NT$15 each.'},
+ {id:'taipingbridge',n:'Taiping Suspension Bridge',zh:'太平雲梯',r:'chiayi',k:['sight'],lat:23.5550,lng:120.5800,acc:'Car or tour from Chiayi.',cost:100,dur:60,best:'Sunset above the clouds',ph:1,gem:1,
+  d:'281 m footbridge at about 1,000 m altitude with views over the Chiayi plains.'},
+ {id:'sicao',n:'Sicao Green Tunnel boat',zh:'四草綠色隧道',r:'tainan',k:['sight'],lat:23.0200,lng:120.1400,acc:'Taxi or bus from Anping (~15 min).',cost:200,dur:60,open:'08:00-16:00',img:'Sicao Green Tunnel',ph:1,gem:1,
+  d:'Boat ride under an arching mangrove canopy, nicknamed Tainan’s “little Amazon”.'},
+ {id:'crystalchurch',n:'Beimen Crystal Church',zh:'北門水晶教堂',r:'tainan',k:['sight'],lat:23.2700,lng:120.1200,acc:'Car (combine with Jingzaijiao salt fields).',cost:0,dur:40,open:'09:30-17:30',best:'Blue hour',ph:1,gem:1,
+  d:'Glass wedding chapel by the salt pans that glows at dusk.'},
+ {id:'liyu',n:'Liyu Lake',zh:'鯉魚潭',r:'hualien',k:['sight'],lat:23.9300,lng:121.5100,acc:'Bus 1137 / taxi from Hualien (~30 min).',cost:0,dur:90,best:'Misty mornings',img:'Liyu Lake',ph:1,
+  d:'Hualien’s largest lake, ringed by mountains, with swan boats and a lakeside bike path.'},
+ {id:'shitiping',n:'Shitiping coral terraces',zh:'石梯坪',r:'hualien',k:['sight'],lat:23.4900,lng:121.5100,acc:'Car along the coast road (about 1 h south of Hualien).',cost:0,dur:60,best:'Sunrise',ph:1,gem:1,
+  d:'Raised coral terraces and rock pools on the Pacific coast.'},
+ {id:'liushidan',n:'Liushidan Mountain daylilies',zh:'六十石山',r:'chishang',k:['sight'],lat:23.1800,lng:121.2800,acc:'Car or scooter from Fuli / Chishang.',cost:0,dur:90,best:'Aug–Sep (orange daylilies)',img:'Liushidan Mountain',ph:1,gem:1,
+  d:'Mountain plateau carpeted in orange daylily flowers in late summer.'},
+ {id:'jialulan',n:'Jialulan driftwood park',zh:'加路蘭',r:'taitung',k:['sight'],lat:22.8100,lng:121.2000,acc:'Taxi 15 min from Taitung, or the East Coast tourist shuttle.',cost:0,dur:45,ph:1,
+  d:'Ocean-front lawn with driftwood art and Pacific views.'},
+ {id:'twinhearts',n:'Twin-Heart Stone Weir (Qimei)',zh:'七美雙心石滬',r:'penghu',k:['sight'],lat:23.2100,lng:119.4300,acc:'Boat or small plane from Magong to Qimei island.',cost:0,dur:120,best:'As the tide falls',img:'Twin Hearts Stone Weir',ph:1,
+  d:'A ~700-year-old stone fish trap shaped like two hearts, Penghu’s signature view.'},
+ {id:'penghubridge',n:'Penghu Great Bridge & Daguoye basalt',zh:'跨海大橋 / 大菓葉玄武岩',r:'penghu',k:['sight'],lat:23.5700,lng:119.5300,acc:'Scooter or tour from Magong.',cost:0,dur:120,best:'Fireworks nights May–Aug (2026: 4 May–25 Aug)',img:'Penghu Great Bridge',ph:1,
+  d:'Sea bridge between islands and a wall of columnar basalt.'},
+ {id:'zhaori',n:'Green Island Zhaori Hot Spring',zh:'綠島朝日溫泉',r:'greenisland',k:['sight'],lat:22.6400,lng:121.5000,acc:'Scooter around the island from Nanliao Harbor.',cost:200,dur:120,best:'Sunrise',img:'Zhaori Hot Spring',ph:1,
+  d:'One of the world’s few saltwater hot springs, in rock pools by the sea.',tip:'See Sleeping Beauty Rock from the Little Great Wall.'},
+ {id:'qinbi',n:'Matsu: Qinbi Village & Blue Tears',zh:'芹壁村 / 藍眼淚',r:'matsu',k:['sight','night'],lat:26.2300,lng:119.9700,acc:'Flight or ferry to Matsu, then scooter on Beigan.',cost:0,dur:180,best:'Blue Tears Apr–Sep (best May, after midnight, dark calm nights)',img:'Qinbi Village',ph:1,gem:1,
+  d:'Granite stone village above the sea, and glowing blue bioluminescent waves in season.'},
+ {id:'shanhou',n:'Kinmen Shanhou Folk Village',zh:'山后民俗文化村',r:'kinmen',k:['sight'],lat:24.5100,lng:118.4400,acc:'Bus or scooter from Jincheng.',cost:0,dur:90,img:'Shanhou Folk Culture Village',ph:1,
+  d:'Eighteen Fujian-style houses from about 1900; Kinmen is also famous for kaoliang liquor and peanut candy.'},
+ {id:'yushan',n:'Yushan Main Peak (permit hike)',zh:'玉山主峰',r:'alishan',k:['hike'],lat:23.4700,lng:120.9572,acc:'Tataka trailhead (bus 6739 + park shuttle).',cost:0,dur:720,level:'Hard, 2–3 days, 3,952 m',permit:'National park permit + Paiyun Lodge. Foreigners apply 4 months to 35 days ahead; foreigner quota 18/night (Sun–Thu) during renovation.',img:'Yu Shan',ph:1,
+  d:'Taiwan’s highest peak. Sleep at Paiyun Lodge and summit for sunrise.',src:'https://npm.cpami.gov.tw/en/notice_1.aspx'},
+ {id:'xueshan',n:'Xueshan (Snow Mountain, permit hike)',zh:'雪山',r:'taichung',k:['hike'],lat:24.3900,lng:121.2300,acc:'Wuling Farm trailhead (bus from Yilan/Taichung, check), or car.',cost:0,dur:720,level:'Hard, 2–3 days, 3,886 m',permit:'National park permit (foreigners 4 months to 35 days ahead). 369 Cabin is being rebuilt; a temporary 24-person campsite is used.',img:'Xueshan',ph:1,
+  d:'Taiwan’s second-highest peak, through the Black Forest to a glacial cirque.'},
+ {id:'jiaming',n:'Jiaming Lake (permit hike)',zh:'嘉明湖',r:'taitung',k:['hike'],lat:23.2900,lng:121.0300,acc:'Xiangyang trailhead on the South Cross-Island Highway.',cost:0,dur:720,level:'Hard, 3 days, ~3,310 m',permit:'Cabin lottery drawn at 15:00, 30 days before check-in (each night separately).',img:'Jiaming Lake',ph:1,
+  d:'The “Angel’s Tears”: a sapphire alpine lake on a grassy ridge.',src:'https://jmlnt-en.forest.gov.tw/room/camp_terms.php'},
+ {id:'walami',n:'Walami Trail',zh:'瓦拉米步道',r:'chishang',k:['hike'],lat:23.3250,lng:121.2880,acc:'Taxi from Yuli station (~30 min).',cost:0,dur:300,level:'Moderate; permit-free to Jiaxin (4.5 km)',status:'check',statusNote:'Reopened 11 Aug 2026 after typhoon closures. Check the Yushan National Park site.',img:'Walami Trail',
+  d:'Japanese-era trail through jungle and suspension bridges to Shanfeng Waterfall (1.7 km) and Jiaxin (4.5 km).'},
+ // cheap eats
+ {id:'liuyuzi',n:'Liu Yu Zi fried taro balls',zh:'劉芋仔',r:'taipei',k:['snack'],lat:25.0565,lng:121.5153,st:'Shuanglian',w:9,cost:30,dur:20,open:'17:00-01:00',closed:[4],img:'Taro ball',dish:1,star:1,
+  d:'Michelin-listed Ningxia stall: crispy taro balls stuffed with salted egg yolk and pork floss (NT$25–30).',tip:'Closed Thursdays; weekend queues can hit an hour.'},
+ {id:'fangchia',n:'Fang Chia chicken rice',zh:'方家雞肉飯',r:'taipei',k:['dinner','lunch'],lat:25.0558,lng:121.5154,st:'Shuanglian',w:9,cost:60,dur:20,open:'17:30-24:00',img:'Chiayi turkey rice',dish:1,
+  d:'Bib Gourmand stall #060 at Ningxia: Chiayi-style shredded chicken rice.'},
+ {id:'chendong',n:'Chen Dong Herbal Pork Ribs',zh:'陳董藥燉排骨',r:'taipei',k:['dinner','snack'],lat:25.0508,lng:121.5768,st:'Songshan',ex:'5',w:3,cost:100,dur:20,img:'Pork ribs soup',dish:1,
+  d:'Bib-listed Raohe stall: medicinal herbal pork-rib soup.'},
+ {id:'hotstar',n:'Hot-Star Large Fried Chicken (Shilin)',zh:'豪大大雞排',r:'taipei',k:['snack'],lat:25.0882,lng:121.5245,st:'Jiantan',ex:'1',w:5,cost:95,dur:15,img:'Taiwanese fried chicken',dish:1,
+  d:'The face-sized (30 cm+) fried chicken cutlet that started at Shilin. ~NT$90–95 in 2026.'},
+ {id:'shanghaibun',n:'Dai Shanghai Pan-Fried Buns',zh:'大上海生煎包',r:'taipei',k:['snack'],lat:25.0878,lng:121.5240,st:'Jiantan',ex:'1',w:5,cost:70,dur:15,img:'Shengjian mantou',dish:1,
+  d:'60-plus-year-old Shilin stall: crispy-bottomed pork buns at ~NT$17 each.'},
+ {id:'nanjichang',n:'Nanjichang Night Market',zh:'南機場夜市',r:'taipei',k:['dinner','night'],lat:25.0290,lng:121.5070,acc:'Walk ~15 min from MRT Longshan Temple or Xiaonanmen.',cost:250,dur:90,img:'Nanjichang Night Market',
+  d:'A local night market packed with Michelin-listed stalls: Shan Nay chicken, an unnamed clay-oven shaobing cart, Smelly Boss stinky tofu and sesame-oil chicken.',tip:'Far fewer tourists than Shilin.'},
+ {id:'agei',n:'Tamsui A-gei',zh:'淡水阿給',r:'taipei',k:['snack','lunch'],lat:25.1695,lng:121.4410,st:'Tamsui',w:8,cost:45,dur:20,img:'Ageh',dish:1,
+  d:'Tamsui’s snack: fried tofu stuffed with glass noodles in sweet chili sauce (~NT$45). Try the original shop on Zhenli St.',tip:'Add a fish-ball soup.'},
+ {id:'shenkeng',n:'Shenkeng Old Street (stinky tofu)',zh:'深坑老街',r:'taipei',k:['snack','sight'],lat:25.0020,lng:121.6160,acc:'Bus from MRT Muzha or Taipei Zoo (~20 min).',cost:60,dur:90,img:'Shenkeng Old Street',dish:0,
+  d:'Taipei’s tofu town: grilled stinky tofu skewers (~NT$35–55) and tofu ice cream.'},
+ {id:'azhu',n:'A-Zhu Peanut Ice Cream Roll',zh:'阿珠雪在燒',r:'north',k:['snack'],lat:25.1093,lng:121.8441,cost:50,dur:10,img:'Peanut ice cream roll',dish:1,
+  d:'Jiufen classic: shaved peanut brittle and ice cream with cilantro wrapped in a thin crepe (~NT$50).'},
+ {id:'sanxingpancake',n:'Sanxing A-Po Scallion Pancake',zh:'三星阿婆蔥油餅',r:'yilan',k:['snack'],lat:24.6680,lng:121.6550,acc:'Bus or car from Luodong.',cost:40,dur:15,img:'Scallion pancake',dish:1,
+  d:'Pancake made with Yilan’s famous Sanxing scallions. Add an egg.'},
+ {id:'formosachang',n:'Formosa Chang braised pork rice',zh:'鬍鬚張魯肉飯',q:'鬍鬚張',r:'',gen:'prev',k:['lunch','dinner','breakfast'],cost:100,dur:30,img:'Lu rou fan',dish:1,
+  d:'National chain since 1960 for cheap, consistent lu rou fan (braised pork rice). Add a soup.'},
+ {id:'xingfutang',n:'Xing Fu Tang brown-sugar milk',zh:'幸福堂',q:'幸福堂',r:'',gen:'prev',k:['drink','snack'],cost:75,dur:10,img:'Xing Fu Tang',
+  d:'Brown-sugar pearls stir-fried in front of you, served with fresh milk. (Chen San Ding has closed; this is the go-to now.)'},
+ {id:'milksha',n:'Milksha bubble tea',zh:'迷客夏',q:'迷客夏',r:'',gen:'prev',k:['drink'],cost:65,dur:10,img:'Bubble tea',dish:1,
+  d:'Bubble tea made with fresh milk instead of creamer. Try taro milk with pearls.'},
+ {id:'mosburger',n:'Mos Burger rice burger',zh:'摩斯漢堡',q:'摩斯漢堡',r:'',gen:'prev',k:['breakfast','lunch'],cost:150,dur:25,img:'Mos Burger',
+  d:'Taiwan’s favourite fast food: burgers with rice-patty buns. Breakfast rice burger ~NT$125.'},
+ {id:'secondmarket',n:'Taichung Second Market (breakfast)',zh:'第二市場',r:'taichung',k:['breakfast','lunch'],lat:24.1420,lng:120.6790,acc:'10 min walk / short taxi from Taichung Station.',cost:120,dur:60,img:'Taichung Second Market',
+  d:'Japanese-era market hall for a breakfast crawl: turnip cake, buns (Yan Ji, closed Tue), braised pork rice, and Lao Lai tea stall.'},
+ {id:'maochuan',n:'Maochuan Meatballs',zh:'茂川肉丸',r:'taichung',k:['lunch','snack'],lat:24.1450,lng:120.6750,cost:60,dur:25,open:'11:00-19:00',closed:[4],img:'Ba-wan',dish:1,
+  d:'Century-old Bib Gourmand shop for Taichung-style steamed meatballs (ba-wan).',tip:'Closed Thursdays.'},
+ {id:'azhang',n:'A-Zhang Ba-wan (Changhua)',zh:'阿璋肉圓',r:'taichung',k:['lunch','snack'],lat:24.0810,lng:120.5400,acc:'Near TRA Changhua.',cost:60,dur:25,open:'09:30-22:30',img:'Ba-wan',dish:1,star:1,
+  d:'Changhua is ba-wan city; this 50-year shop was a filming location for *You Are the Apple of My Eye*. Free soup.'},
+ {id:'wangwang',n:'Wang Wang Vermicelli Paste (Lukang)',zh:'王罔麵線糊',r:'taichung',k:['breakfast'],lat:24.0590,lng:120.4340,cost:35,dur:20,open:'06:00-18:30',img:'Misua',dish:1,
+  d:'50-year Lukang breakfast: thick vermicelli paste for ~NT$35 (2026).',tip:'Queues from opening.'},
+ {id:'adao',n:'A-Dao Oyster Omelette (Lukang)',zh:'鹿港阿道蚵仔煎',r:'taichung',k:['lunch','snack'],lat:24.0592,lng:120.4345,cost:90,dur:30,open:'08:00-20:00',img:'Oyster omelette',dish:1,
+  d:'Oyster omelette in front of Tianhou Temple.',tip:'Nearby Temple-Front No.1 also fries “shrimp monkey” (炸蝦猴), found only in Lukang.'},
+ {id:'zhensongji',n:'Zhensongji Rice Noodles (Puli)',zh:'振松記米粉',r:'sml',k:['lunch'],lat:23.9690,lng:120.9630,acc:'Across from Puli Winery.',cost:80,dur:30,open:'10:30-15:30',closed:[3],img:'Rice vermicelli',dish:1,
+  d:'Rice-noodle factory shop (60–70 years): taro rice-noodle soup.',tip:'Closed Wednesdays.'},
+ {id:'guojia',n:'Guo Jia Turkey Rice (Chiayi)',zh:'郭家雞肉飯',r:'chiayi',k:['lunch','dinner','night'],lat:23.4800,lng:120.4520,cost:60,dur:25,open:'09:00-05:00',img:'Chiayi turkey rice',dish:1,
+  d:'Turkey rice almost round the clock, on Wenhua Road.'},
+ {id:'lincongming',n:'Lin Cong Ming Fish-Head Casserole',zh:'林聰明沙鍋魚頭',r:'chiayi',k:['dinner','lunch'],lat:23.4810,lng:120.4500,cost:150,dur:40,open:'11:20-21:00',closed:[2],img:'Fish head casserole',dish:1,
+  d:'Chiayi’s famous sand-pot fish-head stew.',tip:'Closed Tuesdays.'},
+ {id:'acun',n:'A-Cun Beef Soup',zh:'阿村牛肉湯',r:'tainan',k:['breakfast','dinner'],lat:22.9880,lng:120.2010,cost:150,dur:35,img:'Tainan beef soup',dish:1,
+  d:'40-year shop using that morning’s beef. Opens 04:00 and again at 18:00, each until sold out.',tip:'No service Monday evening or Tuesday morning.'},
+ {id:'hsilotien',n:'Hsi Lo Tien Beef Soup',zh:'西羅殿牛肉湯',r:'tainan',k:['breakfast','lunch'],lat:23.0010,lng:120.2050,cost:150,dur:35,img:'Tainan beef soup',dish:1,
+  d:'Michelin Bib Gourmand beef soup with a bone broth.'},
+ {id:'wangsfish',n:'Wang’s Fish Skin (milkfish breakfast)',zh:'王氏魚皮',r:'tainan',k:['breakfast','lunch'],lat:22.9990,lng:120.1670,cost:120,dur:35,open:'04:00-14:00',img:'Milkfish',dish:1,star:1,
+  d:'Tainan milkfish breakfast: fish-skin congee (~NT$80), pan-fried milkfish belly (~NT$110), fish-ball soup (~NT$40).'},
+ {id:'ahsing',n:'A-Hsing Salty Congee',zh:'阿星鹹粥',r:'tainan',k:['breakfast'],lat:22.9930,lng:120.1950,cost:100,dur:30,img:'Congee',dish:1,
+  d:'Bib Gourmand milkfish congee; cheaper than the famous A-Tang (now ~NT$200–300).'},
+ {id:'coffinbread',n:'Chikan Coffin Bread',zh:'赤崁棺材板',r:'tainan',k:['snack','lunch'],lat:22.9930,lng:120.1980,cost:80,dur:25,open:'11:00-21:00',img:'Coffin bread',dish:1,
+  d:'The original “coffin bread”: a fried toast box stuffed with creamy seafood stew, in the Kangle Market alley.'},
+ {id:'tongji',n:'Tongji Anping Tofu Pudding',zh:'同記安平豆花',r:'tainan',k:['snack'],lat:23.0030,lng:120.1610,cost:60,dur:20,open:'09:00-23:00',img:'Douhua',dish:1,
+  d:'Classic silky tofu pudding (douhua) in Anping.'},
+ {id:'shuangquan',n:'Shuang Quan Black Tea',zh:'雙全紅茶',r:'tainan',k:['drink'],lat:22.9920,lng:120.2000,cost:25,dur:15,open:'11:00-18:00',closed:[0],img:'Black tea',dish:1,gem:1,
+  d:'Hidden-alley black tea shop (60–75 years) said to have started salty black tea. NT$25 a glass.',tip:'Closed Sundays; drink it on the spot.'},
+ {id:'yehsquid',n:'Yeh Family Squid Rice Noodles',zh:'葉家小卷米粉',r:'tainan',k:['lunch'],lat:22.9970,lng:120.1990,cost:150,dur:25,img:'Rice vermicelli',dish:1,
+  d:'Bib Gourmand squid rice-noodle soup on Guohua Street.',tip:'Often sells out.'},
+ {id:'cianjin',n:'Cianjin Braised Pork Rice',zh:'前金肉燥飯',r:'kaohsiung',k:['breakfast','lunch'],lat:22.6300,lng:120.2950,st:'Formosa Boulevard',w:10,cost:60,dur:25,open:'07:15-17:30',closed:[0,6],img:'Lu rou fan',dish:1,
+  d:'Bib Gourmand since 1959: pork rice NT$40 plus a runny duck-egg omelette NT$20.',tip:'Closed weekends.'},
+ {id:'chunlan',n:'Chun Lan Gua Bao',zh:'春蘭割包',r:'kaohsiung',k:['lunch','snack'],lat:22.6310,lng:120.3050,cost:80,dur:20,open:'09:00-19:00',closed:[0],img:'Gua bao',dish:1,
+  d:'Bib Gourmand gua bao (pork-belly bun), ~NT$80.',tip:'Order half fat, half lean. Closed Sundays.'},
+ {id:'yexiang',n:'Ye Xiang Wontons',zh:'液香扁食',r:'hualien',k:['lunch','breakfast'],lat:23.9765,lng:121.6060,cost:75,dur:20,open:'09:30-14:00',closed:[0],img:'Wonton',dish:1,
+  d:'70-year Hualien wonton shop: one dish, NT$75 a bowl.',tip:'Open only ~4.5 h a day and closed Sundays.'},
+ {id:'banyan',n:'Banyan Tree Rice Noodles (Taitung)',zh:'榕樹下米苔目',r:'taitung',k:['lunch','dinner'],lat:22.7560,lng:121.1500,cost:70,dur:25,open:'10:00-20:30',img:'Rice noodles',dish:1,
+  d:'50–60-year Taitung shop: rice noodles in bonito broth.'}
 ];
 const PL={};
 const TAGS={
   vincent:['wenzhang','duxiaoyue','twopeck','bafang','cvspapaya','milkking','sansiblings','ximending','jiufen'],
   easy:['tianjin','fuzhou','aychung','lanjia','gongzheng','agan','trabento','chishangbento','zhou','zhoujia','penshui','suncake','twopeck','bafang','cvs711','cvsfm','cvspapaya','fiftylan','brekkie','jinfeng','duxiaoyue','yonghe','sansiblings','milkking','chengpapaya'],
   chain:['bafang','twopeck','fiftylan','brekkie'],
-  cvs:['cvs711','cvsfm','cvspapaya']
+  cvs:['cvs711','cvsfm','cvspapaya'],
+  photo:['t101','xiangshan','cks','longshan','tamsui','jiufen','shifen','shifenfall','golden','yehliu','houtong','lanyang','taroko','qingshui','qixingtan','chishang','sanxiantai','duoliang','dome','pier2','lotus','cijin','fgs','weiwuying','eluanbi','maobitou','longpan','anping','treehouse','chikan','shennong','chimei','jingzaijiao','zhushan','alishanforest','fenqihu','shuishe','cien','xiangshan_vc','cingjing','hehuan','miyahara','opera','rainbow','gaomei','amei','dihua','beitou','liuqiu'],
+  gem:['sandiaoling','caoling','houtong','lanyang','duoliang','jingzaijiao','longpan','xiaoyeliu','tiehua','luye']
 };
 const FOODK=['breakfast','lunch','dinner','snack','drink'];
 function registerPlace(p){
   p.tier=p.tier||1;p.tags=(p.tags||[]).filter(t=>t==='mine');
   for(const t in TAGS)if(TAGS[t].includes(p.id))p.tags.push(t);
   if(p.k.some(k=>FOODK.includes(k))&&p.cost&&p.cost<=150)p.tags.push('cheap');
+  if(p.ph&&!p.tags.includes('photo'))p.tags.push('photo');if(p.gem&&!p.tags.includes('gem'))p.tags.push('gem');
+  if(p.k.includes('shop'))p.tags.push('shopping');
   if(!PL[p.id])PLACES.includes(p)||PLACES.push(p);PL[p.id]=p;
 }
 PLACES.forEach(registerPlace);
-const COLL={vincent:{l:'Vincent’s picks',i:'⭐'},photo:{l:'Photo spots',i:'📷'},gem:{l:'Hidden gems',i:'🔎'},hike:{l:'Hikes',i:'🥾'},cheap:{l:'Famous & cheap',i:'💰'},easy:{l:'Easy to eat',i:'🥢'},chain:{l:'Cheap chains',i:'🔁'},cvs:{l:'7-Eleven & FamilyMart',i:'🏪'},drink:{l:'Drinks',i:'🥤'},mine:{l:'My places',i:'📌'},splurge:{l:'Splurge',i:'💎'}};
+const COLL={vincent:{l:'Vincent’s picks',i:'⭐'},shopping:{l:'Shopping',i:'🛍️'},photo:{l:'Photo spots',i:'📷'},gem:{l:'Hidden gems',i:'🔎'},hike:{l:'Hikes',i:'🥾'},cheap:{l:'Famous & cheap',i:'💰'},easy:{l:'Easy to eat',i:'🥢'},chain:{l:'Cheap chains',i:'🔁'},cvs:{l:'7-Eleven & FamilyMart',i:'🏪'},drink:{l:'Drinks',i:'🥤'},mine:{l:'My places',i:'📌'},splurge:{l:'Splurge',i:'💎'}};
 function inColl(p,c){return !c||(c==='drink'?p.k.includes('drink'):c==='hike'?p.k.includes('hike'):c==='splurge'?p.tier===3:(p.tags||[]).includes(c))}
 const isBasic=p=>p.id.startsWith('g_');
 function regName(p){return p.gen?'Anywhere (branches everywhere)':REG[p.r]?REG[p.r].n:''}
-function badges(p){const t=p.tags||[];return (t.includes('vincent')?'<span class="bdg v">⭐ Vincent</span>':'')+(t.includes('mine')?'<span class="bdg">📌 Mine</span>':'')+(t.includes('cheap')?'<span class="bdg c">💰 Cheap</span>':'')+(t.includes('cvs')?'<span class="bdg">🏪</span>':'')+(p.tier===3?'<span class="bdg">💎</span>':'')}
+function badges(p){const t=p.tags||[];return (p.status==='closed'?'<span class="bdg x">⛔ Closed now</span>':p.status==='partial'?'<span class="bdg w">◐ Partly open</span>':p.status==='check'?'<span class="bdg w">⚠︎ Check status</span>':'')+(t.includes('vincent')?'<span class="bdg v">⭐ Vincent</span>':'')+(t.includes('mine')?'<span class="bdg">📌 Mine</span>':'')+(t.includes('cheap')?'<span class="bdg c">💰 Cheap</span>':'')+(t.includes('cvs')?'<span class="bdg">🏪</span>':'')+(p.tier===3?'<span class="bdg">💎</span>':'')}
 
 /* Ready-made days: [time, placeId, kind, durationOverride] */
 const TPL={
- tp_arrival:{focus:['sightseeing','shopping'],n:'Taipei · Arrival: Ximen, Longshan Temple, Dihua St, Ningxia NM',base:'taipei',start:'tpe',st:'11:00',stops:[['12:30','g_rest','rest',45],['13:30','aychung','lunch'],['14:15','ximending','sight'],['15:15','sansiblings','snack'],['16:15','longshan','sight'],['17:15','dihua','sight'],['19:00','ningxia','dinner']]},
+ tp_arrival:{focus:['sightseeing','shopping'],n:'Taipei · Arrival: Ximen, Longshan Temple, Dihua St, Ningxia NM',base:'taipei',start:'tpe',st:'11:00',stops:[['12:30','g_rest','rest',45],['13:30','aychung','lunch'],['14:15','ximending','sight'],['15:15','sansiblings','snack'],['16:15','longshan','sight'],['17:30','dihua','sight',60],['19:00','ningxia','dinner']]},
  tp_classic:{focus:['sightseeing','photo','food'],n:'Taipei classics: Fuhang, CKS, Din Tai Fung, Taipei 101, Elephant Mtn, Raohe',base:'taipei',st:'07:00',stops:[['07:00','fuhang','breakfast'],['09:30','cks','sight'],['11:30','dtf','lunch'],['13:30','smoothie','snack'],['14:45','t101','sight'],['17:00','xiangshan','hike'],['19:15','fuzhou','snack'],['19:45','raohe','dinner']]},
  north_day:{focus:['sightseeing','photo'],n:'Day trip: Shifen lanterns, Jiufen, Golden Waterfall, Keelung',base:'taipei',st:'07:30',stops:[['07:30','yonghe','breakfast'],['09:45','shifen','sight'],['11:00','shifenfall','sight'],['13:00','jiufen','lunch'],['15:00','golden','sight'],['16:15','agan','snack'],['17:15','amei','snack'],['19:30','miaokou','dinner']]},
  tp_north:{focus:['culture','relax','sightseeing'],n:'Palace Museum, Beitou hot springs, Tamsui sunset, Shilin NM',base:'taipei',st:'08:00',stops:[['08:00','tianjin','breakfast'],['09:15','npm','sight'],['12:15','silks','lunch'],['14:15','beitou','sight'],['16:45','tamsui','sight'],['19:30','shilin','dinner']]},
  tp_yms:{focus:['hiking','relax'],n:'Yangmingshan volcano hike + Maokong tea',base:'taipei',st:'07:30',stops:[['07:30','jinfeng','breakfast'],['08:45','yangming','hike'],['13:30','yongkangbn','lunch'],['15:00','maokong','sight'],['19:30','lindongfang','dinner']]},
  tp_splurge:{focus:['food','shopping'],n:'Taipei splurge day: Le Palais, Taipei 101, RAW',base:'taipei',st:'09:00',stops:[['09:00','g_bf','breakfast'],['10:30','huashan','sight'],['12:00','lepalais','lunch'],['14:30','chiate','snack'],['15:30','t101','sight'],['18:30','raw','dinner']]},
  north_hike:{focus:['hiking','photo'],n:'Caoling Trail silvergrass hike + Houtong cats + Keelung',base:'taipei',st:'07:00',stops:[['07:00','trabento','breakfast'],['09:00','caoling','hike'],['15:00','houtong','sight'],['18:30','miaokou','dinner']]},
- north_falls:{focus:['hiking','photo'],n:'Sandiaoling waterfalls + Shifen + Jiufen',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','sandiaoling','hike'],['13:00','shifen','sight'],['15:30','jiufen','sight'],['18:30','miaokou','dinner']]},
+ north_falls:{focus:['hiking','photo'],notes:'Short but steep hike with big coastal views. Take bus 1062 early to beat the Jiufen crowds. The Teapot summit has a short rope scramble: wear grippy shoes and skip it in rain. Taxis wait in Jiufen for the ride down.',n:'Gold Museum + Teapot Mountain hike + Yin Yang Sea + Jiufen at dusk',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','goldmuseum','sight'],['11:00','teapot','hike'],['14:00','yinyang','sight'],['15:30','agan','snack'],['16:30','jiufen','sight'],['19:00','miaokou','dinner']]},
  yl_day:{focus:['relax','sightseeing'],n:'Yilan: Lanyang Museum, whale watching, hot springs, Luodong NM',base:'yilan',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','lanyang','sight'],['11:30','whale','sight'],['14:30','g_meal','lunch'],['16:00','jiaoxi','sight'],['19:00','luodong','dinner']]},
- hl_taroko:{focus:['sightseeing','hiking','photo'],n:'Train to Hualien → Qingshui Cliff, Taroko Gorge, Qixingtan',base:'hualien',st:'06:30',stops:[['06:30','trabento','breakfast'],['09:30','gongzheng','snack'],['10:30','qingshui','sight'],['12:00','taroko','hike'],['15:00','shakadang','hike'],['17:00','qixingtan','sight'],['19:00','dongdamen','dinner']]},
+ hl_taroko:{focus:['sightseeing','hiking','photo'],notes:'Long day starting with the early train. Taroko is only partly open after the 2024 quake (Taroko Terrace, Tianxiang, the Shakadang Bridge stop); Swallow Grotto and Shakadang Trail are closed. A taxi charter or tour is far easier than buses. Wear a helmet where provided.',n:'Train to Hualien → Qingshui Cliff (Chongde), Taroko open areas, Qixingtan',base:'hualien',st:'06:30',stops:[['06:30','trabento','breakfast'],['09:30','gongzheng','snack'],['10:30','qingshui','sight'],['12:00','taroko','sight',210],['16:00','qixingtan','sight'],['18:30','dongdamen','dinner']]},
  tt_chishang:{focus:['photo','sightseeing'],n:'Hualien → Chishang rice fields → Taitung (Xiaoyeliu, Tiehua)',base:'taitung',st:'07:30',stops:[['07:30','zhoujia','breakfast'],['10:00','chishang','sight'],['12:30','chishangbento','lunch'],['15:30','g_rest','rest',45],['16:30','xiaoyeliu','sight'],['19:00','tiehua','dinner']]},
- tt_coast:{focus:['photo','relax'],n:'Taitung East Coast: Sanxiantai, Chenggong seafood, Luye',base:'taitung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','sanxiantai','sight'],['12:30','chenggong','lunch'],['16:00','luye','sight'],['19:00','g_meal','dinner']]},
+ tt_coast:{focus:['photo','relax'],n:'Taitung East Coast: Sanxiantai, Chenggong seafood, Luye',base:'taitung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:00','jialulan','sight'],['10:30','sanxiantai','sight'],['12:30','chenggong','lunch'],['16:00','luye','sight'],['19:00','g_meal','dinner']]},
  kh_arrive:{focus:['sightseeing','photo','night'],n:'Taitung → Kaohsiung: Pier-2, Cijin sunset, Dome of Light',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['12:00','pier2','sight'],['13:30','g_meal','lunch'],['15:30','cijin','sight'],['18:00','cijinseafood','dinner'],['20:30','dome','sight'],['21:00','milkking','drink']]},
  kh_day:{focus:['culture','sightseeing'],n:'Kaohsiung: Lotus Pond, Fo Guang Shan, Weiwuying, Ruifeng NM',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:00','lotus','sight'],['11:00','fgs','sight'],['14:30','g_meal','lunch'],['16:00','weiwuying','sight'],['19:00','ruifeng','dinner']]},
  kh_islands:{focus:['relax','food'],n:'Xiao Liuqiu sea turtles + Donggang tuna',base:'kaohsiung',st:'07:00',stops:[['07:00','g_bf','breakfast'],['08:30','liuqiu','sight'],['15:30','donggang','lunch'],['19:30','liuhe','dinner']]},
  kt_day:{focus:['photo','relax'],n:'Kenting: Eluanbi Lighthouse, Longpan cliffs, Maobitou sunset',base:'kenting',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','eluanbi','sight'],['11:00','longpan','sight'],['12:30','g_meal','lunch'],['16:45','maobitou','sight'],['19:00','kentingst','dinner']]},
- tn_day:{focus:['food','culture'],n:'Tainan food & history: beef soup, Du Hsiao Yueh, Anping',base:'tainan',st:'07:00',stops:[['08:00','wenzhang','breakfast'],['09:30','chikan','sight'],['11:00','hayashi','sight'],['12:15','duxiaoyue','lunch'],['13:45','anping','sight'],['15:00','treehouse','sight'],['16:00','zhou','snack'],['18:00','shennong','night'],['19:30','garden','dinner']]},
- tn_day2:{focus:['photo','culture'],n:'Tainan: Chimei Museum + salt-field sunset',base:'tainan',st:'08:00',stops:[['08:00','shijingjiu','breakfast'],['09:45','chimei','sight'],['13:30','zhou','lunch'],['16:00','jingzaijiao','sight'],['19:30','garden','dinner']]},
- tn_alishan:{focus:['travel'],n:'Tainan → Chiayi turkey rice → up to Alishan',base:'alishan',st:'07:00',stops:[['07:30','shijingjiu','breakfast'],['09:30','chimei','sight'],['13:00','penshui','lunch'],['17:30','g_rest','rest'],['19:00','g_meal','dinner']]},
+ tn_day:{focus:['food','culture'],notes:'Tainan runs on food hours: beef soup is a dawn (or late-night) meal, many shops sell out, and some close one weekday (Wenzhang: Thursdays). Expect lots of short walks and a taxi or bus to Anping. Bring cash and small notes.',n:'Tainan food & history: beef soup, Du Hsiao Yueh, Anping, Wenzhang dinner',base:'tainan',st:'07:00',stops:[['07:30','acun','breakfast'],['09:30','chikan','sight'],['11:00','hayashi','sight'],['12:15','duxiaoyue','lunch'],['13:45','anping','sight'],['15:00','treehouse','sight'],['16:00','tongji','snack'],['18:00','shennong','night'],['19:30','wenzhang','dinner']]},
+ tn_day2:{focus:['photo','culture'],n:'Tainan: Chimei Museum + salt-field sunset',base:'tainan',st:'08:00',stops:[['07:00','wangsfish','breakfast'],['09:45','chimei','sight'],['13:30','zhou','lunch'],['15:30','sicao','sight'],['17:00','jingzaijiao','sight'],['19:30','shijingjiu','dinner']]},
+ tn_alishan:{focus:['travel'],n:'Tainan → Chiayi turkey rice → up to Alishan',base:'alishan',st:'07:00',stops:[['07:00','wangsfish','breakfast'],['09:30','chimei','sight'],['13:00','penshui','lunch'],['17:30','g_rest','rest'],['19:00','g_meal','dinner']]},
  al_day:{focus:['hiking','photo'],n:'Alishan full day: sunrise, giant trees, Fenqihu',base:'alishan',st:'04:30',stops:[['04:30','zhushan','sight'],['07:30','g_bf','breakfast'],['08:30','alishanforest','hike'],['12:30','fenqihu','lunch'],['18:00','g_meal','dinner']]},
  al_sml:{focus:['travel','hiking'],n:'Alishan sunrise & giant trees → Sun Moon Lake',base:'sml',st:'04:30',stops:[['04:30','zhushan','sight'],['07:30','g_bf','breakfast'],['08:30','alishanforest','hike'],['15:30','itathao','snack'],['18:30','g_meal','dinner']]},
- sml_day:{focus:['sightseeing','photo','relax'],n:'Sun Moon Lake full day: boat, pagoda, Ita Thao, ropeway',base:'sml',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','cien','hike'],['11:00','xiangshan_vc','sight'],['12:30','itathao','lunch'],['14:30','ropeway','sight'],['18:30','g_meal','dinner']]},
+ sml_day:{focus:['sightseeing','photo','relax'],n:'Sun Moon Lake full day: boat, pagoda, Ita Thao, ropeway',base:'sml',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','maolan','hike'],['11:00','xiangshan_vc','sight'],['12:30','teaeggs','snack'],['13:30','itathao','lunch'],['15:00','cien','sight'],['18:30','g_meal','dinner']]},
  sml_tc:{focus:['travel','photo'],n:'Sun Moon Lake morning → Taichung: Chun Shui Tang, Gaomei sunset, Feng Chia',base:'taichung',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','cien','sight'],['11:00','xiangshan_vc','sight'],['14:00','chunshui','lunch'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
  tc_day:{focus:['sightseeing','photo','shopping'],n:'Taichung: Miyahara, Rainbow Village, opera house, Gaomei, Feng Chia',base:'taichung',st:'09:00',stops:[['09:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','rainbow','sight'],['12:30','chunshui','lunch'],['14:30','opera','sight'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
  tc_depart:{focus:['travel','shopping'],n:'Taichung morning → fly home from Taoyuan',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','suncake','snack'],['12:00','opera','sight'],['15:00','taoyuan','travel']]}
@@ -689,7 +840,7 @@ const DEFAULT=['tp_arrival','tp_classic','north_day','tp_north','hl_taroko','tt_
 /* Intercity options. pp = NT$ per person (approx). min = door-to-door between the two hubs. */
 const ICT=[
  ['tpe','taipei',[{k:'mrt',m:'Airport MRT Express',i:'🚇',min:40,pp:160,note:'Purple line express to Taipei Main Station (A1). Runs every ~15 min.',book:'https://www.tymetro.com.tw/'},{k:'bus',m:'Airport bus (e.g. Kuo-Kuang 1819)',i:'🚌',min:60,pp:145,note:'Runs late at night. Goes to Taipei Main Station.'}]],
- ['taipei','north',[{k:'tra',m:'TRA train → Ruifang',i:'🚆',min:45,pp:76,note:'Express ~40 min (NT$76) or local train ~55 min (NT$49). From Ruifang take the Pingxi Line (day pass ~NT$80) to Shifen, or a frequent bus up to Jiufen.',book:TRA},{k:'bus',m:'Bus 1062 → Jiufen / Jinguashi',i:'🚌',min:90,pp:101,note:'Leaves near Zhongxiao Fuxing MRT Exit 1. Direct with no transfer, but expect long queues back on weekend evenings.'}]],
+ ['taipei','north',[{k:'tra',m:'TRA train → Ruifang',i:'🚆',min:45,pp:76,note:'Express ~40 min (NT$76) or local train ~55 min (NT$49). From Ruifang take the Pingxi Line (day pass ~NT$80) to Shifen, or a frequent bus up to Jiufen.',book:TRA},{k:'bus',m:'Bus 1062 → Jiufen / Jinguashi',i:'🚌',min:90,pp:105,note:'Leaves from MRT Zhongxiao Fuxing Exit 2 (NT$105, EasyCard OK). Direct with no transfer, but expect long queues back on weekend evenings. Go early: Jiufen is packed every afternoon.'}]],
  ['taipei','yilan',[{k:'bus',m:'Highway bus (Kamalan / Capital)',i:'🚌',min:70,pp:140,note:'From Taipei City Hall or Taipei Bus Station through the Hsuehshan Tunnel. Stops at Jiaoxi, Yilan and Luodong.'},{k:'tra',m:'TRA express',i:'🚆',min:80,pp:218,note:'Coastal route.',book:TRA}]],
  ['north','yilan',[{k:'tra',m:'TRA train',i:'🚆',min:60,pp:150,note:'Ruifang → Yilan along the coast (Fulong, Dali).',book:TRA}]],
  ['taipei','hualien',[{k:'tra',m:'TRA Puyuma / Taroko Express',i:'🚆',min:130,pp:440,note:'Fastest. Tickets go on sale 28 days ahead and sell out on weekends, so book early.',book:TRA},{k:'tra2',m:'TRA Tze-Chiang',i:'🚆',min:165,pp:440,note:'Same fare, a little slower. Easier to get seats.',book:TRA}]],
@@ -703,7 +854,7 @@ const ICT=[
  ['kaohsiung','tainan',[{k:'tra',m:'TRA train',i:'🚆',min:40,pp:106,note:'City center to city center. Local trains ~NT$68.',book:TRA},{k:'hsr',m:'HSR Zuoying → Tainan',i:'🚄',min:55,pp:165,note:'The ride is only 12 min, but Tainan HSR is outside the city: add the Shalun shuttle train (25 min, ~NT$25).',book:HSR}]],
  ['tainan','chiayi',[{k:'tra',m:'TRA train',i:'🚆',min:60,pp:185,book:TRA},{k:'hsr',m:'HSR',i:'🚄',min:70,pp:330,note:'The ride is 15 min, but both HSR stations are outside the cities, so add shuttles.',book:HSR}]],
  ['kaohsiung','chiayi',[{k:'hsr',m:'HSR Zuoying → Chiayi',i:'🚄',min:70,pp:450,note:'Includes the BRT/bus from Chiayi HSR into the city.',book:HSR},{k:'tra',m:'TRA train',i:'🚆',min:95,pp:288,book:TRA}]],
- ['chiayi','alishan',[{k:'bus',m:'Bus 7322 (Taiwan Tourist Shuttle)',i:'🚌',min:150,pp:278,note:'From Chiayi HSR or TRA station. Winding road, so motion-sickness pills help.',book:'https://www.taiwantrip.com.tw/'},{k:'tra',m:'Alishan Forest Railway',i:'🚂',min:210,pp:600,note:'Historic narrow-gauge train with limited seats. Book ahead and check which sections are running.',book:'https://afrch.forest.gov.tw/'}]],
+ ['chiayi','alishan',[{k:'bus',m:'Bus 7322 (Taiwan Tourist Shuttle)',i:'🚌',min:150,pp:278,note:'From Chiayi HSR or TRA station. Winding road, so motion-sickness pills help.',book:'https://www.taiwantrip.com.tw/'},{k:'tra',m:'Alishan Forest Railway',i:'🚂',min:300,pp:600,note:'The full Chiayi–Alishan line reopened in July 2024 (about 5 h including a 30-min stop at Fenqihu). Limited seats, so book ahead.',book:'https://afrch.forest.gov.tw/'}]],
  ['alishan','sml',[{k:'bus',m:'Bus 6739 Alishan → Sun Moon Lake',i:'🚌',min:225,pp:330,note:'Only a few departures a day. Reserve and check times.'}]],
  ['sml','taichung',[{k:'bus',m:'Nantou Bus 6670',i:'🚌',min:100,pp:195,note:'Sun Moon Lake ↔ Taichung HSR ↔ Taichung city. Frequent.'}]],
  ['taipei','taichung',[{k:'hsr',m:'HSR',i:'🚄',min:75,pp:715,note:'50–60 min ride, then Taichung HSR → city by TRA shuttle (~10 min).',book:HSR},{k:'tra',m:'TRA Tze-Chiang',i:'🚆',min:125,pp:375,book:TRA},{k:'bus',m:'Highway bus (Kuo-Kuang / Ubus)',i:'🚌',min:160,pp:270}]],
@@ -718,6 +869,13 @@ const ICT=[
  ['taichung','tpe',[{k:'hsr',m:'HSR to Taoyuan + Airport MRT',i:'🚄',min:75,pp:625,note:'HSR to Taoyuan station (~40 min), then the Airport MRT (~20 min).',book:HSR},{k:'bus',m:'Direct airport bus',i:'🚌',min:150,pp:300}]],
  ['taipei','kenting',[{k:'hsr',m:'HSR to Zuoying + Kenting Express',i:'🚄',min:270,pp:1840,book:HSR}]],
  ['tainan','kenting',[{k:'tra',m:'Train to Kaohsiung + Kenting Express',i:'🚆',min:200,pp:460}]],
+ ['kaohsiung','penghu',[{k:'flight',m:'Flight Kaohsiung → Magong',i:'✈️',min:150,pp:1800,note:'About 35 min in the air plus airport time. Approximate fare; check UNI Air / Mandarin.'},{k:'ferry',m:'Ferry Kaohsiung → Magong',i:'⛴️',min:300,pp:1000,note:'About 4–4.5 h; rough seas in winter. Approximate fare.'}]],
+ ['taipei','penghu',[{k:'flight',m:'Flight Songshan → Magong',i:'✈️',min:170,pp:2200,note:'About 50 min in the air. Approximate fare.'}]],
+ ['tainan','penghu',[{k:'flight',m:'Flight via Kaohsiung → Magong',i:'✈️',min:210,pp:1900,note:'Go to Kaohsiung airport (MRT) and fly. Approximate.'}]],
+ ['taitung','greenisland',[{k:'ferry',m:'Ferry Fugang → Green Island',i:'⛴️',min:100,pp:460,note:'About 50 min crossing; often choppy. Approximate one-way fare.'},{k:'flight',m:'Small plane Taitung → Green Island',i:'✈️',min:90,pp:1100,note:'Tiny planes with few seats, book early. Approximate.'}]],
+ ['taipei','matsu',[{k:'flight',m:'Flight Songshan → Nangan / Beigan',i:'✈️',min:170,pp:2000,note:'Fog often delays flights. Approximate fare.'},{k:'ferry',m:'Overnight ferry Keelung → Matsu',i:'⛴️',min:600,pp:1000,note:'About 8–10 h overnight. Approximate.'}]],
+ ['taipei','kinmen',[{k:'flight',m:'Flight Songshan → Kinmen',i:'✈️',min:180,pp:2200,note:'About 1 h 10 min in the air. Approximate fare.'}]],
+ ['kaohsiung','kinmen',[{k:'flight',m:'Flight Kaohsiung → Kinmen',i:'✈️',min:160,pp:1900,note:'Approximate fare.'}]],
  ['taitung','kenting',[{k:'bus',m:'Bus, changing at Fangliao / Hengchun',i:'🚌',min:240,pp:420,note:'Awkward by public transport. A car or tour is much easier.'}]]
 ];
 const ICM={}; ICT.forEach(([a,b,o])=>{ICM[a+'|'+b]=o;ICM[b+'|'+a]=o;});
@@ -874,7 +1032,7 @@ function interOpts(A,B){
   const fastest=Math.min(...list.map(x=>x.min));
   const kmEff=Math.max(road,fastest/60*50);
   const carFare=Math.round(kmEff*20+300);
-  opts.push({k:'car',m:'Taxi / private driver (door to door)',i:'🚗',min:Math.round(Math.max(road/65*60,fastest*0.7)+10),pp:carFare,perCar:true,gm:'driving',inter:true,
+  if(!['penghu','greenisland','matsu','kinmen'].some(r=>r===ra||r===rb))opts.push({k:'car',m:'Taxi / private driver (door to door)',i:'🚗',min:Math.round(Math.max(road/65*60,fastest*0.7)+10),pp:carFare,perCar:true,gm:'driving',inter:true,
     gc:carFare*Math.ceil(S.trav/4),note:'Book a driver or charter through your hotel or a tour app. Handy with luggage or a group of 3–4.'});
   return opts;
 }
@@ -932,7 +1090,7 @@ function allowed(di){const d=S.plan[di];const st=dayStart(di);const set=new Set(
 function usedSet(exceptDi){const u=new Set();S.plan.slice(0,S.days).forEach((d,i)=>{if(i===exceptDi)return;d.stops.forEach(s=>u.add(s.pid))});return u}
 function alternatives(p,kind,di,near,limit){
   const al=allowed(di),used=usedSet(-1);
-  return PLACES.filter(q=>!q.gen&&q.id!==p.id&&q.k.includes(kind)&&al.has(q.r)&&!used.has(q.id))
+  return PLACES.filter(q=>!q.gen&&q.id!==p.id&&q.status!=='closed'&&q.k.includes(kind)&&al.has(q.r)&&!used.has(q.id))
     .map(q=>({q,d:near?hav(near,q):0})).filter(a=>!near||a.d<=15||a.q.r===p.r&&a.d<=25)
     .sort((a,b)=>a.d-b.d||(b.q.star||0)-(a.q.star||0)).slice(0,limit||3);
 }
@@ -978,6 +1136,9 @@ function suggestions(di,C){
       if(BASES.includes(p.r))acts.push({l:'Make Day '+(di+1)+' a '+REG[p.r].n+' day',fn:()=>{day.base=p.r}});
       add('reg:'+di+':'+s.uid,s.uid,'region','📍 <b>'+esc(p.n)+'</b> is in '+REG[p.r].n+', but Day '+(di+1)+' is based in '+REG[day.base].n+'. Keeping it here adds a long trip'+(it.leg.type==='inter'?' (≈ '+fmtDur(it.o.min)+')':'')+'.'+(cands.length?' Day '+(cands[0]+1)+' is already in '+REG[S.plan[cands[0]].base].n+'.':''),acts);
     }
+    // closed now
+    if(p.status==='closed'){const alt=alternatives(p,s.kind,di,it.pt,3).filter(a=>a.q.status!=='closed');
+      add('cls:'+di+':'+s.uid,s.uid,'closed','⛔ <b>'+esc(p.n)+'</b> is closed: '+esc(p.statusNote||''),alt.map((a,ix)=>({l:'Swap for '+a.q.n,cls:ix?'':'pri',fn:()=>{s.pid=a.q.id}})).concat([{l:'Remove it',fn:()=>{day.stops=day.stops.filter(x=>x!==s)}}]));}
     // duplicate
     S.plan.slice(0,S.days).forEach((d,j)=>{
       if(j===di)return;const other=d.stops.find(x=>x.pid===p.id);if(!other)return;
@@ -1055,9 +1216,11 @@ function wiki(term){
   WIKI[term]=fetch(u).then(r=>r.json()).then(j=>{const pg=j.query&&Object.values(j.query.pages)[0];return pg?{title:pg.title,img:pg.thumbnail&&pg.thumbnail.source,ext:pg.extract,url:pg.fullurl}:null}).catch(()=>null);
   return WIKI[term];
 }
+function pimg(t){const parts=String(t||'').split('|').filter(Boolean);let pr=Promise.resolve(null);parts.forEach(x=>{pr=pr.then(w=>w&&w.img?w:wiki(x))});return pr}
+function imgKey(p){return [p.photo,p.img].filter(Boolean).join('|')}
 function fillImgs(root){
   const els=[...root.querySelectorAll('[data-img]')];
-  const load=el=>{const t=el.dataset.img;el.removeAttribute('data-img');wiki(t).then(w=>{if(w&&w.img){el.style.backgroundImage='url("'+w.img.replace(/"/g,'%22')+'")';el.classList.add('has')}})};
+  const load=el=>{const t=el.dataset.img;el.removeAttribute('data-img');pimg(t).then(w=>{if(w&&w.img){el.style.backgroundImage='url("'+w.img.replace(/"/g,'%22')+'")';el.classList.add('has')}})};
   if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){io.unobserve(e.target);load(e.target)}}),{rootMargin:'200px'});els.forEach(el=>io.observe(el))}
   else els.forEach(load);
 }
@@ -1083,7 +1246,7 @@ function placeSelect(kind,di,cur){
 
 /* ================= UI HELPERS ================= */
 const KCOL={shop:'#a2845e',drink:'var(--teal)',breakfast:'var(--orange)',lunch:'var(--red)',dinner:'var(--pink)',snack:'var(--purple)',sight:'var(--blue)',hike:'var(--green)',night:'var(--indigo)',travel:'var(--teal)',rest:'var(--gray)'};
-const SHORT={tpe:'Airport',taipei:'Taipei',north:'Jiufen',yilan:'Yilan',hualien:'Hualien',chishang:'Chishang',taitung:'Taitung',kaohsiung:'Kaohsiung',kenting:'Kenting',tainan:'Tainan',chiayi:'Chiayi',alishan:'Alishan',sml:'Sun Moon Lake',taichung:'Taichung'};
+const SHORT={tpe:'Airport',taipei:'Taipei',north:'Jiufen',yilan:'Yilan',hualien:'Hualien',chishang:'Chishang',taitung:'Taitung',kaohsiung:'Kaohsiung',kenting:'Kenting',tainan:'Tainan',chiayi:'Chiayi',alishan:'Alishan',sml:'Sun Moon Lake',taichung:'Taichung',penghu:'Penghu',greenisland:'Green Island',matsu:'Matsu',kinmen:'Kinmen'};
 const MAXDAYS=14;
 const icon=(kind,big)=>'<span class="ic'+(big?' big':'')+'" style="background:'+(KCOL[kind]||'var(--gray)')+'" aria-hidden="true">'+(KINDS[kind]||KINDS.sight).i+'</span>';
 const ibox=(e,c)=>'<span class="ic" style="background:'+c+'" aria-hidden="true">'+e+'</span>';
@@ -1159,10 +1322,11 @@ function stopRow(it,di){
   const p=it.p,s=it.s,warns=it.hrs.map(h=>h.msg);
   if(!p.gen&&!allowed(di).has(p.r))warns.push('In '+REG[p.r].n+', far from this day’s city');
   if(it.late)warns.push('You arrive at '+fmtT(it.arrive));
+  if(p.status==='closed')warns.unshift('CLOSED NOW: '+(p.statusNote||''));
   const sub=[KINDS[s.kind].l,fmtDur(it.dur)];if(p.cost)sub.push(moneyTxt(p.cost*S.trav));
   return '<div class="stop"><button class="row stoprow" data-act="openStop" data-uid="'+s.uid+'"><span class="time"><b>'+fmtT(it.begin)+'</b><small>'+fmtT(it.end)+'</small></span>'+icon(s.kind)+
     '<span class="tx"><span class="t">'+esc(p.n)+'</span><span class="s">'+esc(sub.join(' · '))+'</span>'+(badges(p)?'<span class="bdgs">'+badges(p)+'</span>':'')+(warns.length?'<span class="warn">⚠︎ '+esc(warns.join(' · '))+'</span>':'')+'</span>'+
-    (p.img?'<span class="thumb" data-img="'+esc(p.img)+'">'+KINDS[s.kind].i+'</span>':'')+'<span class="chev" aria-hidden="true">›</span></button>'+
+    ((p.img||p.photo)?'<span class="thumb" data-img="'+esc(imgKey(p))+'">'+KINDS[s.kind].i+'</span>':'')+'<span class="chev" aria-hidden="true">›</span></button>'+
     '<div class="sacts">'+(isBasic(p)?'':'<button class="mini" data-act="preview" data-pid="'+p.id+'" data-uid="'+s.uid+'">👀 Preview</button>')+
     '<button class="mini" data-act="swap" data-uid="'+s.uid+'">⇄ Change</button><button class="mini" data-act="openStop" data-uid="'+s.uid+'">✎ Edit</button><button class="mini red" data-act="delStop" data-uid="'+s.uid+'" aria-label="Delete '+esc(p.n)+'">Delete</button></div></div>';
 }
@@ -1227,8 +1391,8 @@ const EXK={'':['All'],food:['Food & drinks',['breakfast','lunch','dinner','snack
 function renderExplore(){
   const ks=EXK[EX.k][1];
   const match=p=>!isBasic(p)&&(!EX.r||p.r===EX.r||p.gen)&&(!ks||p.k.some(k=>ks.includes(k)))&&inColl(p,EX.c)&&(!EX.q||(p.n+' '+p.zh+' '+(p.d||'')).toLowerCase().includes(EX.q.toLowerCase()));
-  const list=PLACES.filter(match).sort((a,b)=>(b.tags.includes('vincent')-a.tags.includes('vincent'))||(b.star||0)-(a.star||0));
-  const card=p=>'<div class="pcard"><button class="img" data-img="'+esc(p.img||'')+'" data-act="preview" data-pid="'+p.id+'" aria-label="Preview '+esc(p.n)+'">'+KINDS[p.k[0]].i+'</button><div class="b">'+
+  const list=PLACES.filter(match).sort((a,b)=>((a.status==='closed')-(b.status==='closed'))||(b.tags.includes('vincent')-a.tags.includes('vincent'))||(b.star||0)-(a.star||0));
+  const card=p=>'<div class="pcard"><button class="img" data-img="'+esc(imgKey(p))+'" data-act="preview" data-pid="'+p.id+'" aria-label="Preview '+esc(p.n)+'">'+KINDS[p.k[0]].i+'</button><div class="b">'+
     '<div class="t">'+(p.star?'★ ':'')+esc(p.n)+'</div><div class="s">'+esc(p.zh)+' · '+esc(regName(p).split(' (')[0])+' · '+(p.cost?esc(moneyTxt(p.cost))+' pp':'Free')+'</div>'+(badges(p)?'<div>'+badges(p)+'</div>':'')+'<div class="d">'+esc(p.d)+'</div>'+
     '<div class="f" style="justify-content:flex-end"><button class="btn-s plain" data-act="preview" data-pid="'+p.id+'">👀 Preview</button><button class="btn-s pri" data-act="addPick" data-pid="'+p.id+'">＋ Add</button></div></div></div>';
   let h='<div class="titlebar"><div><div class="eyebrow">'+list.length+' places · ★ top picks</div><h1 class="large">Explore</h1></div><button class="btn-s" data-act="custom">＋ Your own place</button></div>';
@@ -1239,10 +1403,12 @@ function renderExplore(){
   if(!EX.c&&!EX.q&&!EX.k&&!EX.r){
     const v=PLACES.filter(p=>p.tags.includes('vincent'));
     h+='<div class="sec-h">⭐ Vincent’s picks</div><div class="hscroll">'+v.map(card).join('')+'</div>';
+    const ph=PLACES.filter(p=>p.tags.includes('photo')&&p.photo);
+    if(ph.length)h+='<div class="sec-h">📷 Photo spots with sample photos</div><div class="hscroll">'+ph.map(card).join('')+'</div>';
     const c=PLACES.filter(p=>p.tags.includes('cheap')&&p.star&&!p.tags.includes('vincent'));
     h+='<div class="sec-h">💰 Famous & cheap (≤ NT$150 per person)</div><div class="hscroll">'+c.map(card).join('')+'</div>';
     h+='<div class="sec-h">Everything</div>';
-  }else if(EX.c)h+='<p class="lead">'+({vincent:'Places Vincent recommended.',cheap:'Famous food for NT$150 or less per person.',easy:'Grab-and-go food you can eat while walking or in 15 minutes.',chain:'Cheap chains with branches all over Taiwan, so they work on any day.',cvs:'Convenience-store food and drinks, found on every corner.',drink:'Papaya milk, bubble tea and other drinks.',mine:'Places you added yourself.',splurge:'High-end restaurants.'})[EX.c]+'</p>';
+  }else if(EX.c)h+='<p class="lead">'+({photo:'Photogenic spots. Check “Best time” in each preview for light and season.',gem:'Less-crowded places most first-timers miss.',hike:'Day hikes and permit hikes. Previews show difficulty, permits and closures.',shopping:'Markets, old streets and shopping districts.',vincent:'Places Vincent recommended.',cheap:'Famous food for NT$150 or less per person.',easy:'Grab-and-go food you can eat while walking or in 15 minutes.',chain:'Cheap chains with branches all over Taiwan, so they work on any day.',cvs:'Convenience-store food and drinks, found on every corner.',drink:'Papaya milk, bubble tea and other drinks.',mine:'Places you added yourself.',splurge:'High-end restaurants.'})[EX.c]+'</p>';
   h+='<div class="grid">'+list.map(card).join('')+'</div>';
   if(!list.length)h+='<div class="empty">Nothing matches. Try another word, city or collection.</div>';
   return h;
@@ -1313,10 +1479,11 @@ function stopSheet(u){
   const p=it.p,s=it.s,i=C.items.indexOf(it);
   const durs=[15,20,30,45,60,75,90,120,150,180,240,300,360];if(!durs.includes(it.dur)){durs.push(it.dur);durs.sort((a,b)=>a-b)}
   let h='';
-  if(p.img)h+='<button class="hero" data-img="'+esc(p.img)+'" data-act="preview" data-pid="'+p.id+'" aria-label="Photos and details">'+KINDS[s.kind].i+'</button><div class="cap"></div>';
+  if(p.img||p.photo)h+='<button class="hero" data-img="'+esc(imgKey(p))+'" data-act="preview" data-pid="'+p.id+'" aria-label="Photos and details">'+KINDS[s.kind].i+'</button><div class="cap"></div>';
   h+='<div class="sh-head">'+icon(s.kind,1)+'<div><h2>'+esc(p.n)+'</h2><div class="s">'+(p.zh?esc(p.zh)+' · ':'')+(isBasic(p)?'Flexible stop':esc(regName(p)))+'</div></div></div>';
   const warns=it.hrs.map(x=>x.msg);if(!p.gen&&!allowed(di).has(p.r))warns.push('This place is in '+REG[p.r].n+', far from where Day '+(di+1)+' is based. Use the Day picker to move it.');
   if(it.late)warns.push('With travel time you arrive at '+fmtT(it.arrive)+'. Set the start time to Auto to fix it.');
+  if(p.status&&p.statusNote)warns.unshift(p.statusNote);
   if(warns.length)h+='<div class="note warn">⚠︎ '+warns.map(esc).join('<br>⚠︎ ')+'</div>';
   h+='<div class="list">'+
     row({t:'Day',v:daySelect('moveTo',di,'data-uid="'+u+'"')})+
@@ -1344,7 +1511,7 @@ function stopSheet(u){
 function placeRow(p,kind,dist,mode,uidv){
   const sub=[regName(p).split(' (')[0]];if(dist!=null&&!p.gen)sub.push(dist<1?Math.round(dist*1000)+' m away':dist.toFixed(1)+' km away');sub.push(p.cost?moneyTxt(p.cost)+' pp':'Free');
   const k=p.k.includes(kind)?kind:p.k[0];
-  return '<div class="row'+(p.img?'':' ir')+'">'+(p.img?'<button class="thumb" data-img="'+esc(p.img)+'" data-act="preview" data-pid="'+p.id+'" style="width:48px;height:48px" aria-label="Preview">'+KINDS[k].i+'</button>':icon(k))+
+  return '<div class="row'+((p.img||p.photo)?'':' ir')+'">'+((p.img||p.photo)?'<button class="thumb" data-img="'+esc(imgKey(p))+'" data-act="preview" data-pid="'+p.id+'" style="width:48px;height:48px" aria-label="Preview">'+KINDS[k].i+'</button>':icon(k))+
     '<span class="tx"><span class="t">'+(p.star?'★ ':'')+esc(p.n)+'</span><span class="s">'+esc(sub.join(' · '))+'</span>'+(badges(p)?'<span class="bdgs">'+badges(p)+'</span>':'')+'</span>'+
     (isBasic(p)?'':'<button class="btn-s plain" data-act="preview" data-pid="'+p.id+'">Preview</button>')+
     (mode==='swap'?'<button class="btn-s pri" data-act="swapTo" data-uid="'+uidv+'" data-pid="'+p.id+'">Use</button>':'<button class="btn-s pri" data-act="addPlace" data-pid="'+p.id+'">Add</button>')+'</div>';
@@ -1356,14 +1523,16 @@ function pickerHTML(A,di,ref,mode,excludeId){
   const d=S.plan[di],al=allowed(di),q=(A.q||'').toLowerCase();
   const fits=PLACES.filter(p=>p.id!==excludeId&&(A.coll?inColl(p,A.coll):p.k.includes(A.kind))&&(!q||(p.n+' '+p.zh+' '+(p.d||'')).toLowerCase().includes(q)));
   const dist=p=>ref&&!p.gen?hav(ref,p):null;
-  const near=fits.filter(p=>!p.gen&&al.has(p.r)).sort((a,b)=>(dist(a)||0)-(dist(b)||0)+((b.tags.includes('vincent')-a.tags.includes('vincent'))*0.5)+((b.star||0)-(a.star||0))*0.8);
-  const any=fits.filter(p=>p.gen&&!isBasic(p)),basic=fits.filter(p=>isBasic(p)),other=fits.filter(p=>!p.gen&&!al.has(p.r)).sort((a,b)=>a.r.localeCompare(b.r)||(b.star||0)-(a.star||0));
+  const closedL=fits.filter(p=>p.status==='closed');
+  const near=fits.filter(p=>!p.gen&&al.has(p.r)&&p.status!=='closed').sort((a,b)=>(dist(a)||0)-(dist(b)||0)+((b.tags.includes('vincent')-a.tags.includes('vincent'))*0.5)+((b.star||0)-(a.star||0))*0.8);
+  const any=fits.filter(p=>p.gen&&!isBasic(p)),basic=fits.filter(p=>isBasic(p)),other=fits.filter(p=>!p.gen&&!al.has(p.r)&&p.status!=='closed').sort((a,b)=>a.r.localeCompare(b.r)||(b.star||0)-(a.star||0));
   const st0=dayStart(di).region,hdr=st0&&st0!==d.base&&!(NEAR[d.base]||[]).includes(st0)?REG[st0].n.split(' ')[0]+' → '+REG[d.base].n:REG[d.base].n;
   const rows=(arr)=>arr.map(p=>placeRow(p,A.kind,dist(p),mode,A.uid)).join('');
   if(near.length)h+='<div class="sec-h">'+(mode==='swap'?'Closest options':'Recommended for Day '+(di+1))+' · '+esc(hdr)+'</div><div class="list">'+rows(near)+'</div>';
   if(any.length)h+='<div class="sec-h">Anywhere · chains & convenience stores</div><div class="list">'+rows(any)+'</div>';
   if(basic.length&&!q&&!A.coll)h+='<div class="sec-h">Flexible</div><div class="list">'+rows(basic)+'</div>';
   if(other.length)h+='<div class="sec-h">Other cities</div><div class="list">'+rows(other)+'</div>';
+  if(closedL.length)h+='<div class="sec-h">Closed now (not recommended)</div><div class="list">'+rows(closedL)+'</div>';
   if(!near.length&&!any.length&&!other.length&&!basic.length)h+='<div class="empty">Nothing found. Try another type or collection, or add your own place.</div>';
   h+='<div class="list">'+row({icon:ibox('📌','var(--red)'),t:'<span class="blue">Add your own place</span>',s:'For something a friend recommended (e.g. Vincent’s beef soup shop)',act:'custom',chev:1})+'</div>';
   return h;
@@ -1373,7 +1542,7 @@ function addSheet(){
   let h='';
   if(A.pid){
     const p=PL[A.pid];if(!p.k.includes(A.kind))A.kind=p.k[0];
-    if(p.img)h+='<button class="hero" data-img="'+esc(p.img)+'" data-act="preview" data-pid="'+p.id+'">'+KINDS[A.kind].i+'</button><div class="cap"></div>';
+    if(p.img||p.photo)h+='<button class="hero" data-img="'+esc(imgKey(p))+'" data-act="preview" data-pid="'+p.id+'">'+KINDS[A.kind].i+'</button><div class="cap"></div>';
     h+='<div class="sh-head">'+icon(A.kind,1)+'<div><h2>'+esc(p.n)+'</h2><div class="s">'+esc(p.zh)+' · '+esc(regName(p))+'</div></div></div>';
     h+='<div class="list">'+row({t:'Day',v:daySelect('addDaySel',di)})+row({t:'Type',v:'<select class="vsel" data-act="addKindSel">'+p.k.map(k=>'<option value="'+k+'"'+(k===A.kind?' selected':'')+'>'+KINDS[k].l+'</option>').join('')+'</select>'})+'</div>';
     if(!p.gen&&!allowed(di).has(p.r)){const sd=suggestDay(p);
@@ -1391,7 +1560,7 @@ function swapSheet(){
   const A=SHEET,f=findStop(A.uid);if(!f.s)return null;
   const di=f.di,C=computeDay(di),it=C.items.find(x=>x.s.uid===A.uid),cur=PL[f.s.pid];
   const ref=it?(it.p.gen?it.prev:it.pt):dayStart(di);
-  let h='<div class="list"><div class="row'+(cur.img?'':' ir')+'">'+(cur.img?'<span class="thumb" data-img="'+esc(cur.img)+'" style="width:48px;height:48px">'+KINDS[f.s.kind].i+'</span>':icon(f.s.kind))+
+  let h='<div class="list"><div class="row'+(cur.img?'':' ir')+'">'+(cur.img?'<span class="thumb" data-img="'+esc(imgKey(cur))+'" style="width:48px;height:48px">'+KINDS[f.s.kind].i+'</span>':icon(f.s.kind))+
     '<span class="tx"><span class="s">Replacing on Day '+(di+1)+(it?' at '+fmtT(it.begin):'')+'</span><span class="t">'+esc(cur.n)+'</span></span>'+
     '<button class="btn-s red" data-act="delStop" data-uid="'+A.uid+'" style="color:var(--red);background:rgba(255,59,48,.1)">Delete</button></div></div>';
   h+='<p class="sec-f">Tap <b>Preview</b> (or a photo) to see what a place looks like before you choose it.</p>';
@@ -1509,7 +1678,7 @@ function openPreview(pid,ctx){
   else cta='<button class="btn-fill" data-act="addPick" data-pid="'+p.id+'">＋ Add to trip</button>';
   const q=p.q||(p.zh+' '+(REG[p.r]?REG[p.r].zh:''));
   let h='<div class="hero" id="pvHero">'+KINDS[p.k[0]].i+'</div><div class="cap" id="pvCap"></div>'+
-    '<div class="sh-head">'+icon(p.k[0],1)+'<div><h2>'+(p.star?'★ ':'')+esc(p.n)+'</h2><div class="s">'+esc(p.zh)+' · '+esc(regName(p))+'</div>'+(badges(p)?'<div class="bdgs">'+badges(p)+'</div>':'')+'</div></div>'+cta+
+    '<div class="sh-head">'+icon(p.k[0],1)+'<div><h2>'+(p.star?'★ ':'')+esc(p.n)+'</h2><div class="s">'+esc(p.zh)+' · '+esc(regName(p))+'</div>'+(badges(p)?'<div class="bdgs">'+badges(p)+'</div>':'')+'</div></div>'+(p.statusNote?'<div class="note warn">'+(p.status==='closed'?'⛔ ':'⚠︎ ')+esc(p.statusNote)+'</div>':'')+cta+
     '<div class="sec-h">What to expect</div><div class="list"><div class="row para">'+esc(p.d)+(p.tip?'<br><br><b>Tip:</b> '+esc(p.tip):'')+'<div id="pvExt" class="muted" style="margin-top:8px;font-size:13px"></div></div>'+
     row({t:'Good for',v:p.k.map(k=>KINDS[k].l).join(', ')})+
     row({t:'Cost',v:p.cost?money(p.cost)+' <span class="idr">per person</span>':'Free'})+
@@ -1520,8 +1689,8 @@ function openPreview(pid,ctx){
     (p.gen?'':'<iframe class="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+encodeURIComponent(p.lat&&p.custom?p.lat+','+p.lng:q)+'&z=15&output=embed" title="Map of '+esc(p.n)+'"></iframe>')+
     '<div class="list">'+row({t:'<span class="blue">'+(p.gen?'Find the nearest one on Google Maps':'Google Maps, photos & reviews')+'</span>',href:gmPlace(p),chev:1})+row({t:'<span class="blue">More photos (Google Images)</span>',href:gImages(p),chev:1})+(p.gen?'':row({t:'<span class="blue">Free photos on Wikimedia Commons</span>',href:'https://commons.wikimedia.org/w/index.php?title=Special:MediaSearch&type=image&search='+encodeURIComponent(p.n.replace(/\(.*?\)/g,'')+' Taiwan'),chev:1}))+(p.src?row({t:'<span class="blue">Source / official info</span>',href:p.src,chev:1}):'')+'<span id="pvWiki"></span></div>';
   openStatic(p.n,h,back);
-  if(!p.img)return;
-  wiki(p.img).then(w=>{
+  if(!p.img&&!p.photo)return;
+  pimg(imgKey(p)).then(w=>{
     if(!w||!$('#pvHero'))return;
     if(w.img){const hero=$('#pvHero');hero.style.backgroundImage='url("'+w.img.replace(/"/g,'%22')+'")';hero.classList.add('has');
       $('#pvCap').textContent=p.dish?'Photo of the dish from Wikipedia (“'+w.title+'”), not this exact shop.':w.commons?'Sample photo: Wikimedia Commons, “'+w.title+'”.':'Photo: Wikipedia, “'+w.title+'”.'}
@@ -1531,7 +1700,7 @@ function openPreview(pid,ctx){
 }
 function askAbout(di,uidv){
   const C=computeDay(di);
-  const sg=suggestions(di,C).filter(x=>x.uid===uidv&&['region','dup','hours'].includes(x.type));
+  const sg=suggestions(di,C).filter(x=>x.uid===uidv&&['region','dup','hours','closed'].includes(x.type));
   if(!sg.length)return;
   openStatic('Quick check',sg.map(x=>'<div class="list"><div class="sugitem">'+x.html+'<div class="acts">'+x.acts.filter(a=>a.l!=='Dismiss').map(a=>'<button class="btn-s '+(a.cls==='pri'?'pri':'')+'" data-act="sug" data-id="'+act(a.fn)+'" data-close="1">'+esc(a.l)+'</button>').join('')+'</div></div></div>').join('')+
     '<button class="btn-tint" data-act="keepIt" data-keys="'+esc(sg.map(x=>x.key).join('|'))+'">Keep it as I planned</button>');
