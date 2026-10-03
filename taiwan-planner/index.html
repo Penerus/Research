@@ -157,6 +157,25 @@ details.how[open] summary{margin-bottom:6px}
 .conn{padding:2px 16px 6px 76px}
 @media (max-width:520px){.conn{padding-left:16px}.list > * + .row.st::before{left:16px}.stoprow .thumb{display:none}}
 .pcard .f .muted{font-size:13px}
+.stop{position:relative}
+.list > * + .stop::before{content:"";position:absolute;top:0;right:0;left:76px;height:.5px;background:var(--sep);z-index:1}
+.list > .conn + .stop::before{display:none}
+.stop .stoprow{padding-bottom:6px}
+.sacts{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px 118px}
+.mini{font-size:13px;font-weight:600;color:var(--blue);background:var(--tint);border-radius:999px;padding:5px 11px;white-space:nowrap}
+.mini.red{color:var(--red);background:rgba(255,59,48,.1)}
+@media (max-width:520px){.sacts{padding-left:16px}.list > * + .stop::before{left:16px}}
+.bdg{display:inline-block;font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;margin:0 4px 0 0;background:var(--fill);color:var(--label2);vertical-align:1px;white-space:nowrap}
+.bdg.v{background:rgba(255,204,0,.28);color:#8a6d00}
+.bdg.c{background:rgba(52,199,89,.18);color:#1f8a3c}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bdg.v{color:var(--yellow)}:root:not([data-theme="light"]) .bdg.c{color:var(--green)}}
+.bdgs{margin-top:3px}
+.sh-back{color:var(--blue);font-size:17px;justify-self:start;white-space:nowrap}
+.sh-back.hide{display:block!important;visibility:hidden}
+.toast{display:flex;align-items:center;gap:14px}
+.tundo{color:#64d2ff;font-weight:600;font-size:15px}
+.hscroll{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,260px);gap:14px;overflow-x:auto;padding-bottom:6px;margin-bottom:26px;scrollbar-width:thin}
+.chips.sub .chip{font-size:13px;padding:6px 12px}
 
 /* suggestions */
 details.sugbox > summary{list-style:none;cursor:pointer}
@@ -251,7 +270,7 @@ footer{padding:8px 16px 40px;font-size:12px;color:var(--label2);line-height:1.5}
   <button data-act="tab" data-tab="trip"><span class="ti">💰</span>Trip</button>
 </div>
 <div id="sw" class="sw hide"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
-  <div class="sh-bar"><span></span><b id="shTitle"></b><button class="sh-done" data-act="closeSheet">Done</button></div>
+  <div class="sh-bar"><button class="sh-back hide" data-act="sheetBack">‹ Back</button><b id="shTitle"></b><button class="sh-done" data-act="closeSheet">Done</button></div>
   <div id="shBody"></div>
 </div></div>
 
@@ -263,10 +282,10 @@ const TRA='https://tip.railway.gov.tw/', HSR='https://www.thsrc.com.tw/';
 
 const KINDS={
   breakfast:{l:'Breakfast',i:'🍳'}, lunch:{l:'Lunch',i:'🍜'}, dinner:{l:'Dinner',i:'🍽️'},
-  snack:{l:'Snack / café',i:'🧋'}, sight:{l:'Sightseeing',i:'📸'}, hike:{l:'Hike / nature',i:'🥾'},
+  snack:{l:'Snack / café',i:'🧋'}, drink:{l:'Drink',i:'🥤'}, sight:{l:'Sightseeing',i:'📸'}, hike:{l:'Hike / nature',i:'🥾'},
   night:{l:'Evening',i:'🏮'}, travel:{l:'Airport',i:'✈️'}, rest:{l:'Hotel / rest',i:'🛏️'}
 };
-const RANK={breakfast:1,sight:3,hike:3,snack:3,travel:3,lunch:4,rest:5,dinner:6,night:7};
+const RANK={drink:3,breakfast:1,sight:3,hike:3,snack:3,travel:3,lunch:4,rest:5,dinner:6,night:7};
 
 const REG={
   tpe:{n:'Taoyuan Airport',zh:'桃園',hub:'Taoyuan Airport (TPE)',hubq:'桃園國際機場',lat:25.0797,lng:121.2342},
@@ -525,7 +544,7 @@ const PLACES=[
  {id:'duxiaoyue',n:'Du Hsiao Yueh (original shop)',zh:'度小月擔仔麵 原始店',q:'度小月 原始店 台南',r:'tainan',k:['lunch','dinner','snack'],lat:22.9905,lng:120.2010,acc:'~2 km from Tainan Station: walk 25 min or taxi.',cost:150,dur:30,open:'11:00-21:00',img:'Danzai noodles',dish:1,star:1,
   d:'Since 1895: small bowls of danzai noodles with minced-pork sauce and shrimp, cooked at a low stove in the doorway.',tip:'The bowls are small. Add a braised egg, then keep snacking elsewhere.'},
  {id:'wenzhang',n:'Wenzhang Beef Soup',zh:'文章牛肉湯',r:'tainan',k:['breakfast','lunch','dinner'],lat:22.9980,lng:120.1820,cost:220,dur:40,img:'Tainan beef soup',dish:1,star:1,
-  d:'A Tainan breakfast ritual: raw sliced local beef, cooked in the bowl by pouring boiling broth over it, with a side of rice and meat sauce.'},
+  d:'Vincent’s Tainan beef soup: raw sliced local beef, cooked in the bowl by pouring boiling broth over it, with rice and meat sauce on the side. A Tainan breakfast ritual.',tip:'Order the beef soup (牛肉湯) plus a bowl of meat-sauce rice (肉燥飯). Popular shops get busy at breakfast.'},
  {id:'shijingjiu',n:'Shi Jing Jiu Beef Soup',zh:'石精臼牛肉湯',r:'tainan',k:['breakfast','lunch'],lat:22.9965,lng:120.2015,cost:180,dur:30,img:'Tainan beef soup',dish:1,
   d:'An old-town alternative near Chihkan Tower, in the same Tainan beef-soup style.'},
  {id:'zhou',n:'Chou’s Shrimp Rolls (Anping)',zh:'周氏蝦捲',r:'tainan',k:['snack','lunch'],lat:22.9975,lng:120.1720,cost:150,dur:30,open:'10:00-22:00',img:'Shrimp roll',dish:1,
@@ -591,13 +610,55 @@ const PLACES=[
  {id:'gaomei',n:'Gaomei Wetlands',zh:'高美濕地',r:'taichung',k:['sight'],lat:24.3120,lng:120.5490,acc:'Taxi ~45 min from Taichung, or city bus (check Google Maps for times).',cost:0,dur:90,img:'Gaomei Wetlands',star:1,
   d:'A boardwalk over a mirror-like tidal flat with wind turbines. One of the best sunset shots in Taiwan.'},
  {id:'jlstudio',n:'JL Studio',zh:'JL Studio',q:'JL Studio 台中',r:'taichung',k:['dinner'],lat:24.1520,lng:120.6540,acc:'Taxi in Taichung.',cost:7000,dur:180,tier:3,img:'Fine dining',dish:1,
-  d:'Modern Singaporean tasting menu at one of Taiwan’s top Michelin-starred restaurants.'}
+  d:'Modern Singaporean tasting menu at one of Taiwan’s top Michelin-starred restaurants.'},
+ // ---- VINCENT'S PICKS · CHEAP CHAINS · CONVENIENCE STORES · DRINKS
+ {id:'liuqian',n:'Six Thousand Beef Soup',zh:'六千牛肉湯',r:'tainan',k:['breakfast','lunch'],lat:22.9925,lng:120.1985,cost:200,dur:45,img:'Tainan beef soup',dish:1,
+  d:'One of Tainan’s most famous beef-soup shops. It opens very early and closes when the beef runs out.',tip:'Get there early. Locals queue from dawn.'},
+ {id:'sansiblings',n:'3 Siblings Snow Ice (mango bing)',zh:'三兄妹雪花冰',q:'三兄妹雪花冰 西門町',r:'taipei',k:['snack'],lat:25.0447,lng:121.5068,st:'Ximen',ex:'6',w:4,cost:180,dur:40,open:'11:00-23:00',img:'Baobing',dish:1,star:1,
+  d:'Vincent’s mango bing in Ximending: a huge bowl of mango snowflake ice with fresh mango, mango sauce and ice cream. The basement walls are covered in visitors’ notes.',tip:'One bowl is easily enough for two.'},
+ {id:'milkking',n:'Kaohsiung Milk King (papaya milk)',zh:'高雄牛乳大王',q:'高雄牛乳大王 中華三路',r:'kaohsiung',k:['drink','snack'],lat:22.6245,lng:120.3005,st:'Formosa Boulevard',w:10,cost:80,dur:30,img:'Papaya milk',dish:1,star:1,
+  d:'Vincent’s “famous papaya milk”: the shop credited with inventing papaya milk in 1966. The original store is on Zhonghua 3rd Road. It also serves cheap diner food.'},
+ {id:'chengpapaya',n:'Cheng’s Papaya Milk (Liuhe Night Market)',zh:'鄭老牌木瓜牛奶',r:'kaohsiung',k:['drink'],lat:22.6316,lng:120.2990,st:'Formosa Boulevard',ex:'11',w:2,cost:70,dur:15,img:'Papaya milk',dish:1,
+  d:'A long-running papaya-milk stand with a bright sign at the entrance of Liuhe Night Market.'},
+ {id:'twopeck',n:'Two Peck Crispy Chicken',zh:'2派克脆皮雞排',q:'2派克脆皮雞排',r:'',gen:'prev',k:['snack','dinner'],cost:90,dur:15,img:'Taiwanese fried chicken',dish:1,
+  d:'Vincent’s fried chicken: Taiwan’s biggest chicken-cutlet chain, started on Siping Street in Taipei. Crispy outside, juicy inside, with herbal seasoning. 100+ branches.',tip:'Say 不辣 (bù là, not spicy) or 小辣 (xiǎo là, a little spicy).'},
+ {id:'bafang',n:'Bafang Dumpling',zh:'八方雲集',q:'八方雲集',r:'',gen:'prev',k:['lunch','dinner','snack'],cost:120,dur:30,img:'Bafang Dumpling',
+  d:'Vincent’s cheap-and-delicious pick: a chain of pan-fried potstickers (guotie) and boiled dumplings at a few NT$ each, plus hot-and-sour soup. Branches everywhere.',tip:'10 guotie + a corn soup ≈ NT$100.'},
+ {id:'cvspapaya',n:'Papaya milk from 7-Eleven',zh:'木瓜牛乳',q:'7-ELEVEN',r:'',gen:'prev',k:['drink','breakfast','snack'],cost:35,dur:10,img:'Papaya milk',dish:1,
+  d:'Vincent’s easy win: a cold bottle of papaya milk (木瓜牛乳) from any 7-Eleven fridge.'},
+ {id:'cvs711',n:'7-Eleven hot food & snacks',zh:'7-ELEVEN',q:'7-ELEVEN',r:'',gen:'prev',k:['breakfast','lunch','snack','dinner'],cost:120,dur:20,img:'Tea egg',dish:1,
+  d:'Taiwan’s 7-Elevens are a food stop in their own right: tea eggs, roasted sweet potatoes, oden, onigiri, microwave bentos and good coffee.',tip:'Pay with your EasyCard. Staff will heat a bento for you.'},
+ {id:'cvsfm',n:'FamilyMart (fried chicken & soft serve)',zh:'全家便利商店',q:'全家便利商店',r:'',gen:'prev',k:['snack','breakfast','lunch'],cost:100,dur:20,img:'FamilyMart',
+  d:'Fried chicken, hot snacks and FamilyMart’s famous seasonal soft-serve ice cream.'},
+ {id:'fiftylan',n:'50 Lan bubble tea',zh:'50嵐',q:'50嵐',r:'',gen:'prev',k:['drink','snack'],cost:60,dur:10,img:'Bubble tea',dish:1,
+  d:'The everyday bubble-tea chain locals actually drink. Cheap, consistent and everywhere.',tip:'Pick a sugar level (甜度) and ice level (冰塊). 半糖 = half sugar.'},
+ {id:'brekkie',n:'Local breakfast shop (早餐店)',zh:'早餐店',q:'早餐店',r:'',gen:'prev',k:['breakfast'],cost:80,dur:25,img:'Danbing',dish:1,
+  d:'Corner breakfast shops (like Mei Er Mei 美而美) sell egg crepes (dan bing), toast sandwiches, turnip cake and milk tea for under NT$100.'}
 ];
-const PL={}; PLACES.forEach(p=>{p.tier=p.tier||1;PL[p.id]=p;});
+const PL={};
+const TAGS={
+  vincent:['wenzhang','duxiaoyue','twopeck','bafang','cvspapaya','milkking','sansiblings','ximending','jiufen'],
+  easy:['tianjin','fuzhou','aychung','lanjia','gongzheng','agan','trabento','chishangbento','zhou','zhoujia','penshui','suncake','twopeck','bafang','cvs711','cvsfm','cvspapaya','fiftylan','brekkie','jinfeng','duxiaoyue','yonghe','sansiblings','milkking','chengpapaya'],
+  chain:['bafang','twopeck','fiftylan','brekkie'],
+  cvs:['cvs711','cvsfm','cvspapaya']
+};
+const FOODK=['breakfast','lunch','dinner','snack','drink'];
+function registerPlace(p){
+  p.tier=p.tier||1;p.tags=(p.tags||[]).filter(t=>t==='mine');
+  for(const t in TAGS)if(TAGS[t].includes(p.id))p.tags.push(t);
+  if(p.k.some(k=>FOODK.includes(k))&&p.cost&&p.cost<=150)p.tags.push('cheap');
+  if(!PL[p.id])PLACES.includes(p)||PLACES.push(p);PL[p.id]=p;
+}
+PLACES.forEach(registerPlace);
+const COLL={vincent:{l:'Vincent’s picks',i:'⭐'},cheap:{l:'Famous & cheap',i:'💰'},easy:{l:'Easy to eat',i:'🥢'},chain:{l:'Cheap chains',i:'🔁'},cvs:{l:'7-Eleven & FamilyMart',i:'🏪'},drink:{l:'Drinks',i:'🥤'},mine:{l:'My places',i:'📌'},splurge:{l:'Splurge',i:'💎'}};
+function inColl(p,c){return !c||(c==='drink'?p.k.includes('drink'):c==='splurge'?p.tier===3:(p.tags||[]).includes(c))}
+const isBasic=p=>p.id.startsWith('g_');
+function regName(p){return p.gen?'Anywhere (branches everywhere)':REG[p.r]?REG[p.r].n:''}
+function badges(p){const t=p.tags||[];return (t.includes('vincent')?'<span class="bdg v">⭐ Vincent</span>':'')+(t.includes('mine')?'<span class="bdg">📌 Mine</span>':'')+(t.includes('cheap')?'<span class="bdg c">💰 Cheap</span>':'')+(t.includes('cvs')?'<span class="bdg">🏪</span>':'')+(p.tier===3?'<span class="bdg">💎</span>':'')}
 
 /* Ready-made days: [time, placeId, kind, durationOverride] */
 const TPL={
- tp_arrival:{n:'Taipei · Arrival: Ximen, Longshan Temple, Dihua St, Ningxia NM',base:'taipei',start:'tpe',st:'11:00',stops:[['12:30','g_rest','rest',45],['13:30','aychung','lunch'],['14:15','ximending','sight'],['15:45','longshan','sight'],['17:15','dihua','sight'],['19:00','ningxia','dinner']]},
+ tp_arrival:{n:'Taipei · Arrival: Ximen, Longshan Temple, Dihua St, Ningxia NM',base:'taipei',start:'tpe',st:'11:00',stops:[['12:30','g_rest','rest',45],['13:30','aychung','lunch'],['14:15','ximending','sight'],['15:15','sansiblings','snack'],['16:15','longshan','sight'],['17:15','dihua','sight'],['19:00','ningxia','dinner']]},
  tp_classic:{n:'Taipei classics: Fuhang, CKS, Din Tai Fung, Taipei 101, Elephant Mtn, Raohe',base:'taipei',st:'07:00',stops:[['07:00','fuhang','breakfast'],['09:30','cks','sight'],['11:30','dtf','lunch'],['13:30','smoothie','snack'],['14:45','t101','sight'],['17:00','xiangshan','hike'],['19:15','fuzhou','snack'],['19:45','raohe','dinner']]},
  north_day:{n:'Day trip: Shifen lanterns, Jiufen, Golden Waterfall, Keelung',base:'taipei',st:'07:30',stops:[['07:30','yonghe','breakfast'],['09:45','shifen','sight'],['11:00','shifenfall','sight'],['13:00','jiufen','lunch'],['15:00','golden','sight'],['16:15','agan','snack'],['17:15','amei','snack'],['19:30','miaokou','dinner']]},
  tp_north:{n:'Palace Museum, Beitou hot springs, Tamsui sunset, Shilin NM',base:'taipei',st:'08:00',stops:[['08:00','tianjin','breakfast'],['09:15','npm','sight'],['12:15','silks','lunch'],['14:15','beitou','sight'],['16:45','tamsui','sight'],['19:30','shilin','dinner']]},
@@ -609,7 +670,7 @@ const TPL={
  hl_taroko:{n:'Train to Hualien → Qingshui Cliff, Taroko Gorge, Qixingtan',base:'hualien',st:'06:30',stops:[['06:30','trabento','breakfast'],['09:30','gongzheng','snack'],['10:30','qingshui','sight'],['12:00','taroko','hike'],['15:00','shakadang','hike'],['17:00','qixingtan','sight'],['19:00','dongdamen','dinner']]},
  tt_chishang:{n:'Hualien → Chishang rice fields → Taitung (Xiaoyeliu, Tiehua)',base:'taitung',st:'07:30',stops:[['07:30','zhoujia','breakfast'],['10:00','chishang','sight'],['12:30','chishangbento','lunch'],['15:30','g_rest','rest',45],['16:30','xiaoyeliu','sight'],['19:00','tiehua','dinner']]},
  tt_coast:{n:'Taitung East Coast: Sanxiantai, Chenggong seafood, Luye',base:'taitung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','sanxiantai','sight'],['12:30','chenggong','lunch'],['16:00','luye','sight'],['19:00','g_meal','dinner']]},
- kh_arrive:{n:'Taitung → Kaohsiung: Pier-2, Cijin sunset, Dome of Light',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['12:00','pier2','sight'],['13:30','g_meal','lunch'],['15:30','cijin','sight'],['18:00','cijinseafood','dinner'],['20:30','dome','sight']]},
+ kh_arrive:{n:'Taitung → Kaohsiung: Pier-2, Cijin sunset, Dome of Light',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['12:00','pier2','sight'],['13:30','g_meal','lunch'],['15:30','cijin','sight'],['18:00','cijinseafood','dinner'],['20:30','dome','sight'],['21:00','milkking','drink']]},
  kh_day:{n:'Kaohsiung: Lotus Pond, Fo Guang Shan, Weiwuying, Ruifeng NM',base:'kaohsiung',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:00','lotus','sight'],['11:00','fgs','sight'],['14:30','g_meal','lunch'],['16:00','weiwuying','sight'],['19:00','ruifeng','dinner']]},
  kh_islands:{n:'Xiao Liuqiu sea turtles + Donggang tuna',base:'kaohsiung',st:'07:00',stops:[['07:00','g_bf','breakfast'],['08:30','liuqiu','sight'],['15:30','donggang','lunch'],['19:30','liuhe','dinner']]},
  kt_day:{n:'Kenting: Eluanbi Lighthouse, Longpan cliffs, Maobitou sunset',base:'kenting',st:'08:00',stops:[['08:00','g_bf','breakfast'],['09:30','eluanbi','sight'],['11:00','longpan','sight'],['12:30','g_meal','lunch'],['16:45','maobitou','sight'],['19:00','kentingst','dinner']]},
@@ -684,14 +745,14 @@ function fromTpl(tid){
 function todayISO(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
 function defState(){
   return {v:2,startDate:todayISO(),days:14,trav:2,budget:'balanced',cur:'both',rate:530,rateDate:null,rateSrc:'default',
-    hotel:{saver:1500,balanced:3200,comfort:8000},active:0,tab:'plan',dismissed:{},
+    hotel:{saver:1500,balanced:3200,comfort:8000},custom:[],active:0,tab:'plan',dismissed:{},
     plan:DEFAULT.map(fromTpl)};
 }
 function load(){
   try{const s=JSON.parse(localStorage.getItem(LS));
     if(s&&(s.v===1||s.v===2)&&Array.isArray(s.plan)&&s.plan.length>=1&&s.plan.length<=14){
       if(s.v===1){s.plan=s.plan.slice(0,s.days||14);s.v=2}
-      S=Object.assign(defState(),s);syncDays();return}}catch(e){}
+      S=Object.assign(defState(),s);(S.custom||[]).forEach(registerPlace);syncDays();return}}catch(e){}
   S=defState();settleAll();
 }
 function settle(di){
@@ -719,7 +780,7 @@ function placePoint(p,di,prev,start){
   if(p.gen==='start')return Object.assign({},start,{gen:true});
   if(p.gen==='hotel')return Object.assign({},hotelPoint(di),{gen:true});
   if(p.gen==='prev')return Object.assign({},prev,{gen:true});
-  return {lat:p.lat,lng:p.lng,region:p.r,q:p.q||(p.zh+' '+REG[p.r].zh),label:p.n,st:p.st,ex:p.ex,w:p.w,acc:p.acc,pid:p.id};
+  return {lat:p.lat,lng:p.lng,region:p.r,q:p.q||(p.zh+' '+(REG[p.r]?REG[p.r].zh:'')),label:p.n,st:p.st,ex:p.ex,w:p.w,acc:p.acc,pid:p.id};
 }
 function stationFor(pt,sys){
   if(pt.st&&MRT[pt.st]&&MRT[pt.st].s===sys){
@@ -998,7 +1059,7 @@ function fillImgs(root){
 
 /* ================= LINKS ================= */
 function gq(pt){return pt.q||(pt.lat+','+pt.lng)}
-function gmPlace(p){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.q||(p.zh+' '+REG[p.r].zh))}
+function gmPlace(p,pt){const q=p.q||(p.zh+' '+(REG[p.r]?REG[p.r].zh:''));if(p.gen&&pt&&pt.lat)return 'https://www.google.com/maps/search/'+encodeURIComponent(q)+'/@'+pt.lat+','+pt.lng+',16z';return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q)}
 function gmDir(a,b,mode){return 'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(gq(a))+'&destination='+encodeURIComponent(gq(b))+'&travelmode='+(mode||'transit')}
 function gImages(p){return 'https://www.google.com/search?tbm=isch&q='+encodeURIComponent(p.n+' '+(p.zh||'')+' Taiwan')}
 function placeSelect(kind,di,cur){
@@ -1016,7 +1077,7 @@ function placeSelect(kind,di,cur){
 }
 
 /* ================= UI HELPERS ================= */
-const KCOL={breakfast:'var(--orange)',lunch:'var(--red)',dinner:'var(--pink)',snack:'var(--purple)',sight:'var(--blue)',hike:'var(--green)',night:'var(--indigo)',travel:'var(--teal)',rest:'var(--gray)'};
+const KCOL={drink:'var(--teal)',breakfast:'var(--orange)',lunch:'var(--red)',dinner:'var(--pink)',snack:'var(--purple)',sight:'var(--blue)',hike:'var(--green)',night:'var(--indigo)',travel:'var(--teal)',rest:'var(--gray)'};
 const SHORT={tpe:'Airport',taipei:'Taipei',north:'Jiufen',yilan:'Yilan',hualien:'Hualien',chishang:'Chishang',taitung:'Taitung',kaohsiung:'Kaohsiung',kenting:'Kenting',tainan:'Tainan',chiayi:'Chiayi',alishan:'Alishan',sml:'Sun Moon Lake',taichung:'Taichung'};
 const MAXDAYS=14;
 const icon=(kind,big)=>'<span class="ic'+(big?' big':'')+'" style="background:'+(KCOL[kind]||'var(--gray)')+'" aria-hidden="true">'+(KINDS[kind]||KINDS.sight).i+'</span>';
@@ -1040,6 +1101,7 @@ function row(o){
     (o.v!=null?'<span class="v">'+o.v+'</span>':'')+(o.chev?'<span class="chev" aria-hidden="true">'+(o.href?'↗':'›')+'</span>':'')+'</'+tag+'>';
 }
 function suggestDay(p){
+  if(p.gen)return S.active;
   let i=S.plan.findIndex(d=>d.base===p.r);if(i>=0)return i;
   i=S.plan.findIndex(d=>(NEAR[d.base]||[]).includes(p.r));return i>=0?i:S.active;
 }
@@ -1093,9 +1155,11 @@ function stopRow(it,di){
   if(!p.gen&&!allowed(di).has(p.r))warns.push('In '+REG[p.r].n+', far from this day’s city');
   if(it.late)warns.push('You arrive at '+fmtT(it.arrive));
   const sub=[KINDS[s.kind].l,fmtDur(it.dur)];if(p.cost)sub.push(moneyTxt(p.cost*S.trav));
-  return '<button class="row stoprow st" data-act="openStop" data-uid="'+s.uid+'"><span class="time"><b>'+fmtT(it.begin)+'</b><small>'+fmtT(it.end)+'</small></span>'+icon(s.kind)+
-    '<span class="tx"><span class="t">'+esc(p.n)+'</span><span class="s">'+esc(sub.join(' · '))+'</span>'+(warns.length?'<span class="warn">⚠︎ '+esc(warns.join(' · '))+'</span>':'')+'</span>'+
-    (p.img&&!p.gen?'<span class="thumb" data-img="'+esc(p.img)+'">'+KINDS[s.kind].i+'</span>':'')+'<span class="chev" aria-hidden="true">›</span></button>';
+  return '<div class="stop"><button class="row stoprow" data-act="openStop" data-uid="'+s.uid+'"><span class="time"><b>'+fmtT(it.begin)+'</b><small>'+fmtT(it.end)+'</small></span>'+icon(s.kind)+
+    '<span class="tx"><span class="t">'+esc(p.n)+'</span><span class="s">'+esc(sub.join(' · '))+'</span>'+(badges(p)?'<span class="bdgs">'+badges(p)+'</span>':'')+(warns.length?'<span class="warn">⚠︎ '+esc(warns.join(' · '))+'</span>':'')+'</span>'+
+    (p.img?'<span class="thumb" data-img="'+esc(p.img)+'">'+KINDS[s.kind].i+'</span>':'')+'<span class="chev" aria-hidden="true">›</span></button>'+
+    '<div class="sacts">'+(isBasic(p)?'':'<button class="mini" data-act="preview" data-pid="'+p.id+'" data-uid="'+s.uid+'">👀 Preview</button>')+
+    '<button class="mini" data-act="swap" data-uid="'+s.uid+'">⇄ Change</button><button class="mini" data-act="openStop" data-uid="'+s.uid+'">✎ Edit</button><button class="mini red" data-act="delStop" data-uid="'+s.uid+'" aria-label="Delete '+esc(p.n)+'">Delete</button></div></div>';
 }
 function renderPlan(){
   const di=S.active,day=S.plan[di],C=computeDay(di);
@@ -1119,7 +1183,7 @@ function renderPlan(){
   C.items.forEach(it=>{h+=connHTML(it)+stopRow(it,di)});
   if(!C.items.length)h+='<div class="empty">No stops yet. Add one, or use a suggested plan.</div>';
   h+='<button class="row ir addrow" data-act="addSheet">'+ibox('＋','var(--blue)')+'<span class="tx"><span class="t blue">Add a stop</span></span></button></div>';
-  h+='<p class="sec-f" style="margin-top:-12px">Tap a stop to change it, move it to another day, or delete it. Pick how you travel from the dropdown between stops.</p>';
+  h+='<p class="sec-f" style="margin-top:-12px">👀 Preview a stop to see photos and what to expect. ⇄ Change swaps it for something else (you can preview each option first). ✎ Edit sets the time, the day or the type. Pick how you travel from the dropdown between stops.</p>';
   h+='</div>';
   // side
   const pts=[C.start].concat(C.items.filter(it=>!it.pt.gen||it.p.gen==='hotel').map(it=>it.pt));
@@ -1152,20 +1216,29 @@ function drawMap(){
 }
 
 /* ---------- EXPLORE ---------- */
-let EX={r:'',k:'',q:''};
-const EXK={'':['All'],food:['Food',['breakfast','lunch','dinner','snack']],sight:['Sights',['sight']],hike:['Hikes',['hike']],night:['Evening',['night']]};
+let EX={r:'',k:'',q:'',c:''};
+const EXK={'':['All'],food:['Food & drinks',['breakfast','lunch','dinner','snack','drink']],sight:['Sights',['sight']],hike:['Hikes',['hike']],night:['Evening',['night']]};
 function renderExplore(){
   const ks=EXK[EX.k][1];
-  const list=PLACES.filter(p=>!p.gen&&(!EX.r||p.r===EX.r)&&(!ks||p.k.some(k=>ks.includes(k)))&&(!EX.q||(p.n+' '+p.zh+' '+(p.d||'')).toLowerCase().includes(EX.q.toLowerCase())))
-    .sort((a,b)=>(b.star||0)-(a.star||0));
-  let h='<div class="titlebar"><div><div class="eyebrow">'+list.length+' places · ★ top picks</div><h1 class="large">Explore</h1></div></div>';
-  h+='<div class="search"><span aria-hidden="true">🔍</span><input id="exQ" data-act="exQ" placeholder="Search beef noodles, sunsets, temples…" value="'+esc(EX.q)+'" aria-label="Search places"></div>';
+  const match=p=>!isBasic(p)&&(!EX.r||p.r===EX.r||p.gen)&&(!ks||p.k.some(k=>ks.includes(k)))&&inColl(p,EX.c)&&(!EX.q||(p.n+' '+p.zh+' '+(p.d||'')).toLowerCase().includes(EX.q.toLowerCase()));
+  const list=PLACES.filter(match).sort((a,b)=>(b.tags.includes('vincent')-a.tags.includes('vincent'))||(b.star||0)-(a.star||0));
+  const card=p=>'<div class="pcard"><button class="img" data-img="'+esc(p.img||'')+'" data-act="preview" data-pid="'+p.id+'" aria-label="Preview '+esc(p.n)+'">'+KINDS[p.k[0]].i+'</button><div class="b">'+
+    '<div class="t">'+(p.star?'★ ':'')+esc(p.n)+'</div><div class="s">'+esc(p.zh)+' · '+esc(regName(p).split(' (')[0])+' · '+(p.cost?esc(moneyTxt(p.cost))+' pp':'Free')+'</div>'+(badges(p)?'<div>'+badges(p)+'</div>':'')+'<div class="d">'+esc(p.d)+'</div>'+
+    '<div class="f" style="justify-content:flex-end"><button class="btn-s plain" data-act="preview" data-pid="'+p.id+'">👀 Preview</button><button class="btn-s pri" data-act="addPick" data-pid="'+p.id+'">＋ Add</button></div></div></div>';
+  let h='<div class="titlebar"><div><div class="eyebrow">'+list.length+' places · ★ top picks</div><h1 class="large">Explore</h1></div><button class="btn-s" data-act="custom">＋ Your own place</button></div>';
+  h+='<div class="search"><span aria-hidden="true">🔍</span><input id="exQ" data-act="exQ" placeholder="Search beef soup, papaya milk, sunsets…" value="'+esc(EX.q)+'" aria-label="Search places"></div>';
+  h+='<div class="chips sub"><button class="chip'+(!EX.c?' on':'')+'" data-act="exC" data-c="">All collections</button>'+Object.keys(COLL).map(c=>'<button class="chip'+(EX.c===c?' on':'')+'" data-act="exC" data-c="'+c+'">'+COLL[c].i+' '+COLL[c].l+'</button>').join('')+'</div>';
   h+='<div class="toolbar"><div class="seg">'+Object.keys(EXK).map(k=>'<button data-act="exK" data-k="'+k+'" class="'+(EX.k===k?'on':'')+'">'+EXK[k][0]+'</button>').join('')+'</div>'+
     '<select class="pillsel" data-act="exR" aria-label="City"><option value="">All of Taiwan</option>'+Object.keys(REG).map(r=>'<option value="'+r+'"'+(EX.r===r?' selected':'')+'>'+esc(REG[r].n)+'</option>').join('')+'</select></div>';
-  h+='<div class="grid">'+list.map(p=>'<div class="pcard"><button class="img" data-img="'+esc(p.img||'')+'" data-act="preview" data-pid="'+p.id+'" aria-label="Preview '+esc(p.n)+'">'+KINDS[p.k[0]].i+'</button><div class="b">'+
-    '<div class="t">'+(p.star?'★ ':'')+esc(p.n)+(p.tier===3?' 💎':'')+'</div><div class="s">'+esc(p.zh)+' · '+esc(REG[p.r].n)+'</div><div class="d">'+esc(p.d)+'</div>'+
-    '<div class="f"><span class="muted">'+(p.cost?moneyTxt(p.cost)+' pp':'Free')+'</span><button class="btn-s pri" data-act="addPick" data-pid="'+p.id+'">＋ Add</button></div></div></div>').join('')+'</div>';
-  if(!list.length)h+='<div class="empty">Nothing matches. Try another word or city.</div>';
+  if(!EX.c&&!EX.q&&!EX.k&&!EX.r){
+    const v=PLACES.filter(p=>p.tags.includes('vincent'));
+    h+='<div class="sec-h">⭐ Vincent’s picks</div><div class="hscroll">'+v.map(card).join('')+'</div>';
+    const c=PLACES.filter(p=>p.tags.includes('cheap')&&p.star&&!p.tags.includes('vincent'));
+    h+='<div class="sec-h">💰 Famous & cheap (≤ NT$150 per person)</div><div class="hscroll">'+c.map(card).join('')+'</div>';
+    h+='<div class="sec-h">Everything</div>';
+  }else if(EX.c)h+='<p class="lead">'+({vincent:'Places Vincent recommended.',cheap:'Famous food for NT$150 or less per person.',easy:'Grab-and-go food you can eat while walking or in 15 minutes.',chain:'Cheap chains with branches all over Taiwan, so they work on any day.',cvs:'Convenience-store food and drinks, found on every corner.',drink:'Papaya milk, bubble tea and other drinks.',mine:'Places you added yourself.',splurge:'High-end restaurants.'})[EX.c]+'</p>';
+  h+='<div class="grid">'+list.map(card).join('')+'</div>';
+  if(!list.length)h+='<div class="empty">Nothing matches. Try another word, city or collection.</div>';
   return h;
 }
 
@@ -1218,13 +1291,14 @@ function showSheet(title,html,keep){
   if(wasHidden)setTimeout(()=>{const d=$('.sh-done');d&&d.focus({preventScroll:true})},50);
 }
 function openSheet(o){SHEET=o;$('.sheet').scrollTop=0;renderSheet(true)}
-function openStatic(title,html){SHEET={type:'static'};showSheet(title,html)}
+function openStatic(title,html,back){SHEET={type:'static',back:back||null};showSheet(title,html);$('.sh-back').classList.toggle('hide',!SHEET.back)}
 function closeSheet(){SHEET=null;$('#sw').classList.add('hide');$('#shBody').innerHTML='';document.body.classList.remove('noscroll')}
 function renderSheet(fresh){
   if(!SHEET||SHEET.type==='static')return;
-  const r=SHEET.type==='stop'?stopSheet(SHEET.uid):SHEET.type==='add'?addSheet():SHEET.type==='settings'?settingsSheet():SHEET.type==='loc'?locSheet(SHEET.w):null;
+  const r=SHEET.type==='stop'?stopSheet(SHEET.uid):SHEET.type==='add'?addSheet():SHEET.type==='swap'?swapSheet():SHEET.type==='custom'?customSheet():SHEET.type==='settings'?settingsSheet():SHEET.type==='loc'?locSheet(SHEET.w):null;
   if(!r){closeSheet();return}
   showSheet(r.title,r.html,!fresh);
+  $('.sh-back').classList.toggle('hide',!SHEET.back);
   if(SHEET.focus){const n=$('#'+SHEET.focus);if(n){n.focus();const l=n.value.length;try{n.setSelectionRange(l,l)}catch(e){}}SHEET.focus=null}
 }
 
@@ -1233,8 +1307,8 @@ function stopSheet(u){
   const p=it.p,s=it.s,i=C.items.indexOf(it);
   const durs=[15,20,30,45,60,75,90,120,150,180,240,300,360];if(!durs.includes(it.dur)){durs.push(it.dur);durs.sort((a,b)=>a-b)}
   let h='';
-  if(!p.gen&&p.img)h+='<button class="hero" data-img="'+esc(p.img)+'" data-act="preview" data-pid="'+p.id+'" aria-label="Photos and details">'+KINDS[s.kind].i+'</button><div class="cap"></div>';
-  h+='<div class="sh-head">'+icon(s.kind,1)+'<div><h2>'+esc(p.n)+'</h2><div class="s">'+(p.zh?esc(p.zh)+' · ':'')+(p.gen?'Flexible stop':esc(REG[p.r].n))+'</div></div></div>';
+  if(p.img)h+='<button class="hero" data-img="'+esc(p.img)+'" data-act="preview" data-pid="'+p.id+'" aria-label="Photos and details">'+KINDS[s.kind].i+'</button><div class="cap"></div>';
+  h+='<div class="sh-head">'+icon(s.kind,1)+'<div><h2>'+esc(p.n)+'</h2><div class="s">'+(p.zh?esc(p.zh)+' · ':'')+(isBasic(p)?'Flexible stop':esc(regName(p)))+'</div></div></div>';
   const warns=it.hrs.map(x=>x.msg);if(!p.gen&&!allowed(di).has(p.r))warns.push('This place is in '+REG[p.r].n+', far from where Day '+(di+1)+' is based. Use the Day picker to move it.');
   if(it.late)warns.push('With travel time you arrive at '+fmtT(it.arrive)+'. Set the start time to Auto to fix it.');
   if(warns.length)h+='<div class="note warn">⚠︎ '+warns.map(esc).join('<br>⚠︎ ')+'</div>';
@@ -1247,51 +1321,90 @@ function stopSheet(u){
   if(it.leg.type!=='none'){
     h+='<div class="sec-h">Getting here from '+esc(it.prev.label||'previous stop')+'</div><div class="list"><div class="row">'+transportSelect(it,'wide')+'</div><div class="howbox">'+howHTML(it)+'</div></div>';
   }
-  if(!p.gen){
+  h+='<div class="list">'+row({icon:ibox('⇄','var(--blue)'),t:'<span class="blue">Change to a different place</span>',s:'Browse and preview options nearby',act:'swap',data:' data-uid="'+u+'"',chev:1})+'</div>';
+  if(!isBasic(p)){
     h+='<div class="sec-h">About</div><div class="list"><div class="row para">'+esc(p.d)+(p.tip?'<br><br><b>Tip:</b> '+esc(p.tip):'')+'</div>'+
       row({t:'Cost',v:p.cost?money(p.cost)+' <span class="idr">per person</span>':'Free'})+
       (p.open?row({t:'Hours',v:esc(p.open)+(p.closed?'<span class="idr">closed '+p.closed.map(d=>WD[d].slice(0,3)).join(', ')+'</span>':'')}):'')+
       (p.st?row({t:'MRT',v:esc(p.st)+(p.ex?' · Exit '+esc(p.ex):'')}):'')+
       row({t:'<span class="blue">Photos, map & details</span>',act:'preview',data:' data-pid="'+p.id+'"',chev:1})+
-      row({t:'<span class="blue">Open in Google Maps</span>',href:gmPlace(p),chev:1})+'</div>';
+      row({t:'<span class="blue">Open in Google Maps</span>',href:gmPlace(p,it.pt),chev:1})+'</div>';
   }else h+='<div class="list"><div class="row para">'+esc(p.d)+'</div></div>';
   if(C.items.length>1)h+='<div class="list">'+(i>0?row({t:'<span class="blue">Move earlier in the day</span>',act:'stopUp',data:' data-uid="'+u+'"'}):'')+(i<C.items.length-1?row({t:'<span class="blue">Move later in the day</span>',act:'stopDown',data:' data-uid="'+u+'"'}):'')+'</div>';
   h+='<div class="list">'+row({t:'<span class="red">Delete stop</span>',act:'delStop',data:' data-uid="'+u+'"'})+'</div>';
   return {title:'Day '+(di+1)+' · Stop '+(i+1),html:h};
 }
 
-function placeRow(p,kind){
-  const sub=[];if(!p.gen)sub.push(SHORT[p.r]);sub.push(fmtDur(p.dur));sub.push(p.cost?moneyTxt(p.cost)+' pp':'Free');
-  return '<div class="row'+(p.img&&!p.gen?'':' ir')+'">'+(p.img&&!p.gen?'<span class="thumb" data-img="'+esc(p.img)+'" style="width:44px;height:44px">'+KINDS[kind].i+'</span>':icon(kind))+
-    '<span class="tx"><span class="t">'+(p.star?'★ ':'')+esc(p.n)+(p.tier===3?' 💎':'')+'</span><span class="s">'+esc(sub.join(' · '))+'</span></span>'+
-    (p.gen?'':'<button class="btn-s plain" data-act="preview" data-pid="'+p.id+'" aria-label="Details for '+esc(p.n)+'">Info</button>')+
-    '<button class="btn-s pri" data-act="addPlace" data-pid="'+p.id+'">Add</button></div>';
+function placeRow(p,kind,dist,mode,uidv){
+  const sub=[regName(p).split(' (')[0]];if(dist!=null&&!p.gen)sub.push(dist<1?Math.round(dist*1000)+' m away':dist.toFixed(1)+' km away');sub.push(p.cost?moneyTxt(p.cost)+' pp':'Free');
+  const k=p.k.includes(kind)?kind:p.k[0];
+  return '<div class="row'+(p.img?'':' ir')+'">'+(p.img?'<button class="thumb" data-img="'+esc(p.img)+'" data-act="preview" data-pid="'+p.id+'" style="width:48px;height:48px" aria-label="Preview">'+KINDS[k].i+'</button>':icon(k))+
+    '<span class="tx"><span class="t">'+(p.star?'★ ':'')+esc(p.n)+'</span><span class="s">'+esc(sub.join(' · '))+'</span>'+(badges(p)?'<span class="bdgs">'+badges(p)+'</span>':'')+'</span>'+
+    (isBasic(p)?'':'<button class="btn-s plain" data-act="preview" data-pid="'+p.id+'">Preview</button>')+
+    (mode==='swap'?'<button class="btn-s pri" data-act="swapTo" data-uid="'+uidv+'" data-pid="'+p.id+'">Use</button>':'<button class="btn-s pri" data-act="addPlace" data-pid="'+p.id+'">Add</button>')+'</div>';
+}
+function pickerHTML(A,di,ref,mode,excludeId){
+  let h='<div class="chips" role="tablist">'+Object.keys(KINDS).filter(k=>k!=='travel').map(k=>'<button class="chip'+(k===A.kind?' on':'')+'" data-act="pkKind" data-k="'+k+'">'+KINDS[k].i+' '+KINDS[k].l+'</button>').join('')+'</div>';
+  h+='<div class="chips sub"><button class="chip'+(!A.coll?' on':'')+'" data-act="pkColl" data-c="">All</button>'+Object.keys(COLL).filter(c=>c!=='splurge'||A.kind==='lunch'||A.kind==='dinner').map(c=>'<button class="chip'+(A.coll===c?' on':'')+'" data-act="pkColl" data-c="'+c+'">'+COLL[c].i+' '+COLL[c].l+'</button>').join('')+'</div>';
+  h+='<div class="search"><span aria-hidden="true">🔍</span><input id="pkQ" placeholder="Search all of Taiwan" value="'+esc(A.q||'')+'" aria-label="Search"></div>';
+  const d=S.plan[di],al=allowed(di),q=(A.q||'').toLowerCase();
+  const fits=PLACES.filter(p=>p.id!==excludeId&&(A.coll?inColl(p,A.coll):p.k.includes(A.kind))&&(!q||(p.n+' '+p.zh+' '+(p.d||'')).toLowerCase().includes(q)));
+  const dist=p=>ref&&!p.gen?hav(ref,p):null;
+  const near=fits.filter(p=>!p.gen&&al.has(p.r)).sort((a,b)=>(dist(a)||0)-(dist(b)||0)+((b.tags.includes('vincent')-a.tags.includes('vincent'))*0.5)+((b.star||0)-(a.star||0))*0.8);
+  const any=fits.filter(p=>p.gen&&!isBasic(p)),basic=fits.filter(p=>isBasic(p)),other=fits.filter(p=>!p.gen&&!al.has(p.r)).sort((a,b)=>a.r.localeCompare(b.r)||(b.star||0)-(a.star||0));
+  const st0=dayStart(di).region,hdr=st0&&st0!==d.base&&!(NEAR[d.base]||[]).includes(st0)?REG[st0].n.split(' ')[0]+' → '+REG[d.base].n:REG[d.base].n;
+  const rows=(arr)=>arr.map(p=>placeRow(p,A.kind,dist(p),mode,A.uid)).join('');
+  if(near.length)h+='<div class="sec-h">'+(mode==='swap'?'Closest options':'Recommended for Day '+(di+1))+' · '+esc(hdr)+'</div><div class="list">'+rows(near)+'</div>';
+  if(any.length)h+='<div class="sec-h">Anywhere · chains & convenience stores</div><div class="list">'+rows(any)+'</div>';
+  if(basic.length&&!q&&!A.coll)h+='<div class="sec-h">Flexible</div><div class="list">'+rows(basic)+'</div>';
+  if(other.length)h+='<div class="sec-h">Other cities</div><div class="list">'+rows(other)+'</div>';
+  if(!near.length&&!any.length&&!other.length&&!basic.length)h+='<div class="empty">Nothing found. Try another type or collection, or add your own place.</div>';
+  h+='<div class="list">'+row({icon:ibox('📌','var(--red)'),t:'<span class="blue">Add your own place</span>',s:'For something a friend recommended (e.g. Vincent’s beef soup shop)',act:'custom',chev:1})+'</div>';
+  return h;
 }
 function addSheet(){
   const A=SHEET,di=Math.min(A.di,S.days-1),d=S.plan[di];A.di=di;
   let h='';
   if(A.pid){
     const p=PL[A.pid];if(!p.k.includes(A.kind))A.kind=p.k[0];
-    if(p.img)h+='<div class="hero" data-img="'+esc(p.img)+'">'+KINDS[A.kind].i+'</div><div class="cap"></div>';
-    h+='<div class="sh-head">'+icon(A.kind,1)+'<div><h2>'+esc(p.n)+'</h2><div class="s">'+esc(p.zh)+' · '+esc(REG[p.r].n)+'</div></div></div>';
+    if(p.img)h+='<button class="hero" data-img="'+esc(p.img)+'" data-act="preview" data-pid="'+p.id+'">'+KINDS[A.kind].i+'</button><div class="cap"></div>';
+    h+='<div class="sh-head">'+icon(A.kind,1)+'<div><h2>'+esc(p.n)+'</h2><div class="s">'+esc(p.zh)+' · '+esc(regName(p))+'</div></div></div>';
     h+='<div class="list">'+row({t:'Day',v:daySelect('addDaySel',di)})+row({t:'Type',v:'<select class="vsel" data-act="addKindSel">'+p.k.map(k=>'<option value="'+k+'"'+(k===A.kind?' selected':'')+'>'+KINDS[k].l+'</option>').join('')+'</select>'})+'</div>';
-    if(!allowed(di).has(p.r)){const sd=suggestDay(p);
+    if(!p.gen&&!allowed(di).has(p.r)){const sd=suggestDay(p);
       h+='<div class="note info">📍 '+esc(p.n)+' is in '+esc(REG[p.r].n)+'. '+(S.plan[sd]&&(NEAR[S.plan[sd].base]||[]).includes(p.r)&&sd!==di?'Day '+(sd+1)+' ('+dateLabel(sd)+') is already in that area. <button class="btn-s" data-act="addDaySet" data-i="'+sd+'">Use Day '+(sd+1)+'</button>':'No day is in that area yet, so we’ll suggest changing the day’s city after adding.')+'</div>'}
     h+='<button class="btn-fill" data-act="addConfirm">Add to Day '+(di+1)+' · '+esc(dateLabel(di))+'</button>';
+    h+='<div class="list">'+row({t:'<span class="blue">Preview photos & details first</span>',act:'preview',data:' data-pid="'+p.id+'"',chev:1})+'</div>';
     return {title:'Add to trip',html:h};
   }
+  const C=computeDay(di),ref=C.items.length?C.items[C.items.length-1].pt:C.start;
   h+='<div class="list">'+row({icon:ibox('🗓️','var(--red)'),t:'Add to',v:daySelect('addDaySel',di)})+'</div>';
-  h+='<div class="chips" role="tablist">'+Object.keys(KINDS).filter(k=>k!=='travel').map(k=>'<button class="chip'+(k===A.kind?' on':'')+'" data-act="addKind" data-k="'+k+'">'+KINDS[k].i+' '+KINDS[k].l+'</button>').join('')+'</div>';
-  h+='<div class="search"><span aria-hidden="true">🔍</span><input id="addQ" data-act="addQ" placeholder="Search all of Taiwan" value="'+esc(A.q||'')+'" aria-label="Search"></div>';
-  const al=allowed(di),q=(A.q||'').toLowerCase();
-  const fits=PLACES.filter(p=>p.k.includes(A.kind)&&(!q||(p.n+' '+p.zh+' '+(p.d||'')).toLowerCase().includes(q)));
-  const near=fits.filter(p=>!p.gen&&al.has(p.r)).sort((a,b)=>((b.r===d.base)-(a.r===d.base))||(b.star||0)-(a.star||0)),gen=fits.filter(p=>p.gen),other=fits.filter(p=>!p.gen&&!al.has(p.r)).sort((a,b)=>a.r.localeCompare(b.r)||(b.star||0)-(a.star||0));
-  const st0=dayStart(di).region,hdr=st0&&st0!==d.base&&!(NEAR[d.base]||[]).includes(st0)?REG[st0].n.split(' ')[0]+' → '+REG[d.base].n:REG[d.base].n;
-  if(near.length)h+='<div class="sec-h">Recommended for Day '+(di+1)+' · '+esc(hdr)+'</div><div class="list">'+near.map(p=>placeRow(p,A.kind)).join('')+'</div>';
-  if(gen.length&&!q)h+='<div class="sec-h">Flexible</div><div class="list">'+gen.map(p=>placeRow(p,A.kind)).join('')+'</div>';
-  if(other.length)h+='<div class="sec-h">Other cities</div><div class="list">'+other.map(p=>placeRow(p,A.kind)).join('')+'</div>';
-  if(!near.length&&!other.length&&!gen.length)h+='<div class="empty">Nothing found.</div>';
+  h+=pickerHTML(A,di,ref,'add');
   return {title:'Add a stop',html:h};
+}
+function swapSheet(){
+  const A=SHEET,f=findStop(A.uid);if(!f.s)return null;
+  const di=f.di,C=computeDay(di),it=C.items.find(x=>x.s.uid===A.uid),cur=PL[f.s.pid];
+  const ref=it?(it.p.gen?it.prev:it.pt):dayStart(di);
+  let h='<div class="list"><div class="row'+(cur.img?'':' ir')+'">'+(cur.img?'<span class="thumb" data-img="'+esc(cur.img)+'" style="width:48px;height:48px">'+KINDS[f.s.kind].i+'</span>':icon(f.s.kind))+
+    '<span class="tx"><span class="s">Replacing on Day '+(di+1)+(it?' at '+fmtT(it.begin):'')+'</span><span class="t">'+esc(cur.n)+'</span></span>'+
+    '<button class="btn-s red" data-act="delStop" data-uid="'+A.uid+'" style="color:var(--red);background:rgba(255,59,48,.1)">Delete</button></div></div>';
+  h+='<p class="sec-f">Tap <b>Preview</b> (or a photo) to see what a place looks like before you choose it.</p>';
+  h+=pickerHTML(A,di,ref,'swap',cur.id);
+  return {title:'Change stop',html:h};
+}
+function customSheet(){
+  const A=SHEET;
+  let h='<div class="note info">Add any place you’ve heard about, like the beef-soup shop Vincent recommended. Type its name, then search for it on the map.</div>';
+  h+='<div class="list">'+
+    '<div class="row"><span class="t" style="width:90px">Name</span><input class="field" id="cName" placeholder="e.g. Vincent’s beef soup" value="'+esc(A.name||'')+'"></div>'+
+    row({t:'Type',v:'<select class="vsel" data-act="cKind">'+Object.keys(KINDS).filter(k=>k!=='travel'&&k!=='rest').map(k=>'<option value="'+k+'"'+(k===A.kind?' selected':'')+'>'+KINDS[k].l+'</option>').join('')+'</select>'})+
+    '<div class="row"><span class="t" style="width:90px">Cost</span><input class="field" id="cCost" type="number" min="0" placeholder="NT$ per person (optional)" value="'+esc(A.cost||'')+'"></div>'+
+    '<div class="row"><span class="t" style="width:90px">Note</span><input class="field" id="cNote" placeholder="What to order, who recommended it…" value="'+esc(A.note||'')+'"></div></div>';
+  h+='<div class="sec-h">Location</div><div class="list"><div class="row"><span aria-hidden="true">🔍</span><input class="field" id="cQ" placeholder="Shop name + city, or address (Chinese works best)" value="'+esc(A.q||'')+'"><button class="btn-s pri" data-act="cFind">Find</button></div>'+
+    (A.found?row({icon:ibox('📍','var(--green)'),t:esc(A.found.label),s:esc(REG[A.found.region].n)+' · found on OpenStreetMap',v:'<a href="https://www.google.com/maps/search/?api=1&query='+A.found.lat+','+A.found.lng+'" target="_blank" rel="noopener">Check ↗</a>'}):'')+'</div>'+
+    '<p class="sec-f">Search sends what you type to OpenStreetMap. If the place isn’t found, try the street address or a nearby landmark.</p>';
+  h+='<button class="btn-fill" data-act="cSave"'+(A.found?'':' style="opacity:.5"')+'>Save'+(A.ret&&A.ret.type==='swap'?' and use it':A.ret&&A.ret.type==='add'?' and add to Day '+(A.ret.di+1):'')+'</button>';
+  return {title:'Your own place',html:h};
 }
 function locSheet(w){
   const di=S.active,d=S.plan[di],cur=w==='start'?d.start:d.hotel;
@@ -1343,27 +1456,35 @@ function tplSheet(){
   openStatic('Suggested plans',(mine.length?'<div class="sec-h">For '+esc(REG[d.base].n)+'</div><div class="list">'+mine.map(r).join('')+'</div>':'')+
     '<div class="sec-h">Other cities</div><div class="list">'+rest.map(r).join('')+'</div><p class="sec-f">Choosing a plan replaces the stops on Day '+(di+1)+' ('+dateLabel(di)+').</p>');
 }
-function openPreview(pid,fromDi){
+function openPreview(pid,ctx){
   const p=PL[pid];if(!p)return;
+  const back=ctx&&ctx.type!=='row'?ctx:null;
   const howGet=p.st?esc(p.st)+(p.ex?' · Exit '+esc(p.ex):'')+(p.w!=null?' · ~'+p.w+' min walk':''):'';
+  let cta='';
+  if(ctx&&ctx.type==='swap'){const cur=findStop(ctx.uid).s;cta='<button class="btn-fill" data-act="swapTo" data-uid="'+ctx.uid+'" data-pid="'+p.id+'">Use this instead'+(cur?' of '+esc(PL[cur.pid].n):'')+'</button>'}
+  else if(ctx&&ctx.type==='add')cta='<button class="btn-fill" data-act="addPlace" data-pid="'+p.id+'">Add to Day '+(ctx.di+1)+' · '+esc(dateLabel(ctx.di))+'</button>';
+  else if(ctx&&(ctx.type==='row'||ctx.type==='stop'))cta='<div class="list">'+row({icon:ibox('✓','var(--green)'),t:'<span class="blue">Keep it</span>',act:'closeSheet'})+row({icon:ibox('⇄','var(--blue)'),t:'<span class="blue">Change to something else</span>',act:'swap',data:' data-uid="'+ctx.uid+'"',chev:1})+row({icon:ibox('🗑','var(--red)'),t:'<span class="red">Delete from my plan</span>',act:'delStop',data:' data-uid="'+ctx.uid+'"'})+'</div>';
+  else if(ctx&&ctx.type==='custom')cta='';
+  else cta='<button class="btn-fill" data-act="addPick" data-pid="'+p.id+'">＋ Add to trip</button>';
+  const q=p.q||(p.zh+' '+(REG[p.r]?REG[p.r].zh:''));
   let h='<div class="hero" id="pvHero">'+KINDS[p.k[0]].i+'</div><div class="cap" id="pvCap"></div>'+
-    '<div class="sh-head">'+icon(p.k[0],1)+'<div><h2>'+(p.star?'★ ':'')+esc(p.n)+'</h2><div class="s">'+esc(p.zh)+' · '+esc(REG[p.r].n)+'</div></div></div>'+
-    '<button class="btn-fill" data-act="addPick" data-pid="'+p.id+'"'+(fromDi!=null?' data-di="'+fromDi+'"':'')+'>＋ Add to trip</button>'+
-    '<div class="list"><div class="row para">'+esc(p.d)+(p.tip?'<br><br><b>Tip:</b> '+esc(p.tip):'')+'<div id="pvExt" class="muted" style="margin-top:8px;font-size:13px"></div></div>'+
+    '<div class="sh-head">'+icon(p.k[0],1)+'<div><h2>'+(p.star?'★ ':'')+esc(p.n)+'</h2><div class="s">'+esc(p.zh)+' · '+esc(regName(p))+'</div>'+(badges(p)?'<div class="bdgs">'+badges(p)+'</div>':'')+'</div></div>'+cta+
+    '<div class="sec-h">What to expect</div><div class="list"><div class="row para">'+esc(p.d)+(p.tip?'<br><br><b>Tip:</b> '+esc(p.tip):'')+'<div id="pvExt" class="muted" style="margin-top:8px;font-size:13px"></div></div>'+
     row({t:'Good for',v:p.k.map(k=>KINDS[k].l).join(', ')})+
     row({t:'Cost',v:p.cost?money(p.cost)+' <span class="idr">per person</span>':'Free'})+
     (p.open?row({t:'Hours',v:esc(p.open)+(p.closed?'<span class="idr">closed '+p.closed.map(d=>WD[d].slice(0,3)).join(', ')+'</span>':'')}):'')+
     row({t:'Time needed',v:fmtDur(p.dur)})+(howGet?row({t:'MRT',v:howGet}):'')+'</div>'+
     (p.acc?'<div class="sec-h">Getting there</div><div class="list"><div class="row para">'+esc(p.acc)+'</div></div>':'')+
-    '<iframe class="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+encodeURIComponent(p.q||(p.zh+' '+REG[p.r].zh))+'&z=15&output=embed" title="Map of '+esc(p.n)+'"></iframe>'+
-    '<div class="list">'+row({t:'<span class="blue">Google Maps & reviews</span>',href:gmPlace(p),chev:1})+row({t:'<span class="blue">More photos</span>',href:gImages(p),chev:1})+'<span id="pvWiki"></span></div>';
-  openStatic(p.n,h);
+    (p.gen?'':'<iframe class="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+encodeURIComponent(p.lat&&p.custom?p.lat+','+p.lng:q)+'&z=15&output=embed" title="Map of '+esc(p.n)+'"></iframe>')+
+    '<div class="list">'+row({t:'<span class="blue">'+(p.gen?'Find the nearest one on Google Maps':'Google Maps, photos & reviews')+'</span>',href:gmPlace(p),chev:1})+row({t:'<span class="blue">More photos</span>',href:gImages(p),chev:1})+'<span id="pvWiki"></span></div>';
+  openStatic(p.n,h,back);
+  if(!p.img)return;
   wiki(p.img).then(w=>{
     if(!w||!$('#pvHero'))return;
     if(w.img){const hero=$('#pvHero');hero.style.backgroundImage='url("'+w.img.replace(/"/g,'%22')+'")';hero.classList.add('has');
-      $('#pvCap').textContent=p.dish?'Dish photo from Wikipedia (“'+w.title+'”), not this exact shop.':'Photo: Wikipedia, “'+w.title+'”.'}
+      $('#pvCap').textContent=p.dish?'Photo of the dish from Wikipedia (“'+w.title+'”), not this exact shop.':'Photo: Wikipedia, “'+w.title+'”.'}
     if(w.ext&&!p.dish)$('#pvExt').textContent=w.ext;
-    if(w.url)$('#pvWiki').outerHTML=row({t:'<span class="blue">Wikipedia</span>',href:w.url,chev:1});
+    if(w.url&&$('#pvWiki'))$('#pvWiki').outerHTML=row({t:'<span class="blue">Wikipedia</span>',href:w.url,chev:1});
   });
 }
 function askAbout(di,uidv){
@@ -1373,7 +1494,9 @@ function askAbout(di,uidv){
   openStatic('Quick check',sg.map(x=>'<div class="list"><div class="sugitem">'+x.html+'<div class="acts">'+x.acts.filter(a=>a.l!=='Dismiss').map(a=>'<button class="btn-s '+(a.cls==='pri'?'pri':'')+'" data-act="sug" data-id="'+act(a.fn)+'" data-close="1">'+esc(a.l)+'</button>').join('')+'</div></div></div>').join('')+
     '<button class="btn-tint" data-act="keepIt" data-keys="'+esc(sg.map(x=>x.key).join('|'))+'">Keep it as I planned</button>');
 }
-function toast(t){document.querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+function toast(t,undo){document.querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.setAttribute('role','status');const sp=document.createElement('span');sp.textContent=t;d.appendChild(sp);
+  if(undo){const b=document.createElement('button');b.className='tundo';b.textContent='Undo';b.onclick=()=>{undo();d.remove();render()};d.appendChild(b)}
+  document.body.appendChild(d);setTimeout(()=>d.remove(),undo?6000:2600)}
 
 /* ================= ACTIONS ================= */
 function findStop(u){for(let di=0;di<S.plan.length;di++){const d=S.plan[di];const i=d.stops.findIndex(s=>s.uid===u);if(i>=0)return {di,d,i,s:d.stops[i]}}return {di:S.active,d:S.plan[S.active],i:-1,s:null}}
@@ -1425,17 +1548,37 @@ document.addEventListener('click',e=>{
       }).catch(()=>{toast('Search failed. Check your connection.');b.disabled=false;b.textContent='Find'});break}
     case 'openStop':openSheet({type:'stop',uid:b.dataset.uid});break;
     case 'stopUp':case 'stopDown':{const {d,i}=findStop(b.dataset.uid);const j=a==='stopUp'?i-1:i+1;if(i<0||j<0||j>=d.stops.length)return;[d.stops[i],d.stops[j]]=[d.stops[j],d.stops[i]];d.stops[i].time=null;d.stops[j].time=null;render();break}
-    case 'delStop':{const {d,i,s}=findStop(b.dataset.uid);if(i<0)return;d.stops.splice(i,1);closeSheet();render();toast('Removed '+PL[s.pid].n);break}
-    case 'preview':openPreview(b.dataset.pid,SHEET&&SHEET.type==='add'?SHEET.di:null);break;
+    case 'delStop':{const f=findStop(b.dataset.uid);if(f.i<0)return;const [s0]=f.d.stops.splice(f.i,1),d0=f.di,i0=f.i;closeSheet();render();toast('Removed '+PL[s0.pid].n+' from Day '+(d0+1),()=>{S.plan[d0].stops.splice(i0,0,s0)});break}
+    case 'preview':{const ctx=SHEET&&SHEET.type!=='static'?SHEET:SHEET&&SHEET.back?SHEET.back:(b.dataset.uid?{type:'row',uid:b.dataset.uid}:null);openPreview(b.dataset.pid,ctx);break}
+    case 'sheetBack':{if(SHEET&&SHEET.back){const bk=SHEET.back;SHEET=bk;renderSheet(true)}break}
+    case 'swap':{const f=findStop(b.dataset.uid);if(!f.s)return;S.active=f.di;openSheet({type:'swap',uid:b.dataset.uid,kind:f.s.kind,coll:'',q:''});if(S.tab!=='plan'){S.tab='plan';render()}break}
+    case 'swapTo':{const f=findStop(b.dataset.uid);if(!f.s)return;const p=PL[b.dataset.pid],old={pid:f.s.pid,kind:f.s.kind,dur:f.s.dur},A=SHEET&&SHEET.type==='swap'?SHEET:SHEET&&SHEET.back;
+      f.s.pid=p.id;f.s.kind=p.k.includes(f.s.kind)?f.s.kind:(A&&p.k.includes(A.kind)?A.kind:p.k[0]);f.s.dur=null;S.active=f.di;S.tab='plan';closeSheet();render();
+      toast('Changed to '+p.n,()=>{Object.assign(f.s,old)});askAbout(f.di,f.s.uid);break}
+    case 'pkKind':SHEET.kind=b.dataset.k;renderSheet();break;
+    case 'pkColl':SHEET.coll=b.dataset.c;renderSheet();break;
+    case 'exC':EX.c=b.dataset.c;render();break;
+    case 'custom':{const ret=SHEET&&(SHEET.type==='add'||SHEET.type==='swap')?SHEET:null;openSheet({type:'custom',ret,kind:ret?ret.kind:'lunch',name:'',q:'',cost:'',note:'',found:null,back:ret});break}
+    case 'cFind':{const A=SHEET,q=(A.q||'').trim();if(!q){$('#cQ')&&$('#cQ').focus();return}b.textContent='…';
+      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tw&q='+encodeURIComponent(q)).then(r=>r.json()).then(j=>{
+        if(!j||!j[0]){toast('Not found. Try the street address or a landmark nearby.');b.textContent='Find';return}
+        const lat=+j[0].lat,lng=+j[0].lon;A.found={lat,lng,region:nearestRegion(lat,lng),label:j[0].display_name.split(',').slice(0,3).join(',')};renderSheet();
+      }).catch(()=>{toast('Search failed. Check your connection.');b.textContent='Find'});break}
+    case 'cSave':{const A=SHEET;if(!(A.name||'').trim()){toast('Give the place a name');$('#cName')&&$('#cName').focus();return}if(!A.found){toast('Find the location first');return}
+      const p={id:'c_'+uid(),n:A.name.trim(),zh:'',q:A.q.trim(),r:A.found.region,k:[A.kind],lat:A.found.lat,lng:A.found.lng,cost:Math.max(0,+A.cost||0),dur:60,d:(A.note||'').trim()||'A place you added yourself.',custom:1,tags:['mine']};
+      S.custom=S.custom||[];S.custom.push(p);registerPlace(p);save();
+      if(A.ret&&A.ret.type==='swap'){SHEET=A.ret;const f=findStop(A.ret.uid);const old={pid:f.s.pid,kind:f.s.kind,dur:f.s.dur};f.s.pid=p.id;f.s.kind=p.k[0];f.s.dur=null;S.active=f.di;closeSheet();render();toast('Changed to '+p.n,()=>{Object.assign(f.s,old)});}
+      else if(A.ret&&A.ret.type==='add'){const ns={uid:uid(),pid:p.id,kind:p.k[0],time:null,dur:null};insertStop(A.ret.di,ns);S.active=A.ret.di;S.tab='plan';closeSheet();render();toast('Added '+p.n+' to Day '+(A.ret.di+1));askAbout(A.ret.di,ns.uid)}
+      else openSheet({type:'add',di:suggestDay(p),kind:p.k[0],pid:p.id});
+      break}
     case 'addSheet':openSheet({type:'add',di,kind:'sight',q:''});break;
-    case 'addKind':SHEET.kind=b.dataset.k;renderSheet();break;
     case 'addDaySet':SHEET.di=+b.dataset.i;renderSheet();break;
     case 'addPick':{const p=PL[b.dataset.pid];openSheet({type:'add',di:b.dataset.di!=null?+b.dataset.di:suggestDay(p),kind:p.k[0],pid:p.id});break}
     case 'addPlace':case 'addConfirm':{
-      const A=SHEET,p=PL[a==='addConfirm'?A.pid:b.dataset.pid];const kind=p.k.includes(A.kind)?A.kind:p.k[0];
+      const A=SHEET.type==='add'?SHEET:SHEET.back,p=PL[a==='addConfirm'?A.pid:b.dataset.pid];const kind=p.k.includes(A.kind)?A.kind:p.k[0];
       const ns={uid:uid(),pid:p.id,kind,time:null,dur:null};insertStop(A.di,ns);S.active=A.di;S.tab='plan';closeSheet();render();
       toast('Added '+p.n+' to Day '+(A.di+1));askAbout(A.di,ns.uid);
-      const el=$('[data-uid="'+ns.uid+'"].stoprow');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});break}
+      const el=$('.stoprow[data-uid="'+ns.uid+'"]');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});break}
     case 'sug':{const fn=ACT[b.dataset.id];if(fn){const r=fn();if(b.dataset.close)closeSheet();if(r!=='keep')render()}break}
     case 'keepIt':(b.dataset.keys||'').split('|').forEach(k=>{if(k)S.dismissed[k]=1});closeSheet();render();break;
     case 'exK':EX.k=b.dataset.k;render();break;
@@ -1446,7 +1589,7 @@ document.addEventListener('click',e=>{
     case 'rateLive':refreshRate(true);break;
     case 'print':closeSheet();setTimeout(()=>window.print(),100);break;
     case 'export':{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const l=document.createElement('a');l.href=u;l.download='taiwan-plan.json';l.click();setTimeout(()=>URL.revokeObjectURL(u),1000);break}
-    case 'reset':if(confirm('Reset to the recommended 14-day trip? Your changes will be lost.')){const keep={startDate:S.startDate,trav:S.trav,budget:S.budget,cur:S.cur,rate:S.rate,rateDate:S.rateDate,rateSrc:S.rateSrc};S=Object.assign(defState(),keep);settleAll();closeSheet();render();toast('Trip reset')}break;
+    case 'reset':if(confirm('Reset to the recommended 14-day trip? Your changes will be lost.')){const keep={startDate:S.startDate,trav:S.trav,budget:S.budget,cur:S.cur,rate:S.rate,rateDate:S.rateDate,rateSrc:S.rateSrc,custom:S.custom||[]};S=Object.assign(defState(),keep);settleAll();closeSheet();render();toast('Trip reset')}break;
   }
 });
 document.addEventListener('change',e=>{
@@ -1464,13 +1607,14 @@ document.addEventListener('change',e=>{
     case 'moveTo':{const to=+v;moveStop(di,b.dataset.uid,to);S.active=to;closeSheet();render();toast('Moved to Day '+(to+1)+' · '+dateLabel(to));askAbout(to,b.dataset.uid);break}
     case 'addDaySel':SHEET.di=+v;renderSheet();break;
     case 'addKindSel':SHEET.kind=v;renderSheet();break;
+    case 'cKind':SHEET.kind=v;break;
     case 'sDate':if(v){S.startDate=v;render()}break;
     case 'rateIn':{const r=+v;if(r>0){S.rate=r;S.rateSrc='manual';render()}break}
     case 'hotelCost':S.hotel[S.budget]=Math.max(0,+v||0);render();break;
     case 'exR':EX.r=v;render();break;
     case 'cmpA':CMP.a=v;render();break;
     case 'cmpB':CMP.b=v;render();break;
-    case 'import':{const f=b.files&&b.files[0];if(!f)return;f.text().then(t=>{try{const s=JSON.parse(t);if(!(s.v===1||s.v===2)||!Array.isArray(s.plan)||!s.plan.length||s.plan.length>14)throw 0;if(s.v===1){s.plan=s.plan.slice(0,s.days||14);s.v=2}S=Object.assign(defState(),s);closeSheet();render();toast('Plan imported')}catch(err){toast('That file isn’t a plan exported from this app')}});break}
+    case 'import':{const f=b.files&&b.files[0];if(!f)return;f.text().then(t=>{try{const s=JSON.parse(t);if(!(s.v===1||s.v===2)||!Array.isArray(s.plan)||!s.plan.length||s.plan.length>14)throw 0;if(s.v===1){s.plan=s.plan.slice(0,s.days||14);s.v=2}S=Object.assign(defState(),s);(S.custom||[]).forEach(registerPlace);closeSheet();render();toast('Plan imported')}catch(err){toast('That file isn’t a plan exported from this app')}});break}
   }
 });
 document.addEventListener('toggle',e=>{if(e.target.matches&&e.target.matches('details.sugbox')){S.sugOpen=e.target.open;save()}},true);
@@ -1478,12 +1622,14 @@ let qT;
 document.addEventListener('input',e=>{
   const b=e.target;
   if(b.id==='exQ'){clearTimeout(qT);qT=setTimeout(()=>{EX.q=b.value;render();const n=$('#exQ');if(n){n.focus();const l=n.value.length;n.setSelectionRange(l,l)}},250)}
-  if(b.id==='addQ'){clearTimeout(qT);qT=setTimeout(()=>{if(SHEET&&SHEET.type==='add'){SHEET.q=b.value;SHEET.focus='addQ';renderSheet()}},250)}
+  if(b.id==='pkQ'){clearTimeout(qT);qT=setTimeout(()=>{if(SHEET&&(SHEET.type==='add'||SHEET.type==='swap')){SHEET.q=b.value;SHEET.focus='pkQ';renderSheet()}},250)}
+  if(SHEET&&SHEET.type==='custom'){if(b.id==='cName')SHEET.name=b.value;if(b.id==='cQ')SHEET.q=b.value;if(b.id==='cCost')SHEET.cost=b.value;if(b.id==='cNote')SHEET.note=b.value}
   if(b.id==='cNT'){$('#cRP').value=b.value===''?'':Math.round(+b.value*S.rate)}
   if(b.id==='cRP'){$('#cNT').value=b.value===''?'':Math.round(+b.value/S.rate*100)/100}
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&SHEET)closeSheet();
+  if(e.key==='Enter'&&e.target.id==='cQ'){const btn=$('[data-act="cFind"]');btn&&btn.click()}
   if(e.key==='Enter'&&e.target.id==='ptq'){const btn=$('[data-act="ptFind"]');btn&&btn.click()}
 });
 $('#sw').addEventListener('click',e=>{if(e.target.id==='sw')closeSheet()});
