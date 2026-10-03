@@ -1468,6 +1468,7 @@ function stopRow(it,di){
 function renderPlan(){
   const di=S.active,day=S.plan[di],C=computeDay(di);
   let h=dayStrip(di);
+  if(!S.oldOk&&S.plan.length===14&&S.plan.every((d,i)=>d.tpl===DEFAULT[i]))h+='<div class="note info" style="margin-top:14px"><b>You’re seeing the old 14-day sample trip</b> saved from an earlier visit. New trips now start with one example day, so you plan the rest yourself.<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"><button class="btn-s pri" data-act="startFresh">Start with one example day</button><button class="btn-s" data-act="keepOld">Keep my 14 days</button></div></div>';
   h+='<div class="titlebar"><div><div class="eyebrow">Day '+(di+1)+' of '+S.days+' · '+esc(REG[day.base].n)+'</div><h1 class="large">'+dateLabel(di,1)+'</h1></div><button class="circle" data-act="dayMenu" aria-label="Day options">⋯</button></div>';
   if(day.example)h+='<div class="note info" style="margin-bottom:16px"><b>This is an example day</b> to show how the planner works. Edit any stop, or clear it and plan your own. Add more days with “＋ Add day”.<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"><button class="btn-s" data-act="clearDay" data-noconfirm="1">Clear all stops</button><button class="btn-s" data-act="delDay" data-i="'+di+'">Delete this day</button><button class="btn-s pri" data-act="keepExample">Keep it</button></div></div>';
   h+='<div class="layout"><div>';
@@ -1881,6 +1882,8 @@ document.addEventListener('click',e=>{
     case 'moveDay':{const j=di+(+b.dataset.d);if(j<0||j>=S.plan.length)return;[S.plan[di],S.plan[j]]=[S.plan[j],S.plan[di]];S.active=j;closeSheet();render();toast('Moved to Day '+(j+1));break}
     case 'clearDay':if(b.dataset.noconfirm||confirm('Remove all stops from Day '+(di+1)+'?')){const old=S.plan[di].stops;S.plan[di].stops=[];S.plan[di].example=false;closeSheet();render();toast('Day '+(di+1)+' cleared',()=>{S.plan[di].stops=old})}break;
     case 'keepExample':S.plan[di].example=false;render();break;
+    case 'keepOld':S.oldOk=true;render();break;
+    case 'startFresh':{const old=S.plan;S.plan=[Object.assign(fromTpl(DEFAULT[0]),{example:true})];S.active=0;settleAll();render();toast('Started with one example day',()=>{S.plan=old});break}
     case 'loadRoute':if(confirm('Replace your days with the recommended 14-day route?')){S.plan=DEFAULT.map(fromTpl);S.active=0;settleAll();closeSheet();S.tab='plan';render();toast('Recommended 14-day route loaded')}break;
     case 'tplSheet':openSheet({type:'plan',foc:b.dataset.f||'',area:S.plan[di].base});break;
     case 'plFocus':SHEET.foc=b.dataset.f;renderSheet();break;
