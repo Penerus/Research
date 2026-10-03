@@ -165,6 +165,11 @@ details.how[open] summary{margin-bottom:6px}
 .handle:active{cursor:grabbing;color:var(--blue)}
 .alink{font-size:14px;font-weight:500;color:var(--blue);padding:4px 0;margin-right:20px}
 .alink.red{color:var(--red)}
+.dupw{display:flex;align-items:center;gap:8px;margin:0 8px 6px 118px;padding:5px 6px 5px 10px;border-radius:9px;background:rgba(255,149,0,.14);font-size:13px;color:var(--label)}
+.dupw span{flex:1;min-width:0}
+.dupx{flex:none;width:24px;height:24px;border-radius:50%;background:var(--fill);color:var(--label2);font-size:16px;line-height:1;display:grid;place-items:center}
+.dupx:hover{background:var(--fill2);color:var(--label)}
+@media (max-width:520px){.dupw{margin-left:16px}}
 .alink:hover{text-decoration:underline}
 .list > * + .stop::before{content:"";position:absolute;top:0;right:0;left:76px;height:.5px;background:var(--sep);z-index:1}
 .list > .conn + .stop::before{display:none}
@@ -1431,7 +1436,22 @@ function connHTML(it){
   return '<div class="conn"><div class="cb">'+transportSelect(it)+
     '<details class="how"><summary>'+(L.type==='inter'?'<span class="tag">CITY CHANGE</span> ':'')+(L.chosen!==L.rec?'<span class="muted">Your choice · </span>':'')+'Directions ›</summary><div class="howtxt">'+howHTML(it)+'</div></details></div></div>';
 }
-function stopRow(it,di){
+function redundancy(it,di,C){
+  const p=it.p,s=it.s,out=[];
+  if(!p.gen){
+    const where=[];
+    S.plan.forEach((d,j)=>{const CC=j===di?C:null;d.stops.forEach(x=>{if(x.pid===p.id&&x.uid!==s.uid){let t='';if(CC){const o=CC.items.find(y=>y.s.uid===x.uid);if(o)t=fmtT(o.begin)}where.push(j===di?'earlier/later today'+(t?' ('+t+')':''):'Day '+(j+1)+(t?' at '+t:''))}})});
+    if(where.length){const key='dw:'+p.id+':'+S.plan.map((d,j)=>d.stops.filter(x=>x.pid===p.id).length?j:'').join('');
+      out.push({key,msg:'Duplicate: also '+where.join(', ')});}
+  }
+  if(['breakfast','lunch','dinner'].includes(s.kind)){
+    const same=C.items.filter(x=>x.s.kind===s.kind);
+    const pos=same.findIndex(x=>x.s.uid===s.uid);
+    if(pos>0)out.push({key:'mw:'+di+':'+s.uid+':'+s.kind,msg:'Second '+KINDS[s.kind].l.toLowerCase()+' today ('+same[0].p.n+' at '+fmtT(same[0].begin)+')'});
+  }
+  return out.filter(w=>!S.dismissed[w.key]);
+}
+function stopRow(it,di,C){
   const p=it.p,s=it.s,warns=it.hrs.map(h=>h.msg);
   if(!p.gen&&!allowed(di).has(p.r))warns.push('In '+REG[p.r].n+', far from this day’s city');
   if(it.late)warns.push('You arrive at '+fmtT(it.arrive));
@@ -1440,6 +1460,7 @@ function stopRow(it,di){
   return '<div class="stop" data-suid="'+s.uid+'"><div class="stopmain"><button class="row stoprow" data-act="openStop" data-uid="'+s.uid+'" aria-label="Edit '+esc(p.n)+'"><span class="time"><b>'+fmtT(it.begin)+'</b><small>'+fmtT(it.end)+'</small></span>'+icon(s.kind)+
     '<span class="tx"><span class="t">'+esc(p.n)+'</span><span class="s">'+esc(sub.join(' · '))+'</span>'+(badges(p)?'<span class="bdgs">'+badges(p)+'</span>':'')+(warns.length?'<span class="warn">⚠︎ '+esc(warns.join(' · '))+'</span>':'')+'</span>'+
     ((p.img||p.photo)?'<span class="thumb" data-img="'+esc(imgKey(p))+'">'+KINDS[s.kind].i+'</span>':'')+'</button>'+
+    (C?redundancy(it,di,C).map(w=>'<div class="dupw"><span>🔁 '+esc(w.msg)+'</span><button class="dupx" data-act="hideWarn" data-key="'+esc(w.key)+'" aria-label="Hide this warning" title="Hide">×</button></div>').join(''):'')+
     '<div class="sacts">'+(isBasic(p)?'':'<button class="alink" data-act="preview" data-pid="'+p.id+'" data-uid="'+s.uid+'">Preview</button>')+
     '<button class="alink" data-act="swap" data-uid="'+s.uid+'">Change</button><button class="alink red" data-act="delStop" data-uid="'+s.uid+'" aria-label="Delete '+esc(p.n)+'">Delete</button></div></div>'+
     '<div class="handle" data-drag="'+s.uid+'" role="button" tabindex="-1" aria-label="Drag to move '+esc(p.n)+'" title="Hold and drag to another time or day"><span aria-hidden="true">≡</span></div></div>';
@@ -1465,7 +1486,7 @@ function renderPlan(){
   }
   h+='<div class="sec-h" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>Itinerary</span><span style="text-transform:none;letter-spacing:0">Tap a stop to edit · hold <b>≡</b> and drag to move</span></div><div class="list">';
   h+='<button class="row stoprow st" data-act="loc" data-w="start"><span class="time"><b>'+esc(day.startTime||'08:00')+'</b><small>start</small></span>'+ibox('🏁','var(--green)')+'<span class="tx"><span class="t">'+esc(C.start.label)+'</span><span class="s">Starting point · tap to change</span></span><span class="chev" aria-hidden="true">›</span></button>';
-  C.items.forEach(it=>{h+=connHTML(it)+stopRow(it,di)});
+  C.items.forEach(it=>{h+=connHTML(it)+stopRow(it,di,C)});
   if(!C.items.length)h+='<div class="empty">No stops yet. Add one, or use a suggested plan.</div>';
   h+='<button class="row ir addrow" data-act="addSheet">'+ibox('＋','var(--blue)')+'<span class="tx"><span class="t blue">Add a stop</span></span></button></div>';
   h+='<p class="sec-f" style="margin-top:-12px">Drag <b>≡</b> to change a stop’s time, or drop it on another day in the strip at the top. <b>Preview</b> shows photos and what to expect; <b>Change</b> swaps it (preview options first); tap the card itself to set time, day or type. Pick how you travel from the dropdown between stops.</p>';
@@ -1857,6 +1878,7 @@ document.addEventListener('click',e=>{
     case 'dayMenu':dayMenu();break;
     case 'moveDay':{const j=di+(+b.dataset.d);if(j<0||j>=S.plan.length)return;[S.plan[di],S.plan[j]]=[S.plan[j],S.plan[di]];S.active=j;closeSheet();render();toast('Moved to Day '+(j+1));break}
     case 'clearDay':if(b.dataset.noconfirm||confirm('Remove all stops from Day '+(di+1)+'?')){const old=S.plan[di].stops;S.plan[di].stops=[];S.plan[di].example=false;closeSheet();render();toast('Day '+(di+1)+' cleared',()=>{S.plan[di].stops=old})}break;
+    case 'hideWarn':S.dismissed[b.dataset.key]=1;render();toast('Warning hidden',()=>{delete S.dismissed[b.dataset.key]});break;
     case 'keepExample':S.plan[di].example=false;render();break;
     case 'loadRoute':if(confirm('Replace your days with the recommended Sanur-based route?')){S.plan=DEFAULT.map(fromTpl);S.active=0;settleAll();closeSheet();S.tab='plan';render();toast('Recommended route loaded')}break;
     case 'tplSheet':openSheet({type:'plan',foc:b.dataset.f||'',area:S.plan[di].base});break;
