@@ -1401,19 +1401,34 @@ function customSheet(){
     '<div class="row"><span class="t" style="width:90px">Cost</span><input class="field" id="cCost" type="number" min="0" placeholder="NT$ per person (optional)" value="'+esc(A.cost||'')+'"></div>'+
     '<div class="row"><span class="t" style="width:90px">Note</span><input class="field" id="cNote" placeholder="What to order, who recommended it…" value="'+esc(A.note||'')+'"></div></div>';
   h+='<div class="sec-h">Location</div><div class="list"><div class="row"><span aria-hidden="true">🔍</span><input class="field" id="cQ" placeholder="Shop name + city, or address (Chinese works best)" value="'+esc(A.q||'')+'"><button class="btn-s pri" data-act="cFind">Find</button></div>'+
-    (A.found?row({icon:ibox('📍','var(--green)'),t:esc(A.found.label),s:esc(REG[A.found.region].n)+' · found on OpenStreetMap',v:'<a href="https://www.google.com/maps/search/?api=1&query='+A.found.lat+','+A.found.lng+'" target="_blank" rel="noopener">Check ↗</a>'}):'')+'</div>'+
+    '</div>'+resultsHTML(A.results,'cPick',A.results&&A.found?A.results.indexOf(A.found):-1)+
     '<p class="sec-f">Search sends what you type to OpenStreetMap. If the place isn’t found, try the street address or a nearby landmark.</p>';
   h+='<button class="btn-fill" data-act="cSave"'+(A.found?'':' style="opacity:.5"')+'>Save'+(A.ret&&A.ret.type==='swap'?' and use it':A.ret&&A.ret.type==='add'?' and add to Day '+(A.ret.di+1):'')+'</button>';
   return {title:'Your own place',html:h};
+}
+function geoSearch(q){
+  return fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&countrycodes=tw&accept-language=en,zh-TW&q='+encodeURIComponent(q)).then(r=>r.json()).then(j=>(j||[]).map(x=>{
+    const parts=String(x.display_name||'').split(',').map(t=>t.trim());const lat=+x.lat,lng=+x.lon;
+    return {label:x.name||parts[0],addr:parts.slice(x.name?1:1,5).join(', '),type:(x.type||'').replace(/_/g,' '),lat,lng,region:nearestRegion(lat,lng)};
+  }));
+}
+function resultsHTML(list,pickAct,selIdx,extra){
+  if(!list)return '';
+  if(!list.length)return '<div class="note warn">No matches. Try adding the city (e.g. “… Tainan”), the Chinese name, or a street address.</div>';
+  return '<div class="sec-h">Choose the right one · '+list.length+' result'+(list.length>1?'s':'')+'</div><div class="list">'+list.map((r,i)=>
+    '<div class="row ir">'+ibox(i===selIdx?'✓':'📍',i===selIdx?'var(--green)':'var(--red)')+'<span class="tx"><span class="t">'+esc(r.label)+'</span><span class="s">'+esc(r.addr)+'</span><span class="s">'+esc(REG[r.region].n)+(r.type?' · '+esc(r.type):'')+' · <a href="https://www.google.com/maps/search/?api=1&query='+r.lat+','+r.lng+'" target="_blank" rel="noopener">View on map ↗</a></span></span>'+
+    (i===selIdx?'<span class="blue" style="font-weight:600">Selected</span>':'<button class="btn-s pri" data-act="'+pickAct+'" data-i="'+i+'"'+(extra||'')+'>Use</button>')+'</div>').join('')+'</div>'+
+    '<p class="sec-f">Results from OpenStreetMap. Tap “View on map” to check before choosing.</p>';
 }
 function locSheet(w){
   const di=S.active,d=S.plan[di],cur=w==='start'?d.start:d.hotel;
   const autoLbl=w==='start'?(di===0?REG[d.base].hub:'Where you slept (Day '+di+' hotel)'):'Near '+REG[d.base].hub;
   let h='<div class="list">'+row({icon:ibox('✓',cur?'var(--fill)':'var(--blue)'),t:'Automatic',s:esc(autoLbl),act:'ptAuto',data:' data-w="'+w+'"',v:cur?'':'<span class="blue">Selected</span>'})+
     (cur?row({icon:ibox('📍','var(--green)'),t:esc(cur.label),s:'Current choice',v:'<span class="blue">Selected</span>'}):'')+'</div>';
-  h+='<div class="sec-h">Find a place</div><div class="list"><div class="row"><span aria-hidden="true">🔍</span><input class="field" id="ptq" data-w="'+w+'" placeholder="Hotel name or address" aria-label="Hotel name or address"><button class="btn-s pri" data-act="ptFind" data-w="'+w+'">Find</button></div>'+
+  h+='<div class="sec-h">Find a place</div><div class="list"><div class="row"><span aria-hidden="true">🔍</span><input class="field" id="ptq" data-w="'+w+'" placeholder="Hotel name or address" aria-label="Hotel name or address" value="'+esc(SHEET.q||'')+'"><button class="btn-s pri" data-act="ptFind" data-w="'+w+'">Find</button></div>'+
     row({icon:ibox('➤','var(--blue)'),t:'<span class="blue">Use my current location</span>',act:'ptGeo',data:' data-w="'+w+'"'})+'</div>';
   h+='<p class="sec-f">Your location stays in this browser and only goes into the Google Maps links you open. Search sends what you type to OpenStreetMap.</p>';
+  h+=resultsHTML(SHEET.results,'ptPick',-1,' data-w="'+w+'"');
   if(w==='hotel'&&cur){const same=S.plan.filter(x=>x.base===d.base).length;if(same>1)h+='<div class="list">'+row({t:'<span class="blue">Use this hotel for all '+same+' '+esc(REG[d.base].n)+' nights</span>',act:'hotelAll'})+'</div>'}
   h+='<div class="sec-h">Stations & airport</div><div class="list">'+Object.keys(REG).map(r=>row({t:esc(REG[r].hub),s:esc(REG[r].n),act:'ptHub',data:' data-w="'+w+'" data-r="'+r+'"'})).join('')+'</div>';
   return {title:w==='start'?'Start from':'Tonight’s hotel',html:h};
@@ -1540,12 +1555,11 @@ document.addEventListener('click',e=>{
     case 'hotelAll':{const d=S.plan[di];S.plan.forEach(x=>{if(x.base===d.base)x.hotel=d.hotel});closeSheet();render();toast('Hotel set for every '+REG[d.base].n+' night');break}
     case 'ptGeo':{const w=b.dataset.w;if(!navigator.geolocation){toast('Location isn’t available in this browser');return}
       navigator.geolocation.getCurrentPosition(pos=>{const lat=pos.coords.latitude,lng=pos.coords.longitude;setPoint(w,{label:'My location',lat,lng,region:nearestRegion(lat,lng),q:lat.toFixed(5)+','+lng.toFixed(5)})},()=>toast('Couldn’t get your location'),{enableHighAccuracy:true,timeout:10000});break}
-    case 'ptFind':{const w=b.dataset.w,inp=$('#ptq'),q=(inp&&inp.value||'').trim();if(!q){inp&&inp.focus();return}
-      b.disabled=true;b.textContent='…';
-      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tw&q='+encodeURIComponent(q)).then(r=>r.json()).then(j=>{
-        if(!j||!j[0]){toast('Not found. Try the hotel name plus the city.');b.disabled=false;b.textContent='Find';return}
-        const lat=+j[0].lat,lng=+j[0].lon;setPoint(w,{label:q,lat,lng,region:nearestRegion(lat,lng),q});
-      }).catch(()=>{toast('Search failed. Check your connection.');b.disabled=false;b.textContent='Find'});break}
+    case 'ptFind':{const inp=$('#ptq'),q=(inp&&inp.value||'').trim();if(!q){inp&&inp.focus();return}
+      const A=SHEET;b.disabled=true;b.textContent='…';A.q=q;
+      geoSearch(q).then(list=>{if(SHEET!==A)return;A.results=list;renderSheet()})
+        .catch(()=>{toast('Search failed. Check your connection.');b.disabled=false;b.textContent='Find'});break}
+    case 'ptPick':{const r=SHEET.results&&SHEET.results[+b.dataset.i];if(!r)return;setPoint(b.dataset.w,{label:r.label,lat:r.lat,lng:r.lng,region:r.region,q:r.lat.toFixed(6)+','+r.lng.toFixed(6)});break}
     case 'openStop':openSheet({type:'stop',uid:b.dataset.uid});break;
     case 'stopUp':case 'stopDown':{const {d,i}=findStop(b.dataset.uid);const j=a==='stopUp'?i-1:i+1;if(i<0||j<0||j>=d.stops.length)return;[d.stops[i],d.stops[j]]=[d.stops[j],d.stops[i]];d.stops[i].time=null;d.stops[j].time=null;render();break}
     case 'delStop':{const f=findStop(b.dataset.uid);if(f.i<0)return;const [s0]=f.d.stops.splice(f.i,1),d0=f.di,i0=f.i;closeSheet();render();toast('Removed '+PL[s0.pid].n+' from Day '+(d0+1),()=>{S.plan[d0].stops.splice(i0,0,s0)});break}
@@ -1560,11 +1574,9 @@ document.addEventListener('click',e=>{
     case 'exC':EX.c=b.dataset.c;render();break;
     case 'custom':{const ret=SHEET&&(SHEET.type==='add'||SHEET.type==='swap')?SHEET:null;openSheet({type:'custom',ret,kind:ret?ret.kind:'lunch',name:'',q:'',cost:'',note:'',found:null,back:ret});break}
     case 'cFind':{const A=SHEET,q=(A.q||'').trim();if(!q){$('#cQ')&&$('#cQ').focus();return}b.textContent='…';
-      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tw&q='+encodeURIComponent(q)).then(r=>r.json()).then(j=>{
-        if(!j||!j[0]){toast('Not found. Try the street address or a landmark nearby.');b.textContent='Find';return}
-        const lat=+j[0].lat,lng=+j[0].lon;A.found={lat,lng,region:nearestRegion(lat,lng),label:j[0].display_name.split(',').slice(0,3).join(',')};renderSheet();
-      }).catch(()=>{toast('Search failed. Check your connection.');b.textContent='Find'});break}
-    case 'cSave':{const A=SHEET;if(!(A.name||'').trim()){toast('Give the place a name');$('#cName')&&$('#cName').focus();return}if(!A.found){toast('Find the location first');return}
+      geoSearch(q).then(list=>{if(SHEET!==A)return;A.results=list;A.found=null;renderSheet()}).catch(()=>{toast('Search failed. Check your connection.');b.textContent='Find'});break}
+    case 'cPick':{const A=SHEET;A.found=A.results[+b.dataset.i];renderSheet();break}
+    case 'cSave':{const A=SHEET;if(!(A.name||'').trim()){toast('Give the place a name');$('#cName')&&$('#cName').focus();return}if(!A.found){toast('Search, then choose the right result first');return}
       const p={id:'c_'+uid(),n:A.name.trim(),zh:'',q:A.q.trim(),r:A.found.region,k:[A.kind],lat:A.found.lat,lng:A.found.lng,cost:Math.max(0,+A.cost||0),dur:60,d:(A.note||'').trim()||'A place you added yourself.',custom:1,tags:['mine']};
       S.custom=S.custom||[];S.custom.push(p);registerPlace(p);save();
       if(A.ret&&A.ret.type==='swap'){SHEET=A.ret;const f=findStop(A.ret.uid);const old={pid:f.s.pid,kind:f.s.kind,dur:f.s.dur};f.s.pid=p.id;f.s.kind=p.k[0];f.s.dur=null;S.active=f.di;closeSheet();render();toast('Changed to '+p.n,()=>{Object.assign(f.s,old)});}
@@ -1623,6 +1635,7 @@ document.addEventListener('input',e=>{
   const b=e.target;
   if(b.id==='exQ'){clearTimeout(qT);qT=setTimeout(()=>{EX.q=b.value;render();const n=$('#exQ');if(n){n.focus();const l=n.value.length;n.setSelectionRange(l,l)}},250)}
   if(b.id==='pkQ'){clearTimeout(qT);qT=setTimeout(()=>{if(SHEET&&(SHEET.type==='add'||SHEET.type==='swap')){SHEET.q=b.value;SHEET.focus='pkQ';renderSheet()}},250)}
+  if(b.id==='ptq'&&SHEET&&SHEET.type==='loc')SHEET.q=b.value;
   if(SHEET&&SHEET.type==='custom'){if(b.id==='cName')SHEET.name=b.value;if(b.id==='cQ')SHEET.q=b.value;if(b.id==='cCost')SHEET.cost=b.value;if(b.id==='cNote')SHEET.note=b.value}
   if(b.id==='cNT'){$('#cRP').value=b.value===''?'':Math.round(+b.value*S.rate)}
   if(b.id==='cRP'){$('#cNT').value=b.value===''?'':Math.round(+b.value/S.rate*100)/100}
