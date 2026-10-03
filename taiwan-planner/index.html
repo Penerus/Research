@@ -921,7 +921,7 @@ function badges(p){const t=p.tags||[];return (p.status==='closed'?'<span class="
 
 /* Ready-made days: [time, placeId, kind, durationOverride] */
 const TPL={
- tp_arrival:{focus:['sightseeing','shopping'],n:'Taipei · Arrival: Ximen, Longshan Temple, Dihua St, Ningxia NM',base:'taipei',start:'tpe',st:'11:00',stops:[['12:30','g_rest','rest',45],['13:30','aychung','lunch'],['14:15','ximending','sight'],['15:15','sansiblings','snack'],['16:15','longshan','sight'],['17:30','dihua','sight',60],['19:00','ningxia','dinner']]},
+ tp_arrival:{focus:['sightseeing'],n:'Taipei · Arrival: Ximen, Longshan Temple, Dihua St, Ningxia NM',base:'taipei',start:'tpe',st:'11:00',stops:[['12:30','g_rest','rest',45],['13:30','aychung','lunch'],['14:15','ximending','sight'],['15:15','sansiblings','snack'],['16:15','longshan','sight'],['17:30','dihua','sight',60],['19:00','ningxia','dinner']]},
  tp_classic:{focus:['sightseeing','photo','food'],n:'Taipei classics: Fuhang, CKS, Din Tai Fung, Taipei 101, Elephant Mtn, Raohe',base:'taipei',st:'07:00',stops:[['07:00','fuhang','breakfast'],['09:30','cks','sight'],['11:30','dtf','lunch'],['13:30','smoothie','snack'],['14:45','t101','sight'],['17:00','xiangshan','hike'],['19:15','fuzhou','snack'],['19:45','raohe','dinner']]},
  north_day:{focus:['sightseeing','photo'],n:'Day trip: Shifen lanterns, Jiufen, Golden Waterfall, Keelung',base:'taipei',st:'07:30',stops:[['07:30','yonghe','breakfast'],['09:45','shifen','sight'],['11:00','shifenfall','sight'],['13:00','jiufen','lunch'],['15:00','golden','sight'],['16:15','agan','snack'],['17:15','amei','snack'],['19:30','miaokou','dinner']]},
  tp_north:{focus:['culture','relax','sightseeing'],n:'Palace Museum, Beitou hot springs, Tamsui sunset, Shilin NM',base:'taipei',st:'08:00',stops:[['08:00','tianjin','breakfast'],['09:15','npm','sight'],['12:15','silks','lunch'],['14:15','beitou','sight'],['16:45','tamsui','sight'],['19:30','shilin','dinner']]},
@@ -945,7 +945,7 @@ const TPL={
  sml_day:{focus:['sightseeing','photo','relax'],n:'Sun Moon Lake full day: boat, pagoda, Ita Thao, ropeway',base:'sml',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','maolan','hike'],['11:00','xiangshan_vc','sight'],['12:30','teaeggs','snack'],['13:30','itathao','lunch'],['15:00','cien','sight'],['18:30','g_meal','dinner']]},
  sml_tc:{focus:['travel','photo'],n:'Sun Moon Lake morning → Taichung: Chun Shui Tang, Gaomei sunset, Feng Chia',base:'taichung',st:'06:00',stops:[['06:00','shuishe','sight'],['08:00','g_bf','breakfast'],['09:00','cien','sight'],['11:00','xiangshan_vc','sight'],['14:00','chunshui','lunch'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
  tc_day:{focus:['sightseeing','photo','shopping'],n:'Taichung: Miyahara, Rainbow Village, opera house, Gaomei, Feng Chia',base:'taichung',st:'09:00',stops:[['09:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','rainbow','sight'],['12:30','chunshui','lunch'],['14:30','opera','sight'],['16:30','gaomei','sight'],['19:30','fengchia','dinner']]},
- tc_depart:{focus:['travel','shopping'],n:'Taichung morning → fly home from Taoyuan',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','suncake','snack'],['12:00','opera','sight'],['15:00','taoyuan','travel']]}
+ tc_depart:{focus:['travel'],n:'Taichung morning → fly home from Taoyuan',base:'taipei',st:'08:00',stops:[['08:00','g_bf','breakfast'],['10:00','miyahara','snack'],['11:00','suncake','snack'],['12:00','opera','sight'],['15:00','taoyuan','travel']]}
 };
 Object.assign(TPL,NEW_TPL);
 const DEFAULT=['tp_arrival','tp_classic','north_day','tp_north','hl_taroko','tt_chishang','tt_coast','kh_arrive','kh_day','tn_day','tn_alishan','al_sml','sml_tc','tc_depart'];
@@ -1759,7 +1759,7 @@ function planSheet(){
   h+='<div class="chips" role="tablist"><button class="chip'+(!A.foc?' on':'')+'" data-act="plFocus" data-f="">All</button>'+Object.keys(FOCUS).map(f=>'<button class="chip'+(A.foc===f?' on':'')+'" data-act="plFocus" data-f="'+f+'">'+FOCUS[f].i+' '+FOCUS[f].l+'</button>').join('')+'</div>';
   h+='<div class="list">'+row({icon:ibox('📍','var(--red)'),t:'Area',v:'<select class="vsel" data-act="plArea"><option value="">All of Taiwan</option>'+BASES.map(r=>'<option value="'+r+'"'+(A.area===r?' selected':'')+'>'+esc(REG[r].n)+(r===d.base?' (this day)':'')+'</option>').join('')+'</select>'})+'</div>';
   const list=Object.entries(TPL).filter(([,t])=>(!A.foc||(t.focus||[]).includes(A.foc))&&(!A.area||t.base===A.area||(t.areas||[]).includes(A.area)))
-    .sort((a,b)=>((b[1].base===d.base)-(a[1].base===d.base)));
+    .sort((a,b)=>{const fi=t=>A.foc?((t.focus||[]).indexOf(A.foc)===0?0:1):0;return ((b[1].base===d.base)-(a[1].base===d.base))||(fi(a[1])-fi(b[1]))||((!!b[1].notes)-(!!a[1].notes))});
   if(!list.length)h+='<div class="empty">No ready-made plan for that combination yet. Try another area or focus, or build the day yourself with “Add a stop”.</div>';
   h+=list.map(([id,t])=>{
     const stops=t.stops.map(x=>PL[x[1]]).filter(Boolean);
