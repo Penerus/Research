@@ -157,11 +157,19 @@ details.how[open] summary{margin-bottom:6px}
 .conn{padding:2px 16px 6px 76px}
 @media (max-width:520px){.conn{padding-left:16px}.list > * + .row.st::before{left:16px}.stoprow .thumb{display:none}}
 .pcard .f .muted{font-size:13px}
-.stop{position:relative}
+.stop{position:relative;display:flex;align-items:stretch}
+.stopmain{flex:1;min-width:0}
+.stop .stoprow{padding-right:8px}
+.handle{flex:none;width:46px;display:flex;align-items:center;justify-content:center;color:var(--label3);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;font-size:26px;line-height:1;border-left:.5px solid var(--sep)}
+.handle:hover{color:var(--blue);background:var(--fill2)}
+.handle:active{cursor:grabbing;color:var(--blue)}
+.alink{font-size:14px;font-weight:500;color:var(--blue);padding:4px 0;margin-right:20px}
+.alink.red{color:var(--red)}
+.alink:hover{text-decoration:underline}
 .list > * + .stop::before{content:"";position:absolute;top:0;right:0;left:76px;height:.5px;background:var(--sep);z-index:1}
 .list > .conn + .stop::before{display:none}
 .stop .stoprow{padding-bottom:6px}
-.sacts{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px 118px}
+.sacts{display:flex;flex-wrap:wrap;padding:0 8px 10px 118px;margin-top:-4px}
 .mini{font-size:13px;font-weight:600;color:var(--blue);background:var(--tint);border-radius:999px;padding:5px 11px;white-space:nowrap}
 .mini.red{color:var(--red);background:rgba(255,59,48,.1)}
 .mini.grip{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;color:var(--label2);background:var(--fill)}
@@ -170,7 +178,7 @@ details.how[open] summary{margin-bottom:6px}
 .dragghost{position:fixed;z-index:3000;pointer-events:none;background:var(--card);color:var(--label);border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.28);padding:10px 14px;font-weight:600;font-size:15px;max-width:80vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dchip.droptarget{outline:3px solid var(--blue);outline-offset:2px}
 body.dragging-on{user-select:none;-webkit-user-select:none;cursor:grabbing}
-@media (max-width:520px){.sacts{padding-left:16px}.list > * + .stop::before{left:16px}}
+@media (max-width:520px){.list > * + .stop::before{left:16px}.handle{width:40px}.alink{margin-right:14px;font-size:13.5px}}
 .bdg{display:inline-block;font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;margin:0 4px 0 0;background:var(--fill);color:var(--label2);vertical-align:1px;white-space:nowrap}
 .bdg.v{background:rgba(255,204,0,.28);color:#8a6d00}
 .bdg.c{background:rgba(52,199,89,.18);color:#1f8a3c}
@@ -253,6 +261,12 @@ iframe.map{display:block;width:100%;height:220px;border:0;border-radius:var(--r)
 .mapnum.s{background:#1c1c1e}
 .empty{padding:28px 16px;text-align:center;color:var(--label2);font-size:15px}
 footer{padding:8px 16px 40px;font-size:12px;color:var(--label2);line-height:1.5}
+#printDoc{display:none}
+@media print{
+  body.printing > *:not(#printDoc){display:none!important}
+  body.printing #printDoc{display:block!important}
+  body.printing{background:#fff!important;color:#000!important}
+}
 @media print{
   .nav,.tabbar,.strip,.daytools,.side .mapbox,.conn select,details.sugbox,.btn-tint,.btn-fill,.addrow,.circle{display:none!important}
   body{background:#fff}.layout{display:block}
@@ -277,6 +291,7 @@ footer{padding:8px 16px 40px;font-size:12px;color:var(--label2);line-height:1.5}
   <button data-act="tab" data-tab="compare"><span class="ti">🚆</span>Transport</button>
   <button data-act="tab" data-tab="trip"><span class="ti">💰</span>Trip</button>
 </div>
+<div id="printDoc"></div>
 <div id="sw" class="sw hide"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
   <div class="sh-bar"><button class="sh-back hide" data-act="sheetBack">‹ Back</button><b id="shTitle"></b><button class="sh-done" data-act="closeSheet">Done</button></div>
   <div id="shBody"></div>
@@ -1022,7 +1037,7 @@ function fromTpl(tid){
 function todayISO(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
 function defState(){
   return {v:2,startDate:todayISO(),days:1,trav:2,budget:'balanced',cur:'idr',rate:1,rateDate:null,rateSrc:'default',
-    hotel:{saver:350000,balanced:900000,comfort:2500000},custom:[],active:0,tab:'plan',dismissed:{},
+    hotel:{saver:350000,balanced:900000,comfort:2500000},custom:[],exp:{cost:true,how:true,notes:true},active:0,tab:'plan',dismissed:{},
     plan:[Object.assign(fromTpl(DEFAULT[0]),{example:true})]};
 }
 function load(){
@@ -1422,11 +1437,12 @@ function stopRow(it,di){
   if(it.late)warns.push('You arrive at '+fmtT(it.arrive));
   if(p.status==='closed')warns.unshift('CLOSED NOW: '+(p.statusNote||''));
   const sub=[KINDS[s.kind].l,fmtDur(it.dur)];if(p.cost)sub.push(moneyTxt(p.cost*S.trav));
-  return '<div class="stop" data-suid="'+s.uid+'"><button class="row stoprow" data-act="openStop" data-uid="'+s.uid+'"><span class="time"><b>'+fmtT(it.begin)+'</b><small>'+fmtT(it.end)+'</small></span>'+icon(s.kind)+
+  return '<div class="stop" data-suid="'+s.uid+'"><div class="stopmain"><button class="row stoprow" data-act="openStop" data-uid="'+s.uid+'" aria-label="Edit '+esc(p.n)+'"><span class="time"><b>'+fmtT(it.begin)+'</b><small>'+fmtT(it.end)+'</small></span>'+icon(s.kind)+
     '<span class="tx"><span class="t">'+esc(p.n)+'</span><span class="s">'+esc(sub.join(' · '))+'</span>'+(badges(p)?'<span class="bdgs">'+badges(p)+'</span>':'')+(warns.length?'<span class="warn">⚠︎ '+esc(warns.join(' · '))+'</span>':'')+'</span>'+
-    ((p.img||p.photo)?'<span class="thumb" data-img="'+esc(imgKey(p))+'">'+KINDS[s.kind].i+'</span>':'')+'<span class="chev" aria-hidden="true">›</span></button>'+
-    '<div class="sacts"><button class="mini grip" data-drag="'+s.uid+'" aria-label="Drag to move '+esc(p.n)+'" title="Drag to another time, or onto another day">⠿ Drag</button>'+(isBasic(p)?'':'<button class="mini" data-act="preview" data-pid="'+p.id+'" data-uid="'+s.uid+'">👀 Preview</button>')+
-    '<button class="mini" data-act="swap" data-uid="'+s.uid+'">⇄ Change</button><button class="mini" data-act="openStop" data-uid="'+s.uid+'">✎ Edit</button><button class="mini red" data-act="delStop" data-uid="'+s.uid+'" aria-label="Delete '+esc(p.n)+'">Delete</button></div></div>';
+    ((p.img||p.photo)?'<span class="thumb" data-img="'+esc(imgKey(p))+'">'+KINDS[s.kind].i+'</span>':'')+'</button>'+
+    '<div class="sacts">'+(isBasic(p)?'':'<button class="alink" data-act="preview" data-pid="'+p.id+'" data-uid="'+s.uid+'">Preview</button>')+
+    '<button class="alink" data-act="swap" data-uid="'+s.uid+'">Change</button><button class="alink red" data-act="delStop" data-uid="'+s.uid+'" aria-label="Delete '+esc(p.n)+'">Delete</button></div></div>'+
+    '<div class="handle" data-drag="'+s.uid+'" role="button" tabindex="-1" aria-label="Drag to move '+esc(p.n)+'" title="Hold and drag to another time or day"><span aria-hidden="true">≡</span></div></div>';
 }
 function renderPlan(){
   const di=S.active,day=S.plan[di],C=computeDay(di);
@@ -1447,12 +1463,12 @@ function renderPlan(){
     h+='<details class="list sugbox"'+(S.sugOpen?' open':'')+' data-act="sugToggle"><summary class="row ir">'+ibox('💡','var(--yellow)')+'<span class="tx"><span class="t">'+sugs.length+' suggestion'+(sugs.length>1?'s':'')+' for this day</span><span class="s">Better routes, opening hours, duplicates</span></span><span class="chev" aria-hidden="true">›</span></summary>'+
       sugs.map(sg=>'<div class="sugitem">'+sg.html+'<div class="acts">'+sg.acts.map(a=>'<button class="btn-s '+(a.cls==='pri'?'pri':a.cls==='ghost'?'plain':'')+'" data-act="sug" data-id="'+act(a.fn)+'">'+esc(a.l)+'</button>').join('')+'</div></div>').join('')+'</details>';
   }
-  h+='<div class="sec-h">Itinerary</div><div class="list">';
+  h+='<div class="sec-h" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>Itinerary</span><span style="text-transform:none;letter-spacing:0">Tap a stop to edit · hold <b>≡</b> and drag to move</span></div><div class="list">';
   h+='<button class="row stoprow st" data-act="loc" data-w="start"><span class="time"><b>'+esc(day.startTime||'08:00')+'</b><small>start</small></span>'+ibox('🏁','var(--green)')+'<span class="tx"><span class="t">'+esc(C.start.label)+'</span><span class="s">Starting point · tap to change</span></span><span class="chev" aria-hidden="true">›</span></button>';
   C.items.forEach(it=>{h+=connHTML(it)+stopRow(it,di)});
   if(!C.items.length)h+='<div class="empty">No stops yet. Add one, or use a suggested plan.</div>';
   h+='<button class="row ir addrow" data-act="addSheet">'+ibox('＋','var(--blue)')+'<span class="tx"><span class="t blue">Add a stop</span></span></button></div>';
-  h+='<p class="sec-f" style="margin-top:-12px">⠿ Drag a stop to change its time, or drop it on another day in the strip at the top. 👀 Preview a stop to see photos and what to expect. ⇄ Change swaps it for something else (you can preview each option first). ✎ Edit sets the time, the day or the type. Pick how you travel from the dropdown between stops.</p>';
+  h+='<p class="sec-f" style="margin-top:-12px">Drag <b>≡</b> to change a stop’s time, or drop it on another day in the strip at the top. <b>Preview</b> shows photos and what to expect; <b>Change</b> swaps it (preview options first); tap the card itself to set time, day or type. Pick how you travel from the dropdown between stops.</p>';
   h+='</div>';
   // side
   const pts=[C.start].concat(C.items.filter(it=>!it.pt.gen||it.p.gen==='hotel').map(it=>it.pt));
@@ -1535,6 +1551,7 @@ function renderTrip(){
   const tot={food:0,trans:0,inter:0,hotel:0,total:0},Cs=[];
   for(let i=0;i<S.days;i++){const C=computeDay(i);Cs.push(C);['food','trans','inter','hotel','total'].forEach(k=>tot[k]+=C[k])}
   let h='<div class="titlebar"><div><div class="eyebrow">'+S.days+' days · '+S.trav+' '+(S.trav>1?'people':'person')+' · '+S.budget+'</div><h1 class="large">Trip</h1></div></div>';
+  h+='<button class="btn-tint" data-act="exportOpen">📄 Export itinerary to Word or PDF</button>';
   h+='<div class="list total"><div class="muted" style="font-size:15px">Estimated total</div><div class="big">'+money(tot.total)+'</div><div class="muted" style="font-size:15px;margin-top:6px">About '+moneyTxt(tot.total/S.trav)+' per person, not counting flights, shopping or a SIM.</div></div>';
   h+='<div class="list">'+row({icon:ibox('🍜','var(--red)'),t:'Food & tickets',v:money(tot.food)})+row({icon:ibox('🚇','var(--blue)'),t:'Local transport',v:money(tot.trans)})+row({icon:ibox('🚄','var(--teal)'),t:'Between cities',v:money(tot.inter)})+row({icon:ibox('🛏️','var(--gray)'),t:'Hotels',v:money(tot.hotel)})+'</div>';
   h+='<div class="sec-h">Days</div><div class="list">'+Cs.map((C,i)=>'<div class="row ir"><button class="rowmain" data-act="day" data-i="'+i+'" data-go="plan">'+ibox(String(i+1),'var(--blue)')+'<span class="tx"><span class="t">'+dateLabel(i)+' · '+esc(REG[S.plan[i].base].n)+'</span><span class="s">'+C.items.filter(x=>!x.p.gen).length+' stops · '+moneyTxt(C.total)+'</span></span><span class="chev" aria-hidden="true">›</span></button><button class="trash" data-act="delDay" data-i="'+i+'" aria-label="Delete Day '+(i+1)+'">Delete</button></div>').join('')+
@@ -1567,7 +1584,7 @@ function openStatic(title,html,back){SHEET={type:'static',back:back||null};showS
 function closeSheet(){SHEET=null;$('#sw').classList.add('hide');$('#shBody').innerHTML='';document.body.classList.remove('noscroll')}
 function renderSheet(fresh){
   if(!SHEET||SHEET.type==='static')return;
-  const r=SHEET.type==='plan'?planSheet():SHEET.type==='stop'?stopSheet(SHEET.uid):SHEET.type==='add'?addSheet():SHEET.type==='swap'?swapSheet():SHEET.type==='custom'?customSheet():SHEET.type==='settings'?settingsSheet():SHEET.type==='loc'?locSheet(SHEET.w):null;
+  const r=SHEET.type==='export'?exportSheet():SHEET.type==='plan'?planSheet():SHEET.type==='stop'?stopSheet(SHEET.uid):SHEET.type==='add'?addSheet():SHEET.type==='swap'?swapSheet():SHEET.type==='custom'?customSheet():SHEET.type==='settings'?settingsSheet():SHEET.type==='loc'?locSheet(SHEET.w):null;
   if(!r){closeSheet();return}
   showSheet(r.title,r.html,!fresh);
   $('.sh-back').classList.toggle('hide',!SHEET.back);
@@ -1720,7 +1737,7 @@ function settingsSheet(){
   h+='<div class="sec-h">Your plan</div><div class="list">'+
     row({t:'<span class="blue">Export plan (.json)</span>',act:'export'})+
     '<label class="row" style="cursor:pointer"><span class="tx"><span class="t blue">Import plan</span></span><input type="file" accept="application/json" data-act="import" hidden></label>'+
-    row({t:'<span class="blue">Print itinerary</span>',act:'print'})+'</div>'+
+    row({t:'<span class="blue">Export to Word or PDF</span>',s:'Whole trip or one day, with costs, directions and notes',act:'exportOpen',chev:1})+'</div>'+
     '<div class="list">'+row({t:'<span class="blue">Load the recommended Sanur trip</span>',s:'Replaces your days with our recommended Sanur-based route',act:'loadRoute'})+row({t:'<span class="red">Start over with one example day</span>',act:'reset'})+'</div>';
   return {title:'Settings',html:h};
 }
@@ -1732,6 +1749,7 @@ function dayMenu(){
     (n<MAXDAYS?row({icon:ibox('📅','var(--orange)'),t:'<span class="blue">Insert a new day after this one</span>',act:'addDay',data:' data-i="'+di+'"'}):'')+
     (di>0?row({icon:ibox('←','var(--gray)'),t:'Move this day earlier',act:'moveDay',data:' data-d="-1"'}):'')+
     (di<n-1?row({icon:ibox('→','var(--gray)'),t:'Move this day later',act:'moveDay',data:' data-d="1"'}):'')+
+    row({icon:ibox('📄','var(--blue)'),t:'<span class="blue">Export this day (Word / PDF)</span>',act:'exportOpen',data:' data-s="day"'})+
     row({icon:ibox('🧹','var(--gray)'),t:'Clear all stops',act:'clearDay'})+'</div>'+
     '<div class="list">'+row({t:'<span class="red">Delete Day '+(di+1)+'</span>',act:'delDay',data:' data-i="'+di+'"'})+'</div>'+
     '<p class="sec-f">Deleting a day moves the later days one date earlier.</p>');
@@ -1896,7 +1914,10 @@ document.addEventListener('click',e=>{
     case 'cur':S.cur=b.dataset.c;render();break;
     case 'trav':S.trav=Math.max(1,Math.min(20,S.trav+(+b.dataset.d)));render();break;
     case 'rateLive':refreshRate(true);break;
-    case 'print':closeSheet();setTimeout(()=>window.print(),100);break;
+    case 'print':case 'exportOpen':openSheet({type:'export',scope:b.dataset.s||'trip'});break;
+    case 'expScope':SHEET.scope=b.dataset.s;renderSheet();break;
+    case 'expDocx':{const sc=SHEET.scope==='day'?'day':'trip';exportDocx(exportModel(sc,S.active),sc,S.active);break}
+    case 'expPdf':{const sc=SHEET.scope==='day'?'day':'trip';exportPDF(exportModel(sc,S.active));break}
     case 'export':{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const l=document.createElement('a');l.href=u;l.download='taiwan-plan.json';l.click();setTimeout(()=>URL.revokeObjectURL(u),1000);break}
     case 'reset':if(confirm('Start over with one example day? Your changes will be lost.')){const keep={startDate:S.startDate,trav:S.trav,budget:S.budget,cur:S.cur,rate:S.rate,rateDate:S.rateDate,rateSrc:S.rateSrc,custom:S.custom||[]};S=Object.assign(defState(),keep);settleAll();closeSheet();render();toast('Started over')}break;
   }
@@ -1904,6 +1925,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,di=S.active,v=b.value;
   switch(a){
+    case 'expOpt':S.exp[b.dataset.k]=b.checked;save();break;
     case 'base':S.plan[di].base=v;render();break;
     case 'startTime':S.plan[di].startTime=v||'08:00';render();break;
     case 'time':{const {s}=findStop(b.dataset.uid);s.time=v||null;render();break}
@@ -1952,6 +1974,136 @@ async function refreshRate(force){
     if(j&&j.rates&&j.rates.IDR){S.rate=Math.round(j.rates.IDR*100)/100;S.rateDate=Date.now();S.rateSrc='live';render();if(force)toast('Updated: 1 NT$ = Rp '+S.rate)}
     else throw 0;
   }catch(e){if(force)toast('Couldn’t fetch the live rate. Using Rp '+S.rate)}
+}
+
+/* ================= EXPORT (Word / PDF) ================= */
+const APPNAME='Bali trip (Sanur)';
+const txt=h=>{const d=document.createElement('div');d.innerHTML=String(h||'');return (d.textContent||'').replace(/\s+/g,' ').trim()};
+function moneyDoc(n){return txt(money(n))}
+function exportModel(scope,di){
+  const idxs=scope==='day'?[di]:S.plan.map((_,i)=>i);
+  const days=idxs.map(i=>{
+    const C=computeDay(i),d=S.plan[i];
+    return {n:i+1,date:dateLabel(i,1),city:REG[d.base].n,start:C.start.label,leave:d.startTime||'08:00',hotel:d.hotel?d.hotel.label:'',
+      totals:{food:C.food,trans:C.trans,inter:C.inter,hotel:C.hotel,total:C.total},travel:C.travel,end:C.end,
+      items:C.items.map(it=>{const p=it.p,o=it.o,L=it.leg;
+        let how='';
+        if(L.type!=='none'){how=o.m+' · '+fmtDur(o.min)+(o.gc?' · '+moneyDoc(o.gc):'');}
+        let steps='';
+        if(L.type!=='none'){
+          if(o.inter&&o.k!=='car'){const seg=[];if(o.pre&&o.pre.min)seg.push('To '+o.hubA.label+': '+o.pre.m);seg.push(o.m+(o.note?' — '+o.note:''));if(o.post&&o.post.min)seg.push('Then '+o.post.m);steps=seg.join(' → ')}
+          else if(o.steps)steps=txt(o.steps.join(' → '));
+          else steps=txt(o.txt||o.note||'');
+          if(it.pt.acc)steps+=(steps?' ':'')+'Getting there: '+it.pt.acc;
+        }
+        const warns=it.hrs.map(h=>h.msg);if(p.statusNote)warns.unshift(p.statusNote);if(it.late)warns.push('Arrive '+fmtT(it.arrive));
+        return {time:fmtT(it.begin),end:fmtT(it.end),name:p.n,local:p.zh||'',kind:KINDS[it.s.kind].l,dur:fmtDur(it.dur),
+          cost:p.cost?moneyDoc(p.cost*S.trav):'Free',costpp:p.cost?moneyDoc(p.cost):'',how,steps,
+          desc:p.d||'',tip:p.tip||'',hours:p.open?(p.open+(p.closed?' (closed '+p.closed.map(x=>WD[x].slice(0,3)).join(', ')+')':'')):'',
+          mrt:p.st?(p.st+(p.ex?' Exit '+p.ex:'')):'',warn:warns.join(' · '),gen:!!isBasic(p)};})};
+  });
+  const tot={food:0,trans:0,inter:0,hotel:0,total:0};days.forEach(d=>Object.keys(tot).forEach(k=>tot[k]+=d.totals[k]));
+  return {title:APPNAME+' itinerary',sub:(scope==='day'?'Day '+(di+1)+' · ':S.plan.length+' days · ')+S.trav+' '+(S.trav>1?'people':'person')+' · '+S.budget+' budget',
+    range:dateLabel(idxs[0],1)+(idxs.length>1?' – '+dateLabel(idxs[idxs.length-1],1):''),days,tot,
+    opts:{cost:S.exp.cost,how:S.exp.how,notes:S.exp.notes}};
+}
+/* ---- PDF via print layout ---- */
+function printHTML(M){
+  const O=M.opts;
+  let h='<style>#printDoc{font:11pt/1.4 -apple-system,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC",sans-serif;color:#111}#printDoc h1{font-size:22pt;margin:0}#printDoc h2{font-size:15pt;margin:18pt 0 4pt;border-bottom:2px solid #111;padding-bottom:3pt}#printDoc .pd-sub{color:#555;margin:2pt 0 10pt}#printDoc table{width:100%;border-collapse:collapse;margin-top:6pt}#printDoc th,#printDoc td{border:1px solid #bbb;padding:5pt 6pt;vertical-align:top;text-align:left;font-size:9.5pt}#printDoc th{background:#f2f2f7}#printDoc .pd-t{white-space:nowrap;font-weight:700}#printDoc .pd-n{font-weight:700;font-size:10.5pt}#printDoc .pd-m{color:#555}#printDoc .pd-w{color:#b45309}#printDoc .pd-day{page-break-before:always}#printDoc .pd-day:first-of-type{page-break-before:auto}#printDoc .pd-tot{margin-top:6pt}#printDoc tr{page-break-inside:avoid}@page{size:A4;margin:14mm}</style>';
+  h+='<h1>'+esc(M.title)+'</h1><div class="pd-sub">'+esc(M.range)+' · '+esc(M.sub)+'</div>';
+  if(O.cost)h+='<div class="pd-sub"><b>Estimated total: '+esc(moneyDoc(M.tot.total))+'</b> (food & tickets '+esc(moneyDoc(M.tot.food))+', transport '+esc(moneyDoc(M.tot.trans+M.tot.inter))+', hotels '+esc(moneyDoc(M.tot.hotel))+')</div>';
+  M.days.forEach((d,ix)=>{
+    h+='<section class="'+(ix?'pd-day':'')+'"><h2>Day '+d.n+' — '+esc(d.date)+' · '+esc(d.city)+'</h2>';
+    h+='<div class="pd-m">Start: '+esc(d.start)+' at '+esc(d.leave)+(d.hotel?' · Hotel: '+esc(d.hotel):'')+'</div>';
+    h+='<table><thead><tr><th style="width:12%">Time</th><th>Plan</th>'+(O.how?'<th style="width:28%">Getting there</th>':'')+(O.cost?'<th style="width:14%">Cost</th>':'')+'</tr></thead><tbody>';
+    d.items.forEach(it=>{
+      h+='<tr><td class="pd-t">'+esc(it.time)+'<br><span class="pd-m">– '+esc(it.end)+'</span></td><td><div class="pd-n">'+esc(it.name)+(it.local?' <span class="pd-m">'+esc(it.local)+'</span>':'')+'</div><div class="pd-m">'+esc(it.kind)+' · '+esc(it.dur)+(it.hours?' · '+esc(it.hours):'')+(it.mrt?' · '+esc(it.mrt):'')+'</div>'+
+        (O.notes&&!it.gen?'<div>'+esc(it.desc)+'</div>'+(it.tip?'<div><b>Tip:</b> '+esc(it.tip)+'</div>':''):'')+(it.warn?'<div class="pd-w">⚠ '+esc(it.warn)+'</div>':'')+'</td>'+
+        (O.how?'<td>'+(it.how?'<b>'+esc(it.how)+'</b>'+(it.steps?'<div class="pd-m">'+esc(it.steps)+'</div>':''):'<span class="pd-m">—</span>')+'</td>':'')+
+        (O.cost?'<td>'+esc(it.cost)+(it.costpp&&S.trav>1?'<div class="pd-m">'+esc(it.costpp)+' pp</div>':'')+'</td>':'')+'</tr>';
+    });
+    h+='</tbody></table>';
+    if(O.cost)h+='<div class="pd-tot"><b>Day total: '+esc(moneyDoc(d.totals.total))+'</b> <span class="pd-m">(food & tickets '+esc(moneyDoc(d.totals.food))+' · transport '+esc(moneyDoc(d.totals.trans+d.totals.inter))+' · hotel '+esc(moneyDoc(d.totals.hotel))+') · '+esc(fmtDur(d.travel))+' travelling · ends ~'+esc(fmtT(d.end))+'</span></div>';
+    h+='</section>';
+  });
+  h+='<p class="pd-m" style="margin-top:14pt">Made with '+esc(APPNAME)+' planner. Prices, hours and fares are estimates; check before you go.</p>';
+  return h;
+}
+function exportPDF(M){
+  $('#printDoc').innerHTML=printHTML(M);document.body.classList.add('printing');closeSheet();
+  const done=()=>{document.body.classList.remove('printing');$('#printDoc').innerHTML='';window.removeEventListener('afterprint',done)};
+  window.addEventListener('afterprint',done);
+  setTimeout(()=>{window.print();document.addEventListener('pointerdown',done,{once:true})},60);
+}
+/* ---- minimal .docx writer (no library) ---- */
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function zipStore(files){
+  const enc=new TextEncoder(),parts=[],cds=[];let off=0;
+  files.forEach(f=>{const name=enc.encode(f.name),data=typeof f.data==='string'?enc.encode(f.data):f.data,crc=crc32(data);
+    const lh=new DataView(new ArrayBuffer(30));lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(8,0,true);lh.setUint16(10,0,true);lh.setUint16(12,33,true);lh.setUint32(14,crc,true);lh.setUint32(18,data.length,true);lh.setUint32(22,data.length,true);lh.setUint16(26,name.length,true);lh.setUint16(28,0,true);
+    parts.push(new Uint8Array(lh.buffer),name,data);
+    const cd=new DataView(new ArrayBuffer(46));cd.setUint32(0,0x02014b50,true);cd.setUint16(4,20,true);cd.setUint16(6,20,true);cd.setUint16(8,0x0800,true);cd.setUint16(10,0,true);cd.setUint16(12,0,true);cd.setUint16(14,33,true);cd.setUint32(16,crc,true);cd.setUint32(20,data.length,true);cd.setUint32(24,data.length,true);cd.setUint16(28,name.length,true);cd.setUint32(42,off,true);
+    cds.push(new Uint8Array(cd.buffer),name);off+=30+name.length+data.length;});
+  const cdSize=cds.reduce((a,x)=>a+x.length,0),end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true);end.setUint16(8,files.length,true);end.setUint16(10,files.length,true);end.setUint32(12,cdSize,true);end.setUint32(16,off,true);
+  return new Blob([...parts,...cds,new Uint8Array(end.buffer)],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+const X=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
+function wr(t,o){o=o||{};return '<w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Microsoft JhengHei" w:cs="Calibri"/>'+(o.b?'<w:b/>':'')+(o.i?'<w:i/>':'')+(o.color?'<w:color w:val="'+o.color+'"/>':'')+'<w:sz w:val="'+(o.sz||20)+'"/></w:rPr><w:t xml:space="preserve">'+X(t)+'</w:t></w:r>'}
+function wp(runs,o){o=o||{};return '<w:p><w:pPr>'+(o.keep?'<w:keepNext/>':'')+(o.pb?'<w:pageBreakBefore/>':'')+'<w:spacing w:before="'+(o.before||0)+'" w:after="'+(o.after==null?60:o.after)+'"/></w:pPr>'+(Array.isArray(runs)?runs.join(''):runs)+'</w:p>'}
+function wcell(w,content,shade){return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/>'+(shade?'<w:shd w:val="clear" w:color="auto" w:fill="F2F2F7"/>':'')+'</w:tcPr>'+(content||wp(wr('')))+'</w:tc>'}
+function wtable(widths,rows){
+  const b='<w:tblBorders>'+['top','left','bottom','right','insideH','insideV'].map(k=>'<w:'+k+' w:val="single" w:sz="4" w:space="0" w:color="BBBBBB"/>').join('')+'</w:tblBorders>';
+  return '<w:tbl><w:tblPr><w:tblW w:w="'+widths.reduce((a,x)=>a+x,0)+'" w:type="dxa"/>'+b+'<w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="60" w:type="dxa"/><w:left w:w="90" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:right w:w="90" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>'+widths.map(w=>'<w:gridCol w:w="'+w+'"/>').join('')+'</w:tblGrid>'+
+    rows.map((r,ri)=>'<w:tr>'+(ri===0?'<w:trPr><w:tblHeader/></w:trPr>':'<w:trPr><w:cantSplit/></w:trPr>')+r.map((c,ci)=>wcell(widths[ci],c,ri===0)).join('')+'</w:tr>').join('')+'</w:tbl>';
+}
+function docxBlob(M){
+  const O=M.opts,G='666666';let body='';
+  body+=wp(wr(M.title,{b:1,sz:40}),{after:40})+wp(wr(M.range+' · '+M.sub,{color:G,sz:20}),{after:120});
+  if(O.cost)body+=wp([wr('Estimated total: '+moneyDoc(M.tot.total),{b:1,sz:22}),wr('  (food & tickets '+moneyDoc(M.tot.food)+', transport '+moneyDoc(M.tot.trans+M.tot.inter)+', hotels '+moneyDoc(M.tot.hotel)+')',{color:G})],{after:200});
+  const W=O.how&&O.cost?[1150,4550,2700,1500]:O.how?[1200,5500,3200]:O.cost?[1200,7200,1500]:[1300,8600];
+  M.days.forEach((d,ix)=>{
+    body+=wp(wr('Day '+d.n+' — '+d.date+' · '+d.city,{b:1,sz:30}),{keep:1,pb:ix>0,before:120,after:40});
+    body+=wp(wr('Start: '+d.start+' at '+d.leave+(d.hotel?' · Hotel: '+d.hotel:''),{color:G}),{keep:1,after:80});
+    const head=[wp(wr('Time',{b:1})),wp(wr('Plan',{b:1}))];if(O.how)head.push(wp(wr('Getting there',{b:1})));if(O.cost)head.push(wp(wr('Cost',{b:1})));
+    const rows=[head];
+    d.items.forEach(it=>{
+      let plan=wp([wr(it.name,{b:1,sz:21}),it.local?wr('  '+it.local,{color:G}):''],{after:20})+wp(wr(it.kind+' · '+it.dur+(it.hours?' · '+it.hours:'')+(it.mrt?' · '+it.mrt:''),{color:G,sz:18}),{after:30});
+      if(O.notes&&!it.gen){if(it.desc)plan+=wp(wr(it.desc,{sz:19}),{after:20});if(it.tip)plan+=wp([wr('Tip: ',{b:1,sz:19}),wr(it.tip,{sz:19})],{after:20})}
+      if(it.warn)plan+=wp(wr('⚠ '+it.warn,{color:'B45309',sz:18}),{after:0});
+      const row=[wp(wr(it.time,{b:1}),{after:0})+wp(wr('– '+it.end,{color:G,sz:18}),{after:0}),plan];
+      if(O.how)row.push(it.how?wp(wr(it.how,{b:1,sz:19}),{after:20})+(it.steps?wp(wr(it.steps,{color:G,sz:17}),{after:0}):''):wp(wr('—',{color:G})));
+      if(O.cost)row.push(wp(wr(it.cost,{sz:19}),{after:0})+(it.costpp&&S.trav>1?wp(wr(it.costpp+' pp',{color:G,sz:17}),{after:0}):''));
+      rows.push(row);
+    });
+    body+=wtable(W,rows);
+    if(O.cost)body+=wp([wr('Day total: '+moneyDoc(d.totals.total),{b:1}),wr('  (food & tickets '+moneyDoc(d.totals.food)+' · transport '+moneyDoc(d.totals.trans+d.totals.inter)+' · hotel '+moneyDoc(d.totals.hotel)+') · '+fmtDur(d.travel)+' travelling · ends ~'+fmtT(d.end),{color:G,sz:18})],{before:80,after:120});
+  });
+  body+=wp(wr('Made with the '+APPNAME+' planner. Prices, hours and fares are estimates; check before you go.',{color:G,sz:16,i:1}),{before:200});
+  const doc='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>'+body+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1000" w:right="1000" w:bottom="1000" w:left="1000" w:header="500" w:footer="500" w:gutter="0"/></w:sectPr></w:body></w:document>';
+  return zipStore([
+    {name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'},
+    {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'},
+    {name:'word/_rels/document.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>'},
+    {name:'word/document.xml',data:doc}
+  ]);
+}
+function exportDocx(M,scope,di){
+  const blob=docxBlob(M),u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download=APPNAME.replace(/[^A-Za-z0-9]+/g,'-')+'-itinerary'+(scope==='day'?'-day'+(di+1):'')+'.docx';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),2000);toast('Word file downloaded');
+}
+function exportSheet(){
+  const A=SHEET,di=S.active;S.exp=S.exp||{cost:true,how:true,notes:true};
+  const ck=(k,l,s)=>'<label class="row" style="cursor:pointer"><span class="tx"><span class="t">'+l+'</span>'+(s?'<span class="s">'+s+'</span>':'')+'</span><input type="checkbox" data-act="expOpt" data-k="'+k+'"'+(S.exp[k]?' checked':'')+' style="width:22px;height:22px;accent-color:var(--blue)"></label>';
+  let h='<div class="sec-h">What to export</div><div class="list"><div class="row"><div class="seg full"><button data-act="expScope" data-s="trip" class="'+(A.scope!=='day'?'on':'')+'">Whole trip ('+S.plan.length+' day'+(S.plan.length>1?'s':'')+')</button><button data-act="expScope" data-s="day" class="'+(A.scope==='day'?'on':'')+'">Day '+(di+1)+' only</button></div></div></div>';
+  h+='<div class="sec-h">Include</div><div class="list">'+ck('cost','Costs','Per stop, per day and trip totals')+ck('how','Getting there','Transport choice, time and directions between stops')+ck('notes','Notes & tips','Descriptions and tips for each place')+'</div>';
+  h+='<button class="btn-fill" data-act="expDocx">📄 Download Word (.docx)</button>';
+  h+='<button class="btn-tint" data-act="expPdf">🖨️ Save as PDF</button>';
+  h+='<p class="sec-f" style="margin-top:-8px">For PDF, your browser’s print window opens: choose <b>Save as PDF</b> as the printer (on iPhone: Share → Print → pinch out on the preview → Share → Save to Files). The Word file opens in Microsoft Word, Google Docs and Pages.</p>';
+  return {title:'Export itinerary',html:h};
 }
 
 /* ================= DRAG & DROP ================= */
