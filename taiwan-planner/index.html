@@ -1015,9 +1015,9 @@ function fromTpl(tid){
 }
 function todayISO(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
 function defState(){
-  return {v:2,startDate:todayISO(),days:14,trav:2,budget:'balanced',cur:'both',rate:530,rateDate:null,rateSrc:'default',
+  return {v:2,startDate:todayISO(),days:1,trav:2,budget:'balanced',cur:'both',rate:530,rateDate:null,rateSrc:'default',
     hotel:{saver:1500,balanced:3200,comfort:8000},custom:[],active:0,tab:'plan',dismissed:{},
-    plan:DEFAULT.map(fromTpl)};
+    plan:[Object.assign(fromTpl(DEFAULT[0]),{example:true})]};
 }
 function load(){
   try{const s=JSON.parse(localStorage.getItem(LS));
@@ -1030,7 +1030,7 @@ function settle(di){
   for(let k=0;k<25;k++){const C=computeDay(di);const late=C.items.filter(it=>it.late);if(!late.length)return;late[0].s.time=null}
 }
 function settleAll(){for(let i=0;i<S.plan.length;i++)settle(i)}
-function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function save(){try{if(S&&S.plan)S.plan.forEach(d=>{if(d.example&&d.tpl&&d.stops.length!==TPL[d.tpl].stops.length)d.example=false});localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 
 /* ================= MONEY ================= */
 function idr(nt){return Math.round(nt*S.rate/100)*100}
@@ -1447,6 +1447,7 @@ function renderPlan(){
   const di=S.active,day=S.plan[di],C=computeDay(di);
   let h=dayStrip(di);
   h+='<div class="titlebar"><div><div class="eyebrow">Day '+(di+1)+' of '+S.days+' · '+esc(REG[day.base].n)+'</div><h1 class="large">'+dateLabel(di,1)+'</h1></div><button class="circle" data-act="dayMenu" aria-label="Day options">⋯</button></div>';
+  if(day.example)h+='<div class="note info" style="margin-bottom:16px"><b>This is an example day</b> to show how the planner works. Edit any stop, or clear it and plan your own. Add more days with “＋ Add day”.<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"><button class="btn-s" data-act="clearDay" data-noconfirm="1">Clear all stops</button><button class="btn-s" data-act="delDay" data-i="'+di+'">Delete this day</button><button class="btn-s pri" data-act="keepExample">Keep it</button></div></div>';
   h+='<div class="layout"><div>';
   h+='<div class="list">'+
     row({icon:ibox('🏙️','var(--blue)'),t:'City',v:'<select class="vsel" data-act="base" aria-label="City">'+BASES.map(r=>'<option value="'+r+'"'+(r===day.base?' selected':'')+'>'+esc(REG[r].n)+'</option>').join('')+'</select>'})+
@@ -1552,7 +1553,7 @@ function renderTrip(){
   h+='<div class="list total"><div class="muted" style="font-size:15px">Estimated total</div><div class="big">'+money(tot.total)+'</div><div class="muted" style="font-size:15px;margin-top:6px">About '+moneyTxt(tot.total/S.trav)+' per person, not counting flights, shopping or a SIM.</div></div>';
   h+='<div class="list">'+row({icon:ibox('🍜','var(--red)'),t:'Food & tickets',v:money(tot.food)})+row({icon:ibox('🚇','var(--blue)'),t:'Local transport',v:money(tot.trans)})+row({icon:ibox('🚄','var(--teal)'),t:'Between cities',v:money(tot.inter)})+row({icon:ibox('🛏️','var(--gray)'),t:'Hotels',v:money(tot.hotel)})+'</div>';
   h+='<div class="sec-h">Days</div><div class="list">'+Cs.map((C,i)=>'<div class="row ir"><button class="rowmain" data-act="day" data-i="'+i+'" data-go="plan">'+ibox(String(i+1),'var(--blue)')+'<span class="tx"><span class="t">'+dateLabel(i)+' · '+esc(REG[S.plan[i].base].n)+'</span><span class="s">'+C.items.filter(x=>!x.p.gen).length+' stops · '+moneyTxt(C.total)+'</span></span><span class="chev" aria-hidden="true">›</span></button><button class="trash" data-act="delDay" data-i="'+i+'" aria-label="Delete Day '+(i+1)+'">Delete</button></div>').join('')+
-    (S.days<MAXDAYS?row({icon:ibox('＋','var(--blue)'),t:'<span class="blue">Add a day at the end</span>',act:'addDay',data:' data-i="'+(S.days-1)+'"'}):'')+'</div>';
+    (S.days<MAXDAYS?row({icon:ibox('＋','var(--blue)'),t:'<span class="blue">Add a day at the end</span>',act:'addDay',data:' data-i="'+(S.days-1)+'"'}):'')+row({icon:ibox('🗺️','var(--purple)'),t:'<span class="blue">Load the recommended 14-day route</span>',act:'loadRoute'})+'</div>';
   h+='<p class="sec-f">Deleting a day moves the later days one date earlier. Change the trip start date in Settings.</p>';
   h+='<div class="sec-h">First-timer tips</div><div class="list tips"><ul>'+
     '<li>💳 Get an <b>EasyCard (悠遊卡)</b> at the airport or any 7-Eleven. It works on the MRT, buses, local trains, YouBike and in convenience stores.</li>'+
@@ -1737,7 +1738,7 @@ function settingsSheet(){
     row({t:'<span class="blue">Export plan (.json)</span>',act:'export'})+
     '<label class="row" style="cursor:pointer"><span class="tx"><span class="t blue">Import plan</span></span><input type="file" accept="application/json" data-act="import" hidden></label>'+
     row({t:'<span class="blue">Print itinerary</span>',act:'print'})+'</div>'+
-    '<div class="list">'+row({t:'<span class="red">Reset to the recommended 14-day trip</span>',act:'reset'})+'</div>';
+    '<div class="list">'+row({t:'<span class="blue">Load the recommended 14-day route</span>',s:'Replaces your days with our full first-timer route',act:'loadRoute'})+row({t:'<span class="red">Start over with one example day</span>',act:'reset'})+'</div>';
   return {title:'Settings',html:h};
 }
 function dayMenu(){
@@ -1831,7 +1832,7 @@ function addDayAfter(i){
   toast('Day '+(i+2)+' added ('+dateLabel(i+1)+'). Pick a focus (hiking, shopping, photos…) or add stops.');
 }
 function deleteDay(i){
-  if(S.plan.length<=1){toast('Your trip needs at least one day');return}
+  if(S.plan.length<=1){if(!confirm('Delete Day 1? You’ll get an empty day to plan from scratch.'))return;S.plan=[blankDay(S.plan[0].base)];S.plan[0].stops=[];S.active=0;closeSheet();render();toast('Starting fresh with an empty day');return}
   const n=S.plan[i].stops.filter(s=>!PL[s.pid].gen).length;
   if(!confirm('Delete Day '+(i+1)+' ('+dateLabel(i)+')'+(n?' and its '+n+' stop'+(n>1?'s':''):'')+'?\nLater days move one date earlier.'))return;
   S.plan.splice(i,1);if(S.active>=i&&S.active>0)S.active--;closeSheet();render();toast('Day deleted');
@@ -1853,7 +1854,9 @@ document.addEventListener('click',e=>{
     case 'delDay':deleteDay(b.dataset.i!=null?+b.dataset.i:di);break;
     case 'dayMenu':dayMenu();break;
     case 'moveDay':{const j=di+(+b.dataset.d);if(j<0||j>=S.plan.length)return;[S.plan[di],S.plan[j]]=[S.plan[j],S.plan[di]];S.active=j;closeSheet();render();toast('Moved to Day '+(j+1));break}
-    case 'clearDay':if(confirm('Remove all stops from Day '+(di+1)+'?')){S.plan[di].stops=[];closeSheet();render()}break;
+    case 'clearDay':if(b.dataset.noconfirm||confirm('Remove all stops from Day '+(di+1)+'?')){const old=S.plan[di].stops;S.plan[di].stops=[];S.plan[di].example=false;closeSheet();render();toast('Day '+(di+1)+' cleared',()=>{S.plan[di].stops=old})}break;
+    case 'keepExample':S.plan[di].example=false;render();break;
+    case 'loadRoute':if(confirm('Replace your days with the recommended 14-day route?')){S.plan=DEFAULT.map(fromTpl);S.active=0;settleAll();closeSheet();S.tab='plan';render();toast('Recommended 14-day route loaded')}break;
     case 'tplSheet':openSheet({type:'plan',foc:b.dataset.f||'',area:S.plan[di].base});break;
     case 'plFocus':SHEET.foc=b.dataset.f;renderSheet();break;
     case 'applyTpl':{const tid=b.dataset.t,old=S.plan[di];
@@ -1911,7 +1914,7 @@ document.addEventListener('click',e=>{
     case 'rateLive':refreshRate(true);break;
     case 'print':closeSheet();setTimeout(()=>window.print(),100);break;
     case 'export':{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const l=document.createElement('a');l.href=u;l.download='taiwan-plan.json';l.click();setTimeout(()=>URL.revokeObjectURL(u),1000);break}
-    case 'reset':if(confirm('Reset to the recommended 14-day trip? Your changes will be lost.')){const keep={startDate:S.startDate,trav:S.trav,budget:S.budget,cur:S.cur,rate:S.rate,rateDate:S.rateDate,rateSrc:S.rateSrc,custom:S.custom||[]};S=Object.assign(defState(),keep);settleAll();closeSheet();render();toast('Trip reset')}break;
+    case 'reset':if(confirm('Start over with one example day? Your changes will be lost.')){const keep={startDate:S.startDate,trav:S.trav,budget:S.budget,cur:S.cur,rate:S.rate,rateDate:S.rateDate,rateSrc:S.rateSrc,custom:S.custom||[]};S=Object.assign(defState(),keep);settleAll();closeSheet();render();toast('Started over')}break;
   }
 });
 document.addEventListener('change',e=>{
